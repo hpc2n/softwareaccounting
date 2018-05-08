@@ -18,6 +18,7 @@ class Output(sams.base.Output):
         for k,v in data.items():
             if k in self.exclude:
                 continue
+            logger.debug("Store data for: %s => %s" % (k,v))
             self.data[k] = v
         
     def write(self):        
