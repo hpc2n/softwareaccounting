@@ -74,6 +74,10 @@ class OneToN(threading.Thread):
             for q in self.outQueue:
                 q.put(value)
             self._lock.release()
+            self.inQueue.task_done()
+
+        for q in self.outQueue:
+            q.join()
 
     def addQueue(self,queue):
         """ Add an new output queue """
