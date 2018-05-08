@@ -8,11 +8,11 @@ core:
   loglevel: INFO
 
 sams.loader.File:
-  in_path: /scratch/SAMS/data
-  archive_path: /tmp/sa-archive
+  in_path: /data/softwareaccounting/data
+  archive_path: /data/softwareaccounting/archive
   file_pattern: '^.*\.json$'
 
 sams.aggregator.SoftwareAccounting:
   jobid_hash_size: 300000000
   file_pattern: "sa-%(jobid_hash)d.db"
-  db_path: /scratch
+  db_path: /data/softwareaccounting/db
