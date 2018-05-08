@@ -101,6 +101,7 @@ class Sampler(sams.base.Sampler):
         return int(min(p.starttime for p in procs))
 
     def final_data(self):
+        logger.debug("%s final_data" % self.id)
         aggr = {}
         total = { 'user': 0.0, 'system': 0.0 }
         for a in [p.aggregate() for p in filter(lambda p: not p.ignore, self.processes.values())]:
