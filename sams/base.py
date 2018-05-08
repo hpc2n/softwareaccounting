@@ -42,8 +42,10 @@ class Sampler(threading.Thread):
             try:
                 pids = self.pidQueue.get(timeout = self.config.get([self.id,"sampler_interval"],60))
                 if not pids:
+                    self.pidQueue.task_done()
                     break
                 self.pids.extend(pids)
+                self.pidQueue.task_done()
             except queue.Empty as e:
                 pass
             if len(self.pids) > 0:
