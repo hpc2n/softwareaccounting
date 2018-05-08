@@ -50,7 +50,10 @@ class Sampler(threading.Thread):
                 logger.debug("%s queue.Empty timeout" % self.id)
                 pass
             if len(self.pids) > 0:
-                self.sample()
+                try:
+                    self.sample()
+                except Exception as e:
+                    logger.error("Failed to do self.final in %s",self.id)
             
         self.outQueue.put({
                 'id': self.id,
