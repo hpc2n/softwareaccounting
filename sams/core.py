@@ -67,6 +67,7 @@ class OneToN(threading.Thread):
         """ Thread that forwards data from inQueue to outQueue[] """
         while True:
             value = self.inQueue.get()
+            logger.debug("%s received: %s" % (self.id,value))
             if value is None:
                 break
             # Lock the outQueue so that is will not change during sending.
@@ -76,8 +77,10 @@ class OneToN(threading.Thread):
             self._lock.release()
             self.inQueue.task_done()
 
+        logger.debug("%s is waiting for outQueue to be done" % self.id)
         for q in self.outQueue:
             q.join()
+        logger.debug("%s is done" % self.id)
 
     def addQueue(self,queue):
         """ Add an new output queue """
@@ -88,10 +91,12 @@ class OneToN(threading.Thread):
 
     def put(self,value):
         """ Put value into the queue """
+        logger.debug("%s put(%s)" % (self.id,value))
         self.inQueue.put(value)
 
     def exit(self):
         """ Enters an None value into the queue to exit """
+        logger.debug("%s got exit message" % self.id)
         self.inQueue.put(None)
         self.join()
 
