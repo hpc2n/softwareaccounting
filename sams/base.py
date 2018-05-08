@@ -47,6 +47,7 @@ class Sampler(threading.Thread):
                 self.pids.extend(pids)
                 self.pidQueue.task_done()
             except queue.Empty as e:
+                logger.debug("%s queue.Empty timeout" % self.id)
                 pass
             if len(self.pids) > 0:
                 self.sample()
@@ -69,6 +70,7 @@ class Sampler(threading.Thread):
         raise Exception("Not implemented")
 
     def exit(self):
+        logger.debug("%s exit" % self.id)
         self.pidQueue.put(None)
 
 class Aggregator(object):
