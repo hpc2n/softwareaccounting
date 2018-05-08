@@ -95,16 +95,20 @@ class Main:
         self.exit.set()
 
     def cleanup(self):
+        # Tell all samplers to exit
         for s in self.samplers:
             s.exit()
 
+        # Wait for all samplers to finish
         for s in filter(lambda t: t.isAlive(),self.samplers):
             s.join()
 
+        # Tell all output to exit
         for o in self.outputs:
             o.exit()
 
-        for o in filter(lambda t: t.isAlive(),self.samplers):
+        # Wait for all outputs to finish
+        for o in filter(lambda t: t.isAlive(),self.outputs):
             o.join()
 
         # exit queues
