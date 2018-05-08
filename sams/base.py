@@ -56,6 +56,7 @@ class Sampler(threading.Thread):
                     logger.error("Failed to do self.final in %s",self.id)
             
         self.store(self.final_data(),'final')
+        self.outQueue.join()
     
     def store(self,data,type='now'):
         self.outQueue.put({
@@ -115,6 +116,7 @@ class Output(threading.Thread):
         while True:
             data = self.dataQueue.get()
             if data is None:
+                self.dataQueue.task_done()
                 break
             self.store({ data['id']: data['data'] })
             if 'type' in data and data['type'] == 'final':
