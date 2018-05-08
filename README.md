@@ -6,6 +6,32 @@ python3-json
 python3-httplib2
 python3-flask	(for sams-post-receiver.py)
 
+# Usage:
+
+## On cluster nodes.
+
+In slurm prolog start
+
+	sams-collector.py --config=/path/config.yaml --jobid=$SLURM_JOB_ID
+
+The sams-collector needs to run as root.
+
+In slurm epilog kill -HUP.
+
+If HUP i missing the collector will exit after ~10 minutes without jobs.
+
+## Aggregator
+
+On server run the aggregator on the files received either on shared filessystem
+with the sams.output.File module or via http/https via the sams.output.Http module.
+
+sams.output.Http needs an post receiver for example the sams-post-receiver.py.
+Security for sams-post-receiver.py should be provided with for example an nginx 
+reverse proxy with client certificate and/or user/password.
+
+sams.output.File can write on root-squash filesystems using the setfsuid() syscall on Linux.
+This seems to not work on Lustre file systems.
+
 # nginx setup for sams-post-reciver.py
 
   server {
@@ -40,3 +66,4 @@ python3-flask	(for sams-post-receiver.py)
         proxy_read_timeout 900;
     }
   }
+
