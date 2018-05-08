@@ -1,0 +1,18 @@
+---
+core:  
+  loaders:
+    - sams.loader.File
+  aggregators:
+    - sams.aggregator.SoftwareAccounting
+
+  loglevel: INFO
+
+sams.loader.File:
+  in_path: /scratch/SAMS/data
+  archive_path: /tmp/sa-archive
+  file_pattern: '^.*\.json$'
+
+sams.aggregator.SoftwareAccounting:
+  jobid_hash_size: 300000000
+  file_pattern: "sa-%(jobid_hash)d.db"
+  db_path: /scratch
