@@ -55,17 +55,13 @@ class Sampler(threading.Thread):
                 except Exception as e:
                     logger.error("Failed to do self.final in %s",self.id)
             
-        self.outQueue.put({
-                'id': self.id,
-                'data': self.final_data(),
-                'type': 'final'
-            })
+        self.store(self.final_data(),'final')
     
-    def store(self,data):
+    def store(self,data,type='now'):
         self.outQueue.put({
                 'id': self.id,
                 'data': data,
-                'type': 'now'
+                'type': type
             })
 
     # this should be implemented in the real Sampler..
