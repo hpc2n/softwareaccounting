@@ -120,9 +120,19 @@ class Output(threading.Thread):
                 break
             self.store({ data['id']: data['data'] })
             if 'type' in data and data['type'] == 'final':
-                self.final({ data['id']: data['data'] })
-        # TODO retry at least 3 times..                
-        self.write()
+                try:
+                    self.final({ data['id']: data['data'] })
+                except Exception as e:
+                    logger.error("Failed to do self.final in %s",self.id)
+            self.dataQueue.task_done()
+
+        for t in range(int(self.config.get([self.id,'retry_count'],3))):
+            try:
+                self.write()
+                break
+            except Exception as e:
+                logger.error("Failed to do self.write in %s",self.id)
+            time.sleep(int(self.config.get([self.id,'retry_sleep'],3)))
 
     def store(self,data):
         raise Exception("Not implemented")
