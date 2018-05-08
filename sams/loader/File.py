@@ -10,18 +10,14 @@ import logging
 logger = logging.getLogger(__name__)
 
 class Loader(sams.base.Loader):
-    in_path = None
-    archive_path = None
-    file_pattern = None
-
-    files = []
-    current_file = None
-
+    
     def __init__(self,id,config):
         super().__init__(id,config)
         self.in_path = self.config.get([self.id,'in_path'])
         self.archive_path = self.config.get([self.id,'archive_path'])
         self.file_pattern = re.compile(self.config.get([self.id,'file_pattern'],"^.*$"))
+        self.files = []
+        self.current_file = None
 
     def load(self):
         """ Find files in in_path matching file_pattern """
@@ -52,5 +48,18 @@ class Loader(sams.base.Loader):
     def commit(self):
         """ move file from in_path -> archive_path/ """
         logger.info("Commit: %s" % os.path.join(self.current_file['path'],self.current_file['file']))
+
+        out_path = os.path.join(self.archive_path,self.current_file['path'])
+        if not os.path.isdir(out_path):
+            try:
+                os.mkdir(out_path)
+            except IOError as err:
+                # Handle possible raise from other process
+                if not os.path.isdir(out_path):
+                    assert False, "Failed to mkdir '%s' " % out_path
+
+        os.rename(os.path.join(self.in_path,self.current_file['path'],self.current_file['file']),
+                  os.path.join(out_path,self.current_file['file']))
+
         self.current_file = None
         pass
