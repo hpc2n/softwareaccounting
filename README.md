@@ -14,7 +14,7 @@ In slurm prolog start
 
 	sams-collector.py --config=/path/config.yaml --jobid=$SLURM_JOB_ID
 
-The sams-collector needs to run as root.
+The sams-collector needs to run as root. 
 
 In slurm epilog kill -HUP.
 
@@ -67,3 +67,26 @@ This seems to not work on Lustre file systems.
     }
   }
 
+# systemd
+
+Starting and stopping the software accounting with
+systemd is easy
+
+
+create the file: /etc/systemd/system/softwareaccounting@.service
+wit the following content:
+'''
+[Unit]
+Description=SAMS Software Accounting (%i)
+
+[Service]
+Environment=PYTHONPATH=/lap/softwareaccounting/lib/python3.5/site-packages
+PIDFile=/var/run/software-accounting.%i.pid
+ExecStart=/lap/softwareaccounting/bin/sams-collector.py --jobid=%i --config=/etc/slurm/softwareaccounting.yaml
+KillSignal=SIGHUP
+KillMode=process
+'''
+
+To start the accounting process just run: systemctl start softwareaccounting@${SLURM_JOB_ID}.service
+in the slurm prolog and put: systemctl stop softwareaccounting@${SLURM_JOB_ID}.service
+in the slurm epilog.
