@@ -14,6 +14,7 @@ class Process():
         self.clock_tics = os.sysconf(os.sysconf_names['SC_CLK_TCK'])
         self.starttime = time.time()
         self.ignore = False
+        self.done = False
 
         try:
             self.exe = os.readlink('/proc/%d/exe' % self.pid)
@@ -35,6 +36,9 @@ class Process():
     def update(self,uptime):
         """ Update information about pids """
 
+        if self.done:
+            return
+
         self.uptime = uptime
 
         try:
@@ -43,6 +47,7 @@ class Process():
         except IOError as err:
             # Ignore if no tasks exists anymore (missing pid)
             logger.debug("No pids left/or no pids yet, should not happen")
+            self.done = True
             return
         
         for task in tasks:
@@ -57,6 +62,7 @@ class Process():
                     
             except IOError as err:
                 logger.debug("Ignore missing task for pid: %d", self.pid)
+                self.done = True
                 # Ignore missing task (or pid)
                 pass
 
