@@ -63,7 +63,7 @@ class Sampler(sams.base.Sampler):
             with open(os.path.join(self.cgroup_base,type,self.cgroup,id),"r") as file:
                 return file.readline().strip()
         except IOError as err:
-            logger.error("Failed to open %s for reading",os.path.join(self.cgroup_base,type,self.cgroup,id))
+            logger.debug("Failed to open %s for reading",os.path.join(self.cgroup_base,type,self.cgroup,id))
             return ""
 
     def final_data(self):
