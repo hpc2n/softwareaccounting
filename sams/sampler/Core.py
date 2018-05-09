@@ -9,10 +9,10 @@ logger = logging.getLogger(__name__)
 class Sampler(sams.base.Sampler):
     core = None
 
-    def sample(self):
-        if self.core:
-            return
+    def do_sample(self):
+        return self.core is None
 
+    def sample(self):
         logger.debug("sample()")
 
         self.core = {
