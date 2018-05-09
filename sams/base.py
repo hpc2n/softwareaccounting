@@ -49,13 +49,16 @@ class Sampler(threading.Thread):
             except queue.Empty as e:
                 logger.debug("%s queue.Empty timeout" % self.id)
                 pass
-            if len(self.pids) > 0:
-                try:
+            try:
+                if self.do_sample():
                     self.sample()
-                except Exception as e:
-                    logger.error("Failed to do self.final in %s",self.id)
+            except Exception as e:
+                logger.exception("Failed to do self.sample in %s" % self.id,e)
             
-        self.store(self.final_data(),'final')
+        try:
+            self.store(self.final_data(),'final')
+        except Exception as e:
+            logger.exception("Failed to do self.final_data in %s" % self.id,e)
         self.outQueue.join()
     
     def store(self,data,type='now'):
@@ -68,6 +71,9 @@ class Sampler(threading.Thread):
     # this should be implemented in the real Sampler..
     def sample(self):
         raise Exception("Not implemented")
+
+    def do_sample(self):
+        return len(self.pids) > 0
 
     def exit(self):
         logger.debug("%s exit" % self.id)
