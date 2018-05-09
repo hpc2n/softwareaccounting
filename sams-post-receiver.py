@@ -68,7 +68,7 @@ class Options():
             self.usage()
             sys.exit(2)
 
-        self.config = '/etc/sams/sams-aggregator.yaml'
+        self.config = '/etc/sams/sams-post-receiver.yaml'
         self.logfile = None
         self.loglevel = None
         
