@@ -3,4 +3,4 @@ core:
   base_path: /data/softwareaccounting/data
   jobid_hash_size: 1000
   # logfile: /tmp/logfile.%(jobid)s.%(node)s.log
-  loglevel: DEBUG
+  loglevel: ERROR
