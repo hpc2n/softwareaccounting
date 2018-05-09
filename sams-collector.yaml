@@ -6,7 +6,7 @@ core:
     - sams.sampler.Core
     - sams.sampler.Software
     - sams.sampler.SlurmInfo
-    - sams.sampler.SlurmCGroup
+    # - sams.sampler.SlurmCGroup
   outputs:
     - sams.output.Http
 
@@ -30,7 +30,7 @@ sams.output.File:
   file_pattern: "%(jobid)s.%(node)s.json"
   jobid_hash_size: 1000
   # write_as_uid: 2066
-  exclude: ['sams.sampler.CGroup']
+  exclude: ['sams.sampler.SlurmCGroup']
 
 sams.output.Http:
   uri: "https://etui.hpc2n.umu.se:8443/%(jobid_hash)d/%(filename)s"
@@ -39,4 +39,4 @@ sams.output.Http:
   cert_file: /etc/grid-security/accounting.swegrid.se.cert.pem
   username: 'sams'
   password: 'sams'
-  exclude: ['sams.sampler.CGroup']
+  exclude: ['sams.sampler.SlurmCGroup']
