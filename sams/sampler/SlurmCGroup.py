@@ -12,10 +12,10 @@ class Sampler(sams.base.Sampler):
     cgroup_base = '/sys/fs/cgroup'
     cgroup = None
 
-    def sample(self):
-        if self._get_cgroup():
-            return
+    def do_sample(self):
+        return self._get_cgroup()
 
+    def sample(self):
         logger.debug("sample()")
 
         cpus = self._cpucount(self.read_cgroup('cpuset','cpuset.cpus'))
@@ -33,17 +33,18 @@ class Sampler(sams.base.Sampler):
     def _get_cgroup(self):
         """ Get the cgroup base path for the slurm job """
         if self.cgroup:
-            return False
-        try:
-            with open("/proc/%d/cpuset" % self.pids[0],"r") as file:
-                cpuset = file.readline()
-                m = re.search(r'^/(slurm/uid_\d+/job_\d+)/',cpuset)
-                if m:
-                    self.cgroup = m.group(1)
-                    return False
-        except IOError as e:
-            logger.debug("Failed to fetch cpuset for pid: %d", self.pids[0])
             return True
+        for pid in self.pids:
+            try:
+                with open("/proc/%d/cpuset" % pid,"r") as file:
+                    cpuset = file.readline()
+                    m = re.search(r'^/(slurm/uid_\d+/job_\d+)/',cpuset)
+                    if m:
+                        self.cgroup = m.group(1)
+                        return True
+            except IOError as e:
+                logger.debug("Failed to fetch cpuset for pid: %d", self.pids[0])
+        return False
 
     def _cpucount(self,count):
         """ Calculate number of cpus from a "N,N-N"-structure """
