@@ -11,7 +11,7 @@ core:
     - sams.output.Http
 
   # logfile: /tmp/logfile.%(jobid)s.%(node)s.log
-  loglevel: INFO
+  loglevel: ERROR
 
 sams.pidfinder.SlurmPID:
   grace_period: 600
