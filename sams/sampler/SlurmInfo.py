@@ -12,20 +12,16 @@ COMMAND="%s show job %d -o"
 class Sampler(sams.base.Sampler):
     data = {}
 
-    def _got_all(self):
+    def do_sample(self):
         if ( 'account' in self.data and 
                 'cpus' in self.data and
                 'nodes' in self.data and
                 'username' in self.data and
                 'uid' in self.data ):
-            return True
-        return False
+            return False
+        return True
 
     def sample(self):
-
-        if self._got_all():
-            return
-
         logger.debug("sample()")
 
         scontrol=self.config.get([self.id,'scontrol'],'/usr/local/bin/scontrol')
