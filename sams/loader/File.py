@@ -58,6 +58,7 @@ class Loader(sams.base.Loader):
                 if not os.path.isdir(out_path):
                     assert False, "Failed to mkdir '%s' " % out_path
 
+        # Rename file to archive directory
         os.rename(os.path.join(self.in_path,self.current_file['path'],self.current_file['file']),
                   os.path.join(out_path,self.current_file['file']))
 
