@@ -5,7 +5,7 @@ core:
   aggregators:
     - sams.aggregator.SoftwareAccounting
 
-  loglevel: INFO
+  loglevel: ERROR
 
 sams.loader.File:
   in_path: /data/softwareaccounting/data
