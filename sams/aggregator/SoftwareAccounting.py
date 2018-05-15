@@ -38,7 +38,8 @@ TABLES = [
         path            TEXT NOT NULL,
         software        TEXT,
         version         TEXT,
-        versionstr      TEXT
+        versionstr      TEXT,
+        user_provided   BOOLEAN
     );
     ''',
     '''
