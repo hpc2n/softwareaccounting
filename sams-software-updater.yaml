@@ -1,0 +1,55 @@
+---
+core:
+  loglevel: ERROR
+
+  backend: sams.backend.SoftwareAccounting
+  updater: sams.software.Regexp
+
+sams.backend.SoftwareAccounting:
+  file_pattern: 'sa-\d+.db'
+  db_path: /data/softwareaccounting/db
+
+sams.software.Regexp:
+  rules:
+    - match: '^/lap/(?P<software>[^/]+)/'
+      software: lap
+      version: "%(software)s"
+      versionstr: ""
+    - match: '^/usr/'
+      software: system
+      version: "/usr/"
+      versionstr: ""
+    - match: '^/(?P<path>s?bin)/'
+      software: "system"
+      version: "/%(path)s/"
+      versionstr: ""
+    - match: '^/pfs/nobackup/home/./(?P<username>[^/]+)/'
+      software: "user_pfs"
+      version: "%(username)s"
+      versionstr: ""
+      user_provided: true
+    - match: '^/afs/hpc2n.umu.se/home/./(?P<username>[^/]+)/'
+      software: "user_afs"
+      version: "%(username)s"
+      versionstr: ""
+      user_provided: true
+    - match: '^/pfs/software/eb/[^/]+/software/Core/(?P<software>[^/]+)/(?P<version>[^/]+)/'
+      software: "%(software)s"
+      version: "%(version)s"
+      versionstr: "Core/%(software)s/%(version)s"
+    - match: '^/pfs/software/eb/[^/]+/software/Compiler/(?P<vstr>[^/]+/[^/]+)/(?P<software>[^/]+)/(?P<version>[^/]+)'
+      software: "%(software)s"
+      version: "%(version)s"
+      versionstr: "Core/%(vstr)s/%(software)s/%(version)s"
+    - match: '^/pfs/software/eb/[^/]+/software/MPI/(?P<vstr>[^/]+/[^/]+/[^/]+/[^/]+)/(?P<software>[^/]+)/(?P<version>[^/]+)'
+      software: "%(software)s"
+      version: "%(version)s"
+      versionstr: "MPI/%(vstr)s/%(software)s/%(version)s"
+    - match: '^/pfs/software/eb/[^/]+/software/MPI/(?P<vstr>[^/]+/[^/]+/[^/]+/[^/]+)/(?P<software>[^/]+)/(?P<version>[^/]+)'
+      software: "%(software)s"
+      version: "%(version)s"
+      versionstr: "MPI/%(vstr)s/%(software)s/%(version)s"
+    - match: '^/var/lib/singularity/'
+      software: "singularity"
+      version: ""
+      versionstr: ""
