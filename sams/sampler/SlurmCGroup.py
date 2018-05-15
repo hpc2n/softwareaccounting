@@ -7,10 +7,12 @@ import logging
 logger = logging.getLogger(__name__)
 
 class Sampler(sams.base.Sampler):
-    processes = {}
-
     cgroup_base = '/sys/fs/cgroup'
-    cgroup = None
+
+    def __init__(self,id,outQueue,config):
+        super().__init__(id,outQueue,config)
+        self.processes = {}
+        self.cgroup = None
 
     def do_sample(self):
         return self._get_cgroup()
