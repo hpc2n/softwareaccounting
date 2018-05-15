@@ -106,6 +106,28 @@ class Loader(object):
 
     def commit(self):
         raise Exception("Not implemented")
+
+class Backend(object):
+    """ Backend base class """
+
+    def __init__(self,id,config):
+        super().__init__()
+        self.id = id
+        self.config = config
+
+    def update(self,updater):
+        raise Exception("Not implemented")
+
+class Software(object):
+    """ Software base class """
+
+    def __init__(self,id,config):
+        super().__init__()
+        self.id = id
+        self.config = config
+
+    def update(self):
+        raise Exception("Not implemented")
         
 class Output(threading.Thread):
     """ Output base class """
