@@ -1,5 +1,6 @@
 import sqlite3
 import os
+import re
 import sams.base
 
 import logging
@@ -18,7 +19,7 @@ class Backend(sams.base.Backend):
     def __init__(self,id,config):
         super().__init__(id,config)
         self.db_path = self.config.get([self.id,'db_path'])
-        self.file_pattern = self.config.get([self.id,'file_pattern'],"sa-\d+.db")
+        self.file_pattern = re.compile(self.config.get([self.id,'file_pattern'],"sa-\d+.db"))
 
     def _open_db(self,db):
         """ Open database object """
@@ -27,8 +28,10 @@ class Backend(sams.base.Backend):
         return dbh
 
     def get_databases(self):
-        return ['/data/softwareaccounting/kebnekaise/db/sa-99.db',
-                '/data/softwareaccounting/abisko/db/sa-99.db']
+        dbs = [file for file in os.listdir(self.db_path)]
+        dbs = filter(lambda file: self.file_pattern.match(file),dbs)
+        dbs = map(lambda file: os.path.join(self.db_path,file), dbs)        
+        return list(dbs)
 
     def update(self,software):
         """ Information aggregate method """
