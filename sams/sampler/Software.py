@@ -82,6 +82,8 @@ class Sampler(sams.base.Sampler):
         super().__init__(id,outQueue,config)
         self.processes = {}
         self.create_time = time.time()
+        self.last_sample_time = None
+        self.last_total = None
 
     def sample(self):
         logger.debug("sample()")
@@ -93,6 +95,20 @@ class Sampler(sams.base.Sampler):
             if not pid in self.processes.keys():
                 self.processes[pid] = Process(pid,self.jobid)
             self.processes[pid].update(uptime)
+
+        # Send information about current usage 
+        aggr,total = self._aggregate()
+        if self.last_sample_time:            
+            time_diff = time.time()-self.last_sample_time
+            self.store({
+                'current': {
+                    'user': (total['user']-self.last_total['user'])/time_diff,
+                    'system': (total['system']-self.last_total['system'])/time_diff
+                }
+            })
+
+        self.last_total = total
+        self.last_sample_time = time.time()
 
     def last_updated(self):
         procs = list(filter(lambda p: not p.ignore,self.processes.values()))
@@ -106,8 +122,7 @@ class Sampler(sams.base.Sampler):
             return 0
         return int(min(p.starttime for p in procs))
 
-    def final_data(self):
-        logger.debug("%s final_data" % self.id)
+    def _aggregate(self):
         aggr = {}
         total = { 'user': 0.0, 'system': 0.0 }
         for a in [p.aggregate() for p in filter(lambda p: not p.ignore, self.processes.values())]:
@@ -118,7 +133,11 @@ class Sampler(sams.base.Sampler):
             aggr[exe]['system'] += a['system']
             total['user'] += a['user']
             total['system'] += a['system']
+        return (aggr,total)
 
+    def final_data(self):
+        logger.debug("%s final_data" % self.id)
+        aggr,total = self._aggregate()
         return { 
             'execs': aggr,
             'start_time': self.start_time(),
