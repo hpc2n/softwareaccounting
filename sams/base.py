@@ -146,12 +146,15 @@ class Output(threading.Thread):
             if data is None:
                 self.dataQueue.task_done()
                 break
-            self.store({ data['id']: data['data'] })
+            try:
+                self.store({ data['id']: data['data'] })
+            except:
+                logger.exception("Failed to store",e)
             if 'type' in data and data['type'] == 'final':
                 try:
                     self.final({ data['id']: data['data'] })
                 except Exception as e:
-                    logger.error("Failed to do self.final in %s",self.id)
+                    logger.exception("Failed to do self.final in %s" % self.id,e)
             self.dataQueue.task_done()
 
         for t in range(int(self.config.get([self.id,'retry_count'],3))):
@@ -159,7 +162,7 @@ class Output(threading.Thread):
                 self.write()
                 break
             except Exception as e:
-                logger.error("Failed to do self.write in %s",self.id)
+                logger.exception("Failed to do self.write in %s" % self.id,e)
             time.sleep(int(self.config.get([self.id,'retry_sleep'],3)))
 
     def store(self,data):
