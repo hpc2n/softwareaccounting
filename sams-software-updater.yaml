@@ -7,7 +7,7 @@ core:
 
 sams.backend.SoftwareAccounting:
   file_pattern: 'sa-\d+.db'
-  db_path: /data/softwareaccounting/db
+  db_path: /data/softwareaccounting/CLUSTER/db
 
 sams.software.Regexp:
   rules:
