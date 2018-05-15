@@ -6,14 +6,16 @@ core:
     - sams.sampler.Core
     - sams.sampler.Software
     - sams.sampler.SlurmInfo
-    # - sams.sampler.SlurmCGroup
+    - sams.sampler.SlurmCGroup
   outputs:
     - sams.output.Http
+    - sams.output.File
+    - sams.output.Carbon
 
   # logfile: /tmp/logfile.%(jobid)s.%(node)s.log
   loglevel: ERROR
 
-sams.pidfinder.SlurmPID:
+sams.pidfinder.Slurm:
   grace_period: 600
 
 sams.sampler.SlurmInfo:
@@ -22,7 +24,7 @@ sams.sampler.SlurmInfo:
 sams.sampler.Software:
   sampler_interval: 30
 
-sams.sampler.CGroup:
+sams.sampler.SlurmCGroup:
   sampler_interval: 10
 
 sams.output.File:
@@ -40,3 +42,20 @@ sams.output.Http:
   username: 'sams'
   password: 'sams'
   exclude: ['sams.sampler.SlurmCGroup']
+
+sams.output.Carbon:
+  server: fot-kvm.hpc2n.umu.se
+  port: 2003
+
+  map:
+    jobid: sams.sampler.Core/jobid
+    node: sams.sampler.Core/node
+
+  static_map:
+    cluster: kebnekaise
+
+  metrics:
+    'sams.sampler.SlurmCGroup/cpus' : 'sa/%(cluster)s/%(jobid)s/%(node)s/cpus'
+    'sams.sampler.SlurmCGroup/memory_usage' : 'sa/%(cluster)s/%(jobid)s/%(node)s/memory_usage'
+    'sams.sampler.SlurmCGroup/memory_limit' : 'sa/%(cluster)s/%(jobid)s/%(node)s/memory_limit'
+    'sams.sampler.SlurmCGroup/memory_max_usage' : 'sa/%(cluster)s/%(jobid)s/%(node)s/memory_max_usage'
