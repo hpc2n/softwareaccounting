@@ -2,7 +2,8 @@
 Fetches Metrics from Slurm CGroup command
 
 Config options:
-[sams.sampler.SlurmCGroup]
+
+sams.sampler.SlurmCGroup:
     # in seconds
     sampler_interval: 100
 

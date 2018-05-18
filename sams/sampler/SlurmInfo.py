@@ -2,7 +2,8 @@
 Fetches Metrics from Slurm command
 
 Config options:
-[sams.sampler.SlurmInfo]
+
+sams.sampler.SlurmInfo:
     # in seconds
     sampler_interval: 100
 

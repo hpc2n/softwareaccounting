@@ -2,7 +2,8 @@
 Posts output using web service.
 
 Config Options:
-[sams.output.Http]  
+
+sams.output.Http:
   # uri to write to.  
   # Available data for replace is: jobid, node & jobid_hash
   uri: "https://etui.hpc2n.umu.se:8443/%(jobid_hash)d/%(jobid)s.%(node)s.yaml"

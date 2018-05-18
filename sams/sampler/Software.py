@@ -2,7 +2,8 @@
 Fetches Metrics from Slurm command
 
 Config options:
-[sams.sampler.Software]
+
+sams.sampler.Software:
     # in seconds
     sampler_interval: 100
 

@@ -2,7 +2,8 @@
 Write outputs into the file system
 
 Config Options:
-[sams.output.File]
+
+sams.output.File:
   # Path where the output files are written.
   base_path: /scratch/softwareaccounting/data
 

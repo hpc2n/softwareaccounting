@@ -2,7 +2,8 @@
 Saves core information about a job from the collector command line options.
 
 Config options:
-[sams.sampler.Core]
+
+sams.sampler.Core:
     # in seconds
     sampler_interval: 100
 

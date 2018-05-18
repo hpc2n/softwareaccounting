@@ -2,7 +2,8 @@
 Fetches Metrics from nvidia-smi command
 
 Config options:
-[sams.sampler.NvidiaSMI]
+
+sams.sampler.NvidiaSMI:
     # in seconds
     sampler_interval: 100
 

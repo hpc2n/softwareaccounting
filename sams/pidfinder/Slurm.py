@@ -2,7 +2,8 @@
 Pid finder using the slurm cgroup information in /proc
 
 Config options:
-[sams.pidfinder.Slurm]
+
+sams.pidfinder.Slurm:
     # How long to wait (in seconds) after process was removed.
     grace_period: 600
 

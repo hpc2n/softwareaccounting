@@ -2,7 +2,8 @@
 Matches a path using an regexp rule into a software
 
 Config Options:
-[sams.software.Regexp]
+
+sams.software.Regexp:
     rules:
         # Things matched in "match" can used in software, version and versionstr to update
         # the items.

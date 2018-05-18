@@ -2,7 +2,8 @@
 Sends output from Samplers to carbon server
 
 Config Options:
-[sams.output.Carbon]
+
+sams.output.Carbon:
     server: carbon.server.example.com
     port: 2003
 
