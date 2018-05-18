@@ -25,6 +25,7 @@ Config Options:
 import sams.base
 import time
 import socket
+import re
 
 import logging
 logger = logging.getLogger(__name__)
@@ -44,6 +45,16 @@ class Output(sams.base.Output):
         # UDP Socket
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
+    def dict2str(self,dct,base="",delim="/"):   
+        out = []
+        for key in dct.keys():
+            nb = "/".join([base,key])
+            if key in dct and type(dct[key]) is dict:
+                out = out + self.dict2str(dct[key],base=nb)
+            else:
+                out = out + [{'match': nb, 'value':dct[key]}]
+        return out
+
     def safe_metric(self, dct, keys):        
         for key in keys:
             if key in dct:
@@ -57,15 +68,19 @@ class Output(sams.base.Output):
         for k,v in data.items():
             self.data[k] = v
 
-        for metric,destination in self.metrics.items():
-            m = self.safe_metric(data,metric.split('/'))            
-            if m:
-                logger.debug("M is %s" % m)
-                self.send(m,destination)
+        flatdict = self.dict2str(data)
+        for d in flatdict:
+            for metric,destination in self.metrics.items():                
+                reg = re.compile(metric)
+                m = reg.match(d['match'])
+                if m:
+                    di = m.groupdict()
+                    self.send(d['value'],destination,di)
 
 
-    def send(self,value,destination):
+    def send(self,value,destination,di):
         d = self.static_map.copy()
+        d.update(di)
         for k,v in self.map.items():
             m = self.safe_metric(self.data,v.split('/'))
             if not v:                
