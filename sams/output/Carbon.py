@@ -1,4 +1,27 @@
+"""
+Sends output from Samplers to carbon server
 
+Config Options:
+[sams.output.Carbon]
+    server: carbon.server.example.com
+    port: 2003
+
+    # Fetches the value from dict-value and put into dict-key
+    # This can be used in the 'metrics' dict-value with %(key)s
+    map:
+        jobid: sams.sampler.Core/jobid
+        node: sams.sampler.Core/node
+
+    # Sets the value from dict-value and put into dict-key
+    # This can be used in the 'metrics' dict-value with %(key)s
+    static_map:
+        cluster: kebnekaise
+
+    # Metrics matching dict-key will be sent to carbon server as dict-value
+    metrics:    
+        '^sams.sampler.SlurmCGroup/(?P<metric>\S+)$' : 'sa/%(cluster)s/%(jobid)s/%(node)s/%(metric)s'
+
+"""
 import sams.base
 import time
 import socket
