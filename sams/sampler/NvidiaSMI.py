@@ -88,7 +88,7 @@ class Sampler(sams.base.Sampler):
         self.smi = None
         if self.gpustr:
             gpus=self.gpustr.split(",")
-            self.smi = SMI(gpus=gpus,t=self.sampler_interval,command=)
+            self.smi = SMI(gpus=gpus,t=self.sampler_interval,command=self.nvidia_smi_command)
             self.smi.start()
 
     def do_sample(self):
