@@ -51,12 +51,15 @@ setup(name='sams-software-accounting',
       author_email='magnus@hpc2n.umu.se',
       url='http://www.hpc2n.umu.se/',      
       packages=['sams','sams.aggregator','sams.loader','sams.output','sams.pidfinder','sams.sampler'],
-      scripts = ['sams-aggregator.py','sams-collector.py','sams-post-receiver.py'],
+      scripts = ['sams-aggregator.py','sams-collector.py','sams-post-receiver.py',
+                 'sams-post-receiver.py','sams-software-updater.py'],
       cmdclass = cmdclasses,
 
       data_files = [
         ('etc/sams', ['sams-aggregator.yaml']),
         ('etc/sams', ['sams-collector.yaml']),
+        ('etc/sams', ['sams-post-receiver.yaml']),
+        ('etc/sams', ['sams-software-updater.yaml']),
         ('etc/sams', ['sams-post-receiver.yaml']),
       ]
 
