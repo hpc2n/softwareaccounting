@@ -55,7 +55,4 @@ sams.output.Carbon:
     cluster: kebnekaise
 
   metrics:
-    'sams.sampler.SlurmCGroup/cpus' : 'sa/%(cluster)s/%(jobid)s/%(node)s/cpus'
-    'sams.sampler.SlurmCGroup/memory_usage' : 'sa/%(cluster)s/%(jobid)s/%(node)s/memory_usage'
-    'sams.sampler.SlurmCGroup/memory_limit' : 'sa/%(cluster)s/%(jobid)s/%(node)s/memory_limit'
-    'sams.sampler.SlurmCGroup/memory_max_usage' : 'sa/%(cluster)s/%(jobid)s/%(node)s/memory_max_usage'
+    '^sams.sampler.SlurmCGroup/(?P<metric>\S+)$' : 'sa/%(cluster)s/%(jobid)s/%(node)s/%(metric)s'
