@@ -2,7 +2,8 @@
 Software accounting storage "backend" for updating the list of softwares
 
 Config options:
-[sams.backend.SoftwareAccounting]
+
+sams.backend.SoftwareAccounting:
     # sqlite file pattern (regexp)
     file_pattern: 'sa-\d+.db'
 
