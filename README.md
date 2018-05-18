@@ -18,9 +18,11 @@ The sams-collector needs to run as root.
 
 In slurm epilog kill -HUP.
 
-If HUP i missing the collector will exit after ~10 minutes without jobs.
+If HUP i missing the collector will exit after 10 minutes without active processes.
 
-## Aggregator
+See the sampler and output modules for more information.
+
+## Aggregator (sams-aggregator.py)
 
 On server run the aggregator on the files received either on shared filessystem
 with the sams.output.File module or via http/https via the sams.output.Http module.
@@ -31,6 +33,17 @@ reverse proxy with client certificate and/or user/password.
 
 sams.output.File can write on root-squash filesystems using the setfsuid() syscall on Linux.
 This seems to not work on Lustre file systems.
+
+See the loader and aggregator modules for more information.
+
+## Software updater (sams-software-updater.py)
+
+After the aggregator has inserted things the Software updater needs to update the
+list of available paths into software.
+
+This uses the software.backend.* and sams.software.* modules to process the information.
+
+See the backend and software modules for more information.
 
 # nginx setup for sams-post-reciver.py
 
