@@ -1,3 +1,21 @@
+"""
+Fetches Metrics from Slurm CGroup command
+
+Config options:
+[sams.sampler.SlurmCGroup]
+    # in seconds
+    sampler_interval: 100
+
+    cgroup_base_path: /sys/fs/cgroup
+
+Output:
+{
+    cpus: 0,
+    memory_usage: 0,
+    memory_limit: 0,
+    memory_max_usage: 0
+}
+"""
 
 import sams.base
 import os

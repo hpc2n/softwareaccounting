@@ -1,4 +1,18 @@
+"""
+Matches a path using an regexp rule into a software
 
+Config Options:
+[sams.software.Regexp]
+    rules:
+        # Things matched in "match" can used in software, version and versionstr to update
+        # the items.
+        - match: '^/pfs/software/eb/[^/]+/software/Core/(?P<software>[^/]+)/(?P<version>[^/]+)/'
+          software: "%(software)s"
+          version: "%(version)s"
+          versionstr: "Core/%(software)s/%(version)s"
+          user_provided: true
+
+"""
 import sams.base
 import re
 

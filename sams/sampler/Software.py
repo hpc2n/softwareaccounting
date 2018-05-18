@@ -1,4 +1,38 @@
+"""
+Fetches Metrics from Slurm command
 
+Config options:
+[sams.sampler.Software]
+    # in seconds
+    sampler_interval: 100
+
+    # path to scontrol command
+    scontrol: /usr/local/bin/scontrol
+
+Output:
+Every sample:
+{
+    current: {
+        user: 0,
+        system: 0
+    }
+}
+summary:
+{
+    execs: {
+        PATH: {
+            user: 0,
+            system: 0,
+        },
+        PATH2: {
+            user: 0,
+            system 0,
+        },
+    },
+    start_time: 0,
+    end_time: 1,
+}
+"""
 import sams.base
 import time
 import os

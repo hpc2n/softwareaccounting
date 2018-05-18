@@ -1,4 +1,23 @@
+"""
+Fetches Metrics from Slurm command
 
+Config options:
+[sams.sampler.SlurmInfo]
+    # in seconds
+    sampler_interval: 100
+
+    # path to scontrol command
+    scontrol: /usr/local/bin/scontrol
+
+Output:
+{
+    account: "",
+    cpus: 0,
+    nodes: 0,
+    username: "user",
+    uid: 65535,
+}
+"""
 import os
 import re
 import subprocess
