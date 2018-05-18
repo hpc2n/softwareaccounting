@@ -1,3 +1,16 @@
+"""
+Software accounting storage "backend" for updating the list of softwares
+
+Config options:
+[sams.backend.SoftwareAccounting]
+    # sqlite file pattern (regexp)
+    file_pattern: 'sa-\d+.db'
+
+    # Path to sqlite db files
+    db_path: /data/softwareaccounting/CLUSTER/db
+
+"""
+
 import sqlite3
 import os
 import re
