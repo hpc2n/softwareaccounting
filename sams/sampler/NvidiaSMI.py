@@ -108,6 +108,7 @@ class Sampler(sams.base.Sampler):
             })
 
     def final_data(self):
-        self.smi.stop()
-        self.smi.join()
+        if self.smi:
+            self.smi.stop()
+            self.smi.join()
         return {}
