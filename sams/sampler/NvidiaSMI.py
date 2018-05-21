@@ -85,12 +85,13 @@ class Sampler(sams.base.Sampler):
         self.gpu_index_environment = self.config.get([self.id,"gpu_index_environment"],'SLURM_JOB_GPUS')
         self.nvidia_smi_command = self.config.get([self.id,"nvidia_smi_command"],'/usr/bin/nvidia-smi')
 
-        self.gpustr = os.environ[self.gpu_index_environment]
         self.smi = None
-        if self.gpustr:
-            gpus=self.gpustr.split(",")
-            self.smi = SMI(gpus=gpus,t=self.sampler_interval,command=self.nvidia_smi_command)
-            self.smi.start()
+        if self.gpu_index_environment in os.environ:
+            self.gpustr = os.environ[self.gpu_index_environment]            
+            if self.gpustr:
+                gpus=self.gpustr.split(",")
+                self.smi = SMI(gpus=gpus,t=self.sampler_interval,command=self.nvidia_smi_command)
+                self.smi.start()
 
     def do_sample(self):
         return self.smi and not self.smi.queue.empty()
