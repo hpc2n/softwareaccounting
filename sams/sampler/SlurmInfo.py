@@ -80,7 +80,7 @@ class Sampler(sams.base.Sampler):
         if cpus:
             self.data['cpus'] = cpus.group(1)
 
-        if self._got_all():
+        if not self.do_sample():
             self.store(self.data)
 
     def final_data(self):
