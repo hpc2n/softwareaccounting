@@ -100,33 +100,37 @@ insert or replace into command (id,jobid,node,software,start_time,end_time,user,
         (
                 select ID from command 
                         where 
-                                jobid = (select id from jobs where jobid = ?)
+                                jobid = :id
                         and 
-                                node  = (select id from node where node = ?)
+                                node  = :node_id
                         and
-                                software = (select id from software where path = ?)
+                                software = :sw_id
         )
 , 
-        (select id from jobs where jobid = ?),
-        (select id from node where node = ?),
-        (select id from software where path = ?),
-        ?,?,
-        ?,?,
+        :id,
+        :node_id,
+        :sw_id,
+        :start_time,:end_time,
+        :user,:sys,
         strftime('%s','now')
 );
 '''
 
-FIND_JOBS_ID='''SELECT id from jobs where jobid = :jobid'''
-
-UPDATE_MINMAX_ID='''
+UPDATE_MINMAX='''
 update jobs set 
-    start_time = (select min(start_time) from command where jobid = :id),
-    end_time = (select max(start_time) from command where jobid = :id),
-    user_time = (select sum(user) from command where jobid = :id),
-    system_time = (select sum(sys) from command where jobid = :id)
+    start_time = :start_time,
+    end_time = :end_time,
+    user_time = :user_time,
+    system_time = :system_time
 where id = :id
 '''
 
+FIND_MINMAX_JOBS='''
+select jobid,min(start_time),max(end_time),sum(user),sum(sys) 
+from command 
+where jobid in (select id from jobs where start_time is null or end_time is null or user_time is null or system_time is null)
+group by jobid
+'''
 
 class Aggregator(sams.base.Aggregator):
     """ SAMS Software accounting aggregator """
@@ -156,6 +160,17 @@ class Aggregator(sams.base.Aggregator):
         if jobid_hash in self.db:
             return self.db[jobid_hash]
         return self._open_db(jobid_hash)
+
+    def save_id(self,jobid,table,value,id):
+        """ Only try to insert once / session """
+        jobid_hash = int(jobid / self.jobid_hash_size)
+        if value not in self.inserted[jobid_hash][table]:
+            self.inserted[jobid_hash][table][value] = id
+
+    def get_id(self,jobid,table,value):
+        """ Only try to insert once / session """
+        jobid_hash = int(jobid / self.jobid_hash_size)
+        return self.inserted[jobid_hash][table][value]
 
     def do_insert(self,jobid,table,value):
         """ Only try to insert once / session """
@@ -189,17 +204,25 @@ class Aggregator(sams.base.Aggregator):
 
         # If project (account) is defined in data insert into table
         project = None        
+        project_id = None
         if 'account' in data['sams.sampler.SlurmInfo']:
             project = data['sams.sampler.SlurmInfo']['account']
             if self.do_insert(jobid,'projects',project):
                 c.execute(INSERT_PROJECT,(project,project,))
+                project_id = self.save_id(jobid,'projects',project,c.lastrowid)
+            else:
+                project_id = self.get_id(jobid,'projects',project)
 
         # If username is defined in data insert into table
         user = None
+        user_id = None
         if 'username' in data['sams.sampler.SlurmInfo']:
             user = data['sams.sampler.SlurmInfo']['username']
             if self.do_insert(jobid,'users',user):
                 c.execute(INSERT_USER,(user,user,))
+                user_id = self.save_id(jobid,'users',user,c.lastrowid)
+            else:
+                user_id = self.get_id(jobid,'users',user)
 
         # If username is defined in data insert into table
         ncpus = None
@@ -208,31 +231,64 @@ class Aggregator(sams.base.Aggregator):
     
         # Insert information about job
         c.execute(INSERT_JOBS,(jobid,jobid,user,project,ncpus,))
+        id = c.lastrowid
 
         # Insert node
+        node_id = None
         if self.do_insert(jobid,'nodes',node):        
             c.execute(INSERT_NODE,(node,node,))
+            node_id = self.save_id(jobid,'nodes',node,c.lastrowid)
+        else:
+            node_id = self.get_id(jobid,'nodes',node)
 
         # Insert information about running commands
         for sw,info in data['sams.sampler.Software']['execs'].items():
             # Insert software
+            sw_id = None
             if self.do_insert(jobid,'softwares',sw):
                 c.execute(INSERT_SOFTWARE,(sw,sw,))
-            c.execute(INSERT_COMMAND,(jobid,node,sw,jobid,node,sw,
-                                        int(data['sams.sampler.Software']['start_time']),
-                                        int(data['sams.sampler.Software']['end_time']),
-                                        info['user'],info['system'],))
+                sw_id = self.save_id(jobid,'softwares',sw,c.lastrowid)
+            else:
+                sw_id = self.get_id(jobid,'softwares',sw)
+
+            c.execute(INSERT_COMMAND,{
+                'id': id,
+                'node_id': node_id,
+                'sw_id': sw_id,
+                'start_time': int(data['sams.sampler.Software']['start_time']),
+                'end_time': int(data['sams.sampler.Software']['end_time']),
+                'user': info['user'],
+                'sys': info['system']
+            })
 
         # Fetch id from jobs for jobid
-        id = [row for row in c.execute(FIND_JOBS_ID,{'jobid': jobid})][0][0]
+        #id = [row for row in c.execute(FIND_JOBS_ID,{'jobid': jobid})][0][0]
 
         # Update start_time, end_time of job.
-        c.execute(UPDATE_MINMAX_ID,{'id': id})
+        #c.execute(UPDATE_MINMAX_ID,{'id': id})
 
         # Commit data to disk
         c.execute('COMMIT')
         db.commit()
 
     def close(self):
-        for id,c in self.db.items():
-            c.close()
+        for id,db in self.db.items():
+            # Update jobs table.
+            try:
+                c = db.cursor()
+                c.execute('BEGIN TRANSACTION')
+                rows = [row for row in c.execute(FIND_MINMAX_JOBS)]
+                for row in rows:
+                    c.execute(UPDATE_MINMAX,{
+                        'id': row[0],
+                        'start_time': row[1],
+                        'end_time': row[2],
+                        'user_time': row[3],
+                        'system_time': row[4]
+                    })
+                c.execute('COMMIT')
+                db.commit()
+            except Exception as e:
+                logger.exception(e)
+
+            db.close()
