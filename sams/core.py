@@ -54,7 +54,7 @@ class OneToN(threading.Thread):
     """ Class that takes one Queue and forwards into N other queues """
 
     def __init__(self,id="OneToN"):
-        super().__init__()
+        super(OneToN,self).__init__()
         self.id = id
         
         self.inQueue = queue.Queue()

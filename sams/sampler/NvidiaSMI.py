@@ -43,7 +43,7 @@ COMMAND='''%s --query-gpu=index,power.draw,power.limit,clocks.applications.memor
 
 class SMI(threading.Thread):
     def __init__(self,gpus=[],t=10,command="/usr/bin/nvidia-smi"):
-        super().__init__()
+        super(SMI,self).__init__()
         self.gpus = gpus
         self.t = t
         self.command = command
@@ -79,7 +79,7 @@ class SMI(threading.Thread):
 
 class Sampler(sams.base.Sampler):
     def __init__(self,id,outQueue,config):
-        super().__init__(id,outQueue,config)
+        super(Sampler,self).__init__(id,outQueue,config)
         self.processes = {}        
         self.sampler_interval = self.config.get([self.id,"sampler_interval"],60)
         self.gpu_index_environment = self.config.get([self.id,"gpu_index_environment"],'SLURM_JOB_GPUS')

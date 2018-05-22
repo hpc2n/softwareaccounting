@@ -27,7 +27,7 @@ logger = logging.getLogger(__name__)
 
 class Sampler(sams.base.Sampler):
     def __init__(self,id,outQueue,config):
-        super().__init__(id,outQueue,config)
+        super(Sampler,self).__init__(id,outQueue,config)
         self.processes = {}
         self.cgroup = None
         self.cgroup_base = self.config.get([self.id,"cgroup_base"],'/sys/fs/cgroup')

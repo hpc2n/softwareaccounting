@@ -19,7 +19,7 @@ logger = logging.getLogger(__name__)
 
 class Receiver(MethodView):
     def __init__(self,base_path,jobid_hash_size):
-        super().__init__()
+        super(Receiver,self).__init__()
         self.base_path = base_path
         self.jobid_hash_size = jobid_hash_size
 

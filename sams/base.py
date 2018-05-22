@@ -29,7 +29,7 @@ class Sampler(threading.Thread):
     """ Sampler base class """
 
     def __init__(self,id,outQueue,config):
-        super().__init__()
+        super(Sampler,self).__init__()
         self.id = id
         self.outQueue = outQueue
         self.config = config
@@ -83,7 +83,6 @@ class Aggregator(object):
     """ Aggregator base class """
 
     def __init__(self,id,config):
-        super().__init__()
         self.id = id
         self.config = config
 
@@ -94,7 +93,6 @@ class Loader(object):
     """ Loader base class """
 
     def __init__(self,id,config):
-        super().__init__()
         self.id = id
         self.config = config        
 
@@ -111,7 +109,6 @@ class Backend(object):
     """ Backend base class """
 
     def __init__(self,id,config):
-        super().__init__()
         self.id = id
         self.config = config
 
@@ -122,7 +119,6 @@ class Software(object):
     """ Software base class """
 
     def __init__(self,id,config):
-        super().__init__()
         self.id = id
         self.config = config
 
@@ -133,7 +129,7 @@ class Output(threading.Thread):
     """ Output base class """
         
     def __init__(self,id,config):
-        super().__init__()
+        super(Output,self).__init__()
         self.id = id
         self.config = config
 

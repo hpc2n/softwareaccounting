@@ -114,7 +114,7 @@ class Process():
 
 class Sampler(sams.base.Sampler):
     def __init__(self,id,outQueue,config):
-        super().__init__(id,outQueue,config)
+        super(Sampler,self).__init__(id,outQueue,config)
         self.processes = {}
         self.create_time = time.time()
         self.last_sample_time = None

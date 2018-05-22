@@ -35,7 +35,7 @@ class Output(sams.base.Output):
     """ File output Class """
 
     def __init__(self,id,config):
-        super().__init__(id,config)
+        super(Output,self).__init__(id,config)
         self.static_map = self.config.get([self.id,"static_map"],{})
         self.map = self.config.get([self.id,"map"],{})
         self.metrics = self.config.get([self.id,"metrics"],{})

@@ -42,7 +42,7 @@ class Pids(object):
 
 class PIDFinder(sams.base.PIDFinder):
     def __init__(self,id,jobid,config):
-        super().__init__(id,jobid,config)
+        super(PIDFinder,self).__init__(id,jobid,config)
         self.processes = {}
         self.procdir = '/proc'
         self.create_time = time.time()

@@ -23,7 +23,7 @@ logger = logging.getLogger(__name__)
 class Software(sams.base.Software):
     """ SAMS Software accounting aggregator """
     def __init__(self,id,config):
-        super().__init__(id,config)
+        super(Software,self).__init__(id,config)
         self.rules = self.config.get([self.id,'rules'],[])
 
     def get(self,path):

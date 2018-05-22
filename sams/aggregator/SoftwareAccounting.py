@@ -116,7 +116,7 @@ insert or replace into command (id,jobid,node,software,start_time,end_time,user,
 class Aggregator(sams.base.Aggregator):
     """ SAMS Software accounting aggregator """
     def __init__(self,id,config):
-        super().__init__(id,config)
+        super(Aggregator,self).__init__(id,config)
         self.db = {}
         self.db_path = self.config.get([self.id,'db_path'])
         self.file_pattern = self.config.get([self.id,'file_pattern'],"sa-%(jobid_hash)d.db")

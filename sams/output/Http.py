@@ -33,7 +33,7 @@ class Output(sams.base.Output):
     """ http/https output Class """
 
     def __init__(self,id,config):
-        super().__init__(id,config)
+        super(Output,self).__init__(id,config)
         self.exclude = { e: True for e in self.config.get([self.id,"exclude"],[]) }
         self.data = {}
 

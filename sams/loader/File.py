@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 class Loader(sams.base.Loader):
     
     def __init__(self,id,config):
-        super().__init__(id,config)
+        super(Loader,self).__init__(id,config)
         self.in_path = self.config.get([self.id,'in_path'])
         self.archive_path = self.config.get([self.id,'archive_path'])
         self.file_pattern = re.compile(self.config.get([self.id,'file_pattern'],"^.*$"))

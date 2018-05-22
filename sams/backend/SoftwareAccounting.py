@@ -31,7 +31,7 @@ UPDATE_SOFTWARE = '''
 class Backend(sams.base.Backend):
     """ SAMS Software accounting aggregator """
     def __init__(self,id,config):
-        super().__init__(id,config)
+        super(Backend,self).__init__(id,config)
         self.db_path = self.config.get([self.id,'db_path'])
         self.file_pattern = re.compile(self.config.get([self.id,'file_pattern'],"sa-\d+.db"))
 
