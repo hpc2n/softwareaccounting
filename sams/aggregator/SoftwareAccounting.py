@@ -38,9 +38,12 @@ TABLES = [
         id              INTEGER PRIMARY KEY AUTOINCREMENT,
         jobid           TEXT NOT NULL,
         user            INTEGER,
-        project         INTEGER,
+        project         INTEGER,        
+        ncpus           INTEGER,
         start_time      INTEGER,
-        end_time        INTEGER
+        end_time        INTEGER,
+        user            REAL,
+        system          REAL
     );
     ''',
     '''
@@ -73,8 +76,8 @@ TABLES = [
         software        INTEGER,
         start_time      INTEGER,
         end_time        INTEGER,
-        user            REAL,
-        sys             REAL,
+        user_time       REAL,
+        system_time     REAL,
         updated         INTEGER,
         FOREIGN KEY(node) REFERENCES node(node),
         FOREIGN KEY(software) REFERENCES software(software)
@@ -88,7 +91,7 @@ TABLES = [
 # Update/Insert SQL
 INSERT_USER=''' insert or replace into users (id,user) values ((select ID from users where user = ?), ?); '''
 INSERT_PROJECT=''' insert or replace into projects (id,project) values ((select ID from projects where project = ?), ?); '''
-INSERT_JOBS=''' insert or replace into jobs (id,jobid,user,project) values ((select ID from jobs where jobid = ?), ?, ? ,?); '''
+INSERT_JOBS=''' insert or replace into jobs (id,jobid,user,project,ncpus) values ((select ID from jobs where jobid = ?), ?, ? ,?, ?); '''
 INSERT_NODE=''' insert or replace into node (id,node) values ((select ID from node where node = ?), ?); '''
 INSERT_SOFTWARE=''' insert or replace into software (id,path) values ((select ID from software where path = ?), ?); '''
 INSERT_COMMAND='''
@@ -112,6 +115,18 @@ insert or replace into command (id,jobid,node,software,start_time,end_time,user,
         strftime('%s','now')
 );
 '''
+
+FIND_JOBS_ID='''SELECT id from jobs where jobid = :jobid'''
+
+UPDATE_MINMAX_ID='''
+update jobs set 
+    start_time = (select min(start_time) from command where jobid = :id),
+    end_time = (select max(start_time) from command where jobid = :id),
+    user_time = (select sum(user) from command where jobid = :id),
+    system_time = (select sum(sys) from command where jobid = :id)
+where id = :id
+'''
+
 
 class Aggregator(sams.base.Aggregator):
     """ SAMS Software accounting aggregator """
@@ -185,9 +200,14 @@ class Aggregator(sams.base.Aggregator):
             user = data['sams.sampler.SlurmInfo']['username']
             if self.do_insert(jobid,'users',user):
                 c.execute(INSERT_USER,(user,user,))
+
+        # If username is defined in data insert into table
+        ncpus = None
+        if 'cpus' in data['sams.sampler.SlurmInfo']:
+            ncpus = data['sams.sampler.SlurmInfo']['cpus']
     
         # Insert information about job
-        c.execute(INSERT_JOBS,(jobid,jobid,user,project,))
+        c.execute(INSERT_JOBS,(jobid,jobid,user,project,ncpus,))
 
         # Insert node
         if self.do_insert(jobid,'nodes',node):        
@@ -202,6 +222,12 @@ class Aggregator(sams.base.Aggregator):
                                         int(data['sams.sampler.Software']['start_time']),
                                         int(data['sams.sampler.Software']['end_time']),
                                         info['user'],info['system'],))
+
+        # Fetch id from jobs for jobid
+        id = [row for row in c.execute(FIND_JOBS_ID,{'jobid': jobid})][0][0]
+
+        # Update start_time, end_time of job.
+        c.execute(UPDATE_MINMAX_ID,{'id': id})
 
         # Commit data to disk
         c.execute('COMMIT')
