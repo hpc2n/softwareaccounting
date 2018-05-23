@@ -1,8 +1,10 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 
 """
 Simple POST receiver for SAMS Software accounting
 """
+
+from __future__ import print_function
 
 import os
 import sys

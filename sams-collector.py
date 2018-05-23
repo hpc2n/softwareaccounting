@@ -1,8 +1,10 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 
 """
 Data Aggregator for SAMS Software accounting
 """
+
+from __future__ import print_function
 
 import threading
 import sys
