@@ -14,10 +14,12 @@ import time
 import signal
 import traceback
 import logging
+import os
 
 import sams.core
 
 logger = logging.getLogger(__name__)
+
 
 class Options():
     def usage(self):
@@ -26,7 +28,8 @@ class Options():
     def __init__(self,inargs):
         try:
             opts, args = getopt.getopt(inargs, "", ["help", "jobid=","config=",
-                                                    "node=","logfile=","loglevel="])
+                                                    "node=","logfile=","loglevel=",
+                                                    "daemon","pidfile="])
         except getopt.GetoptError as err:
             # print help information and exit:
             print(str(err))  # will print something like "option -a not recognized"
@@ -38,6 +41,8 @@ class Options():
         self.config = '/etc/sams/sams-collector.yaml'
         self.logfile = None
         self.loglevel = None
+        self.daemon = False
+        self.pidfile = None
         
         for o, a in opts:
             if o in ("--node"):
@@ -50,6 +55,10 @@ class Options():
                 self.logfile = a
             elif o in ("--loglevel"):
                 self.loglevel = a
+            elif o in ("--pidfile"):
+                self.pidfile = a
+            elif o in ("--daemon"):
+                self.daemon = True
             else:
                 assert False, "unhandled option %s = %s" % (o,a)
 
@@ -57,7 +66,6 @@ class Options():
             assert False, "Missing option --jobid"
      
 class Main:
-    exit = threading.Event()
 
     def __init__(self):
         self.options = Options(sys.argv[1:])
@@ -67,6 +75,15 @@ class Main:
                 'node': self.options.node,
             }
         })
+
+        # Put process into background as daemon.
+        # stdout/stderr will be closed.
+        if self.options.daemon:
+            try:
+                sams.core.createDaemon()
+            except Exception as e:
+                logger.execption(e)
+                exit(1)
 
         # Logging
         loglevel = self.options.loglevel
@@ -89,6 +106,16 @@ class Main:
         
         logger.debug("Loglevel: %s", loglevel)
 
+        # Write pidfile.
+        if self.options.pidfile:
+            try:
+                with open(self.options.pidfile,"w") as f:
+                    f.write(str(os.getpid()))
+            except Exception as e:
+                logger.exception(e)
+                exit(1)
+
+        self.exit = threading.Event()
         # Trap signals
         signal.signal(signal.SIGHUP, self.sigHupHandler)
         signal.signal(signal.SIGINT, self.sigHupHandler)

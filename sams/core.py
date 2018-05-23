@@ -9,7 +9,7 @@ try:
     import queue
 except ImportError:
     import Queue as queue
-
+import os
 
 import logging
 logger = logging.getLogger(__name__)
@@ -112,3 +112,59 @@ class ClassLoader():
         module = __import__(package,globals(),locals(),[class_name])
         new_class = getattr(module,class_name)
         return new_class
+
+# The standard I/O file descriptors are redirected to /dev/null by default.
+if (hasattr(os, "devnull")):
+   REDIRECT_TO = os.devnull
+else:
+   REDIRECT_TO = "/dev/null"
+
+def createDaemon(umask = 0, workdir = "/", maxfds = 1024):
+    """Detach a process from the controlling terminal and run it in the
+    background as a daemon.
+    """
+
+    try:
+        pid = os.fork()
+    except OSError as e:
+        raise Exception("%s [%d]" % (e.strerror, e.errno))
+
+    if (pid == 0):	# The first child.
+        os.setsid()
+
+        try:
+            pid = os.fork()	# Fork a second child.
+        except OSError as e:
+            raise Exception("%s [%d]" % (e.strerror, e.errno))
+
+        if (pid == 0):	# The second child.
+            os.chdir(workdir)
+            os.umask(umask)
+        else:
+            os._exit(0)	# Exit parent (the first child) of the second child.
+    else:
+        os._exit(0)	# Exit parent of the first child.
+
+    #return(0)
+
+    import resource		# Resource usage information.
+    maxfd = resource.getrlimit(resource.RLIMIT_NOFILE)[1]
+    if (maxfd == resource.RLIM_INFINITY):
+        maxfd = maxfds
+
+    # Iterate through and close all file descriptors.
+    for fd in range(0, maxfd):
+        try:
+            os.close(fd)
+        except OSError as o:	# ERROR, fd wasn't open to begin with (ignored)
+            pass
+
+    # This call to open is guaranteed to return the lowest file descriptor,
+    # which will be 0 (stdin), since it was closed above.
+    os.open(REDIRECT_TO, os.O_RDWR)    # standard input (0)
+
+    # Duplicate standard input to standard output and standard
+    # error.
+    os.dup2(0, 1)            # standard output (1)
+    os.dup2(0, 2)         # standard error (2)
+    return(0)
