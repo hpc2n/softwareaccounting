@@ -42,8 +42,8 @@ TABLES = [
         ncpus           INTEGER,
         start_time      INTEGER,
         end_time        INTEGER,
-        user            REAL,
-        system          REAL
+        user_time       REAL,
+        system_time     REAL
     );
     ''',
     '''
@@ -76,8 +76,8 @@ TABLES = [
         software        INTEGER,
         start_time      INTEGER,
         end_time        INTEGER,
-        user_time       REAL,
-        system_time     REAL,
+        user            REAL,
+        sys             REAL,
         updated         INTEGER,
         FOREIGN KEY(node) REFERENCES node(node),
         FOREIGN KEY(software) REFERENCES software(software)
