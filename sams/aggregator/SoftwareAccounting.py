@@ -261,12 +261,6 @@ class Aggregator(sams.base.Aggregator):
                 'sys': info['system']
             })
 
-        # Fetch id from jobs for jobid
-        #id = [row for row in c.execute(FIND_JOBS_ID,{'jobid': jobid})][0][0]
-
-        # Update start_time, end_time of job.
-        #c.execute(UPDATE_MINMAX_ID,{'id': id})
-
         # Commit data to disk
         c.execute('COMMIT')
         db.commit()
