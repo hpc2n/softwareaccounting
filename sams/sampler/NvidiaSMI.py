@@ -37,7 +37,10 @@ logger = logging.getLogger(__name__)
 
 import subprocess
 import threading
-import queue
+try:
+        import queue
+except ImportError:
+        import Queue as queue
 
 COMMAND='''%s --query-gpu=index,power.draw,power.limit,clocks.applications.memory,clocks.applications.graphics,clocks.current.graphics,clocks.current.sm,utilization.gpu,utilization.memory --format=csv,nounits -l %d -i %s'''
 

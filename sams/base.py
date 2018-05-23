@@ -8,7 +8,11 @@ try:
 except ImportError:
     from yaml import YamlLoader, YamlDumper
 import threading
-import queue
+try:
+    import queue
+except ImportError:
+    import Queue as queue
+
 
 import logging
 logger = logging.getLogger(__name__)
