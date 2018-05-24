@@ -266,6 +266,10 @@ class Aggregator(sams.base.Aggregator):
         c.execute('COMMIT')
         db.commit()
 
+    def cleanup(self):
+        for id,db in self.db.items():
+            db.rollback()
+
     def close(self):
         for id,db in self.db.items():
             # Update jobs table.

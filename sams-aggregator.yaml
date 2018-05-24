@@ -10,6 +10,7 @@ core:
 sams.loader.File:
   in_path: /data/softwareaccounting/data
   archive_path: /data/softwareaccounting/archive
+  error_path: /data/softwareaccounting/error
   file_pattern: '^.*\.json$'
 
 sams.aggregator.SoftwareAccounting:

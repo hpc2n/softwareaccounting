@@ -104,10 +104,14 @@ class Main:
                     for a in self.aggregators:
                         a.aggregate(data)
                     l.commit()
-                except IOError as e:
+                except Exception as e:
                     logger.error("Failed to do aggregation")
-                    logger.error(e)
-                    break
+                    logger.exception(e)
+
+                    # Cleanup of the aggregators.
+                    for a in self.aggregators:
+                        a.cleanup()
+                    l.error()
 
         # Close down the aggregagors.
         for a in self.aggregators:
