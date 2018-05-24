@@ -166,6 +166,7 @@ class Aggregator(sams.base.Aggregator):
         jobid_hash = int(jobid / self.jobid_hash_size)
         if value not in self.inserted[jobid_hash][table]:
             self.inserted[jobid_hash][table][value] = id
+        return id
 
     def get_id(self,jobid,table,value):
         """ Only try to insert once / session """
