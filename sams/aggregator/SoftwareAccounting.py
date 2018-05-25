@@ -198,8 +198,8 @@ class Aggregator(sams.base.Aggregator):
 
         for module in [ 'sams.sampler.Software', 'sams.sampler.SlurmInfo' ]:
             if not module in data:
-                logger.info("Jobid: %d has no %s" % (jobid,module))
-                return True
+                logger.info("Jobid: %d on node %s has no %s" % (jobid,node,module))
+                raise Exception("Jobid: %d on node %s has no %s" % (jobid,node,module))
 
         # Begin transaction
         c.execute('BEGIN TRANSACTION')
