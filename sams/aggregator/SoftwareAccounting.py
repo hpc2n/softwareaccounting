@@ -166,11 +166,13 @@ class Aggregator(sams.base.Aggregator):
         jobid_hash = int(jobid / self.jobid_hash_size)
         if value not in self.inserted[jobid_hash][table]:
             self.inserted[jobid_hash][table][value] = id
+        logger.debug("save_id(%d (%d),%s,%s,%d)" % (jobid,jobid_hash,table,value,id))
         return id
 
     def get_id(self,jobid,table,value):
         """ Only try to insert once / session """
         jobid_hash = int(jobid / self.jobid_hash_size)
+        logger.debug("get_id(%d (%d),%s,%s,%d)" % (jobid,jobid_hash,table,value,self.inserted[jobid_hash][table][value]))
         return self.inserted[jobid_hash][table][value]
 
     def do_insert(self,jobid,table,value):
@@ -210,8 +212,11 @@ class Aggregator(sams.base.Aggregator):
             if self.do_insert(jobid,'projects',project):
                 c.execute(INSERT_PROJECT,{ 'project' : project })
                 project_id = self.save_id(jobid,'projects',project,c.lastrowid)
+                logger.debug("Inserted project: %s as %d (%d)" % (project,c.lastrowid,project_id))
             else:
                 project_id = self.get_id(jobid,'projects',project)
+                logger.debug("Fetched project: %s as %d" % (project,project_id))
+
 
         # If username is defined in data insert into table
         user = None
@@ -221,8 +226,10 @@ class Aggregator(sams.base.Aggregator):
             if self.do_insert(jobid,'users',user):
                 c.execute(INSERT_USER,{ 'user': user })
                 user_id = self.save_id(jobid,'users',user,c.lastrowid)
+                logger.debug("Inserted user: %s as %d (%d)" % (user,c.lastrowid,user_id))
             else:
                 user_id = self.get_id(jobid,'users',user)
+                logger.debug("Fetched user: %s as %d" % (user,user_id))
 
         # If username is defined in data insert into table
         ncpus = None
@@ -238,6 +245,7 @@ class Aggregator(sams.base.Aggregator):
         if self.do_insert(jobid,'nodes',node):        
             c.execute(INSERT_NODE,{ 'node': node })
             node_id = self.save_id(jobid,'nodes',node,c.lastrowid)
+            logger.debug("Inserted node: %s as %d (%d)" % (node,c.lastrowid,node_id))
         else:
             node_id = self.get_id(jobid,'nodes',node)
 
@@ -248,8 +256,10 @@ class Aggregator(sams.base.Aggregator):
             if self.do_insert(jobid,'softwares',sw):
                 c.execute(INSERT_SOFTWARE,{ 'software': sw })
                 sw_id = self.save_id(jobid,'softwares',sw,c.lastrowid)
+                logger.debug("Inserted sw: %s as %d (%d)" % (sw,c.lastrowid,sw_id))
             else:
                 sw_id = self.get_id(jobid,'softwares',sw)
+                logger.debug("Fetched sw: %s as %d" % (sw,sw_id))
 
             c.execute(INSERT_COMMAND,{
                 'id': id,
