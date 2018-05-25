@@ -181,7 +181,6 @@ class Aggregator(sams.base.Aggregator):
         if table not in self.inserted[jobid_hash]:
             self.inserted[jobid_hash][table] = {}
         if value not in self.inserted[jobid_hash][table]:
-            self.inserted[jobid_hash][table][value] = True
             return True
         return False
 
