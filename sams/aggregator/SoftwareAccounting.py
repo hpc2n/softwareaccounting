@@ -89,11 +89,11 @@ TABLES = [
 ]
 
 # Update/Insert SQL
-INSERT_USER=''' insert or replace into users (id,user) values ((select ID from users where user = ?), ?); '''
-INSERT_PROJECT=''' insert or replace into projects (id,project) values ((select ID from projects where project = ?), ?); '''
-INSERT_JOBS=''' insert or replace into jobs (id,jobid,user,project,ncpus) values ((select ID from jobs where jobid = ?), ?, ? ,?, ?); '''
-INSERT_NODE=''' insert or replace into node (id,node) values ((select ID from node where node = ?), ?); '''
-INSERT_SOFTWARE=''' insert or replace into software (id,path) values ((select ID from software where path = ?), ?); '''
+INSERT_USER=''' insert or replace into users (id,user) values ((select ID from users where user = :user), :user); '''
+INSERT_PROJECT=''' insert or replace into projects (id,project) values ((select ID from projects where project = :project), :project); '''
+INSERT_JOBS=''' insert or replace into jobs (id,jobid,user,project,ncpus) values ((select ID from jobs where jobid = :jobid), :jobid, :user ,:project, :ncpus); '''
+INSERT_NODE=''' insert or replace into node (id,node) values ((select ID from node where node = :node), :node); '''
+INSERT_SOFTWARE=''' insert or replace into software (id,path) values ((select ID from software where path = :software), :software); '''
 INSERT_COMMAND='''
 insert or replace into command (id,jobid,node,software,start_time,end_time,user,sys,updated) values
 (
@@ -208,7 +208,7 @@ class Aggregator(sams.base.Aggregator):
         if 'account' in data['sams.sampler.SlurmInfo']:
             project = data['sams.sampler.SlurmInfo']['account']
             if self.do_insert(jobid,'projects',project):
-                c.execute(INSERT_PROJECT,(project,project,))
+                c.execute(INSERT_PROJECT,{ 'project' : project })
                 project_id = self.save_id(jobid,'projects',project,c.lastrowid)
             else:
                 project_id = self.get_id(jobid,'projects',project)
@@ -219,7 +219,7 @@ class Aggregator(sams.base.Aggregator):
         if 'username' in data['sams.sampler.SlurmInfo']:
             user = data['sams.sampler.SlurmInfo']['username']
             if self.do_insert(jobid,'users',user):
-                c.execute(INSERT_USER,(user,user,))
+                c.execute(INSERT_USER,{ 'user': user })
                 user_id = self.save_id(jobid,'users',user,c.lastrowid)
             else:
                 user_id = self.get_id(jobid,'users',user)
@@ -230,13 +230,13 @@ class Aggregator(sams.base.Aggregator):
             ncpus = data['sams.sampler.SlurmInfo']['cpus']
     
         # Insert information about job
-        c.execute(INSERT_JOBS,(jobid,jobid,user,project,ncpus,))
+        c.execute(INSERT_JOBS,{'jobid': jobid, 'user':user,'project':project,'ncpus':ncpus})
         id = c.lastrowid
 
         # Insert node
         node_id = None
         if self.do_insert(jobid,'nodes',node):        
-            c.execute(INSERT_NODE,(node,node,))
+            c.execute(INSERT_NODE,{ 'node': node })
             node_id = self.save_id(jobid,'nodes',node,c.lastrowid)
         else:
             node_id = self.get_id(jobid,'nodes',node)
@@ -246,7 +246,7 @@ class Aggregator(sams.base.Aggregator):
             # Insert software
             sw_id = None
             if self.do_insert(jobid,'softwares',sw):
-                c.execute(INSERT_SOFTWARE,(sw,sw,))
+                c.execute(INSERT_SOFTWARE,{ 'software': sw })
                 sw_id = self.save_id(jobid,'softwares',sw,c.lastrowid)
             else:
                 sw_id = self.get_id(jobid,'softwares',sw)
