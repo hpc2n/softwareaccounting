@@ -36,6 +36,7 @@ class Sampler(sams.base.Sampler):
         if ( 'account' in self.data and 
                 'cpus' in self.data and
                 'nodes' in self.data and
+                'starttime' in self.data and
                 'username' in self.data and
                 'uid' in self.data ):
             return False
@@ -79,6 +80,11 @@ class Sampler(sams.base.Sampler):
         cpus = re.search(r'NumCPUs=(\d+)',data[0])
         if cpus:
             self.data['cpus'] = cpus.group(1)
+
+        # Find StartTime
+        starttime = re.search(r'StartTime=(\d\d\d\ð-\d\d-\d\dT\d\d:\d\d:\d\d)',data[0])
+        if starttime:
+            self.data['starttime'] = starttime.group(1)
 
         if not self.do_sample():
             self.store(self.data)
