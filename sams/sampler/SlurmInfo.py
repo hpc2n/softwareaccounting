@@ -82,7 +82,7 @@ class Sampler(sams.base.Sampler):
             self.data['cpus'] = cpus.group(1)
 
         # Find StartTime
-        starttime = re.search(r'StartTime=(\d\d\d\ð-\d\d-\d\dT\d\d:\d\d:\d\d)',data[0])
+        starttime = re.search(r'StartTime=(\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\d)',data[0])
         if starttime:
             self.data['starttime'] = starttime.group(1)
 
