@@ -57,7 +57,7 @@ class Receiver(MethodView):
         return "OK"
 
 
-class Options():
+class Options:
     def usage(self):
         print("usage....")
 
@@ -75,11 +75,11 @@ class Options():
         self.loglevel = None
         
         for o, a in opts:
-            if o in ("--config"):
+            if o in "--config":
                 self.config = a
-            elif o in ("--logfile"):
+            elif o in "--logfile":
                     self.logfile = a
-            elif o in ("--loglevel"):
+            elif o in "--loglevel":
                 self.loglevel = a
             else:
                 assert False, "unhandled option %s = %s" % (o,a)

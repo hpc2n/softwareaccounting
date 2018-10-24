@@ -14,7 +14,7 @@ import os
 import logging
 logger = logging.getLogger(__name__)
 
-class Config():
+class Config:
     """ Config class, reads config_file.yaml """
     
     def __init__(self,config_file,extra={}):
@@ -104,7 +104,7 @@ class OneToN(threading.Thread):
         self.inQueue.put(None)
         self.join()
 
-class ClassLoader():
+class ClassLoader:
     """ Static class that loads an class by name """
 
     @staticmethod
@@ -114,7 +114,7 @@ class ClassLoader():
         return new_class
 
 # The standard I/O file descriptors are redirected to /dev/null by default.
-if (hasattr(os, "devnull")):
+if hasattr(os, "devnull"):
    REDIRECT_TO = os.devnull
 else:
    REDIRECT_TO = "/dev/null"
@@ -129,7 +129,7 @@ def createDaemon(umask = 0, workdir = "/", maxfds = 1024):
     except OSError as e:
         raise Exception("%s [%d]" % (e.strerror, e.errno))
 
-    if (pid == 0):	# The first child.
+    if pid == 0:	# The first child.
         os.setsid()
 
         try:
@@ -137,7 +137,7 @@ def createDaemon(umask = 0, workdir = "/", maxfds = 1024):
         except OSError as e:
             raise Exception("%s [%d]" % (e.strerror, e.errno))
 
-        if (pid == 0):	# The second child.
+        if pid == 0:	# The second child.
             os.chdir(workdir)
             os.umask(umask)
         else:
@@ -149,7 +149,7 @@ def createDaemon(umask = 0, workdir = "/", maxfds = 1024):
 
     import resource		# Resource usage information.
     maxfd = resource.getrlimit(resource.RLIMIT_NOFILE)[1]
-    if (maxfd == resource.RLIM_INFINITY):
+    if maxfd == resource.RLIM_INFINITY:
         maxfd = maxfds
 
     # Iterate through and close all file descriptors.

@@ -1,8 +1,8 @@
 """
 Base classes
 """
+import time
 
-import yaml
 try:
     from yaml import CLoader as YamlLoader, CDumper as YamlDumper
 except ImportError:
@@ -25,7 +25,7 @@ class PIDFinder(object):
         self.jobid = jobid
         self.config = config
 
-    def find():
+    def find(self):
         raise Exception("Not implemented")
         # return []
 

@@ -19,12 +19,12 @@ Output:
     uid: 65535,
 }
 """
+import logging
 import os
 import re
-import subprocess
+
 import sams.base
 
-import logging
 logger = logging.getLogger(__name__)
 
 COMMAND="%s show job %d -o"

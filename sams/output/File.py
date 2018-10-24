@@ -21,14 +21,13 @@ sams.output.File:
   # Skip the list of modules.
   exclude: ['sams.sampler.ModuleName']
 """
-import sams.base
-import time
-import os
-import re
 import json
+import logging
+import os
+
+import sams.base
 import sams.setfsuid
 
-import logging
 logger = logging.getLogger(__name__)
 
 class Output(sams.base.Output):

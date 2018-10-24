@@ -6,17 +6,15 @@ Software updater for SAMS Software accounting
 
 from __future__ import print_function
 
-import sys
 import getopt
-import signal
-import traceback
+import logging
+import sys
 
 import sams.core
 
-import logging
 logger = logging.getLogger(__name__)
 
-class Options():
+class Options:
     def usage(self):
         print("usage....")
 
@@ -34,11 +32,11 @@ class Options():
         self.loglevel = None
         
         for o, a in opts:
-            if o in ("--config"):
+            if o in "--config":
                 self.config = a
-            elif o in ("--logfile"):
+            elif o in "--logfile":
                     self.logfile = a
-            elif o in ("--loglevel"):
+            elif o in "--loglevel":
                 self.loglevel = a
             else:
                 assert False, "unhandled option %s = %s" % (o,a)

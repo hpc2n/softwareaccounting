@@ -6,22 +6,20 @@ Data Aggregator for SAMS Software accounting
 
 from __future__ import print_function
 
-import threading
-import sys
-import platform
 import getopt
-import time
-import signal
-import traceback
 import logging
 import os
+import platform
+import signal
+import sys
+import threading
 
 import sams.core
 
 logger = logging.getLogger(__name__)
 
 
-class Options():
+class Options:
     def usage(self):
         print("usage....")
 
@@ -45,19 +43,19 @@ class Options():
         self.pidfile = None
         
         for o, a in opts:
-            if o in ("--node"):
+            if o in "--node":
                 self.node = a
-            elif o in ("--jobid"):
+            elif o in "--jobid":
                 self.jobid = int(a)
-            elif o in ("--config"):
+            elif o in "--config":
                 self.config = a
-            elif o in ("--logfile"):
+            elif o in "--logfile":
                 self.logfile = a
-            elif o in ("--loglevel"):
+            elif o in "--loglevel":
                 self.loglevel = a
-            elif o in ("--pidfile"):
+            elif o in "--pidfile":
                 self.pidfile = a
-            elif o in ("--daemon"):
+            elif o in "--daemon":
                 self.daemon = True
             else:
                 assert False, "unhandled option %s = %s" % (o,a)

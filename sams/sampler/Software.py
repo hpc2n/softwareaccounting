@@ -42,7 +42,7 @@ import re
 import logging
 logger = logging.getLogger(__name__)
 
-class Process():
+class Process:
     def __init__(self,pid,jobid):
         self.pid = pid
         self.tasks = {}
@@ -168,7 +168,7 @@ class Sampler(sams.base.Sampler):
             aggr[exe]['system'] += a['system']
             total['user'] += a['user']
             total['system'] += a['system']
-        return (aggr,total)
+        return aggr, total
 
     def final_data(self):
         logger.debug("%s final_data" % self.id)
