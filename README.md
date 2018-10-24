@@ -19,7 +19,13 @@ python-flask	(for sams-post-receiver.py)
 
 ## CentOS/RedHat
 
-TBD.
++### 6 (Python 2.6)
+
+python-simplejson
+PyYAML
+python-flask   (for sams-post-receiver.py, not tested)
+
+### 7
 
 # Usage:
 
