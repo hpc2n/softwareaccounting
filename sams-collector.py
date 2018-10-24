@@ -82,7 +82,7 @@ class Main:
             try:
                 sams.core.createDaemon()
             except Exception as e:
-                logger.execption(e)
+                logger.exception(e)
                 exit(1)
 
         # Logging
