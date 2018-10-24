@@ -42,6 +42,9 @@ class Sampler(sams.base.Sampler):
             return False
         return True
 
+    def init(self):
+        self.sample()
+
     def sample(self):
         logger.debug("sample()")
 
