@@ -7,7 +7,7 @@ sams.sampler.SlurmCGroup:
     # in seconds
     sampler_interval: 100
 
-    cgroup_base_path: /sys/fs/cgroup
+    cgroup_base_path: /cgroup
 
 Output:
 {
@@ -30,7 +30,7 @@ class Sampler(sams.base.Sampler):
         super(Sampler,self).__init__(id,outQueue,config)
         self.processes = {}
         self.cgroup = None
-        self.cgroup_base = self.config.get([self.id,"cgroup_base"],'/sys/fs/cgroup')
+        self.cgroup_base = self.config.get([self.id,"cgroup_base"],'/cgroup')
 
     def do_sample(self):
         return self._get_cgroup()
