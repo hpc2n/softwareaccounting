@@ -148,20 +148,6 @@ class Main:
         self.pidQueue = sams.core.OneToN("pidQueue")
         self.outQueue = sams.core.OneToN("outQueue")
 
-        for s in self.config.get(['core','samplers'],[]):
-            logger.info("Load: %s",s)
-            try:
-                Sampler = sams.core.ClassLoader.load(s,'Sampler')
-                sampler = Sampler(s,self.outQueue.inQueue,self.config)
-                self.samplers.append(sampler)
-                self.pidQueue.addQueue(sampler.pidQueue)
-                sampler.start()
-            except Exception as e:
-                logger.error("Failed to initialize: %s" % s)
-                logger.error(e)
-                self.cleanup()
-                exit(1)
-
         for o in self.config.get(['core','outputs'],[]):
             logger.info("Load: %s",o)
             try:
@@ -172,6 +158,20 @@ class Main:
                 output.start()
             except Exception as e:
                 logger.error("Failed to initialize: %s" % o)
+                logger.error(e)
+                self.cleanup()
+                exit(1)
+
+        for s in self.config.get(['core','samplers'],[]):
+            logger.info("Load: %s",s)
+            try:
+                Sampler = sams.core.ClassLoader.load(s,'Sampler')
+                sampler = Sampler(s,self.outQueue.inQueue,self.config)
+                self.samplers.append(sampler)
+                self.pidQueue.addQueue(sampler.pidQueue)
+                sampler.start()
+            except Exception as e:
+                logger.error("Failed to initialize: %s" % s)
                 logger.error(e)
                 self.cleanup()
                 exit(1)
