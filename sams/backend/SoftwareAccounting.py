@@ -23,8 +23,9 @@ logger = logging.getLogger(__name__)
 FIND_SOFTWARE = '''SELECT id,path FROM software WHERE software IS NULL'''
 UPDATE_SOFTWARE = '''
     UPDATE software 
-    SET software = ?, version = ?, versionstr = ?, user_provided = ? 
-    WHERE id = ?
+    SET software = :software, version = :version, versionstr = :versionstr, 
+        user_provided = :user_provided, ignore = :ignore, last_updated = strftime('%s','now')
+    WHERE id = :id
 '''
 
 
@@ -64,8 +65,9 @@ class Backend(sams.base.Backend):
                 info = software.get(row[1])
                 if info:
                     logger.debug(info) 
-                    c.execute(UPDATE_SOFTWARE,(info['software'],info['version']
-                                             ,info['versionstr'],info['user_provided'],row[0],))
+                    c.execute(UPDATE_SOFTWARE,{ 'software': info['software'],'version': info['version']
+                                             ,'versionstr': info['versionstr'],'user_provided': info['user_provided'], 
+                                             'id': row[0], 'ignore': info['ignore'] })
             
             logger.info("Done")
             # Commit data to disk
