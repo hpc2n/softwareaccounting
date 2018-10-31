@@ -10,6 +10,9 @@ sams.backend.SoftwareAccounting:
     # Path to sqlite db files
     db_path: /data/softwareaccounting/CLUSTER/db
 
+    # clustername (used for calculating SGAS recordid)
+    clustername: CLUSTER
+
 """
 
 import sqlite3
@@ -37,6 +40,7 @@ TABLES = [
     CREATE TABLE IF NOT EXISTS jobs (
         id              INTEGER PRIMARY KEY AUTOINCREMENT,
         jobid           TEXT NOT NULL,
+        recordid        TEXT,
         user            INTEGER,
         project         INTEGER,        
         ncpus           INTEGER,
@@ -53,7 +57,9 @@ TABLES = [
         software        TEXT,
         version         TEXT,
         versionstr      TEXT,
-        user_provided   BOOLEAN
+        user_provided   BOOLEAN,
+        ignore          BOOLEAN,
+        last_updated    INTEGER
     );
     ''',
     '''
@@ -91,7 +97,7 @@ TABLES = [
 # Update/Insert SQL
 INSERT_USER=''' insert or replace into users (id,user) values ((select ID from users where user = :user), :user); '''
 INSERT_PROJECT=''' insert or replace into projects (id,project) values ((select ID from projects where project = :project), :project); '''
-INSERT_JOBS=''' insert or replace into jobs (id,jobid,user,project,ncpus) values ((select ID from jobs where jobid = :jobid), :jobid, :user ,:project, :ncpus); '''
+INSERT_JOBS=''' insert or replace into jobs (id,jobid,user,project,ncpus,recordid) values ((select ID from jobs where jobid = :jobid), :jobid, :user ,:project, :ncpus, :recordid); '''
 INSERT_NODE=''' insert or replace into node (id,node) values ((select ID from node where node = :node), :node); '''
 INSERT_SOFTWARE=''' insert or replace into software (id,path) values ((select ID from software where path = :software), :software); '''
 INSERT_COMMAND='''
@@ -138,6 +144,7 @@ class Aggregator(sams.base.Aggregator):
         super(Aggregator,self).__init__(id,config)
         self.db = {}
         self.db_path = self.config.get([self.id,'db_path'])
+        self.cluster = self.config.get([self.id,'cluster'])
         self.file_pattern = self.config.get([self.id,'file_pattern'],"sa-%(jobid_hash)d.db")
         self.jobid_hash_size = self.config.get([self.id,'jobid_hash_size'],1000000000)
         self.inserted = {}
@@ -231,13 +238,20 @@ class Aggregator(sams.base.Aggregator):
                 user_id = self.get_id(jobid,'users',user)
                 logger.debug("Fetched user: %s as %d" % (user,user_id))
 
+
+        recordid = None
+        if 'starttime' in data['sams.sampler.SlurmInfo']:
+            starttime = data['sams.sampler.SlurmInfo']['starttime']
+            starttime = starttime.replace('-','').replace('T','').replace(':','')
+            recordid = "%s:%s:%s" % (self.cluster,jobid,starttime)
+
         # If username is defined in data insert into table
         ncpus = None
         if 'cpus' in data['sams.sampler.SlurmInfo']:
             ncpus = data['sams.sampler.SlurmInfo']['cpus']
     
         # Insert information about job
-        c.execute(INSERT_JOBS,{'jobid': jobid, 'user':user,'project':project,'ncpus':ncpus})
+        c.execute(INSERT_JOBS,{'jobid': jobid, 'user':user,'project':project,'ncpus':ncpus, 'recordid': recordid})
         id = c.lastrowid
 
         # Insert node
