@@ -1,14 +1,11 @@
 """
-Fetches Metrics from Slurm command
+Fetches the path and cpu usage of the running processes.
 
 Config options:
 
 sams.sampler.Software:
     # in seconds
     sampler_interval: 100
-
-    # path to scontrol command
-    scontrol: /usr/local/bin/scontrol
 
 Output:
 Every sample:
