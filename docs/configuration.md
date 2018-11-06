@@ -6,10 +6,15 @@ Configuration uses the YAML file format.
 All modules the module name (include namespace) as base for 
 all configuration.
 
-All parts of the process uses an uniqe config file. Defaults to /etc/sams/$program_name.yaml
+All parts of the process uses an config file. Defaults to /etc/sams/$program_name.yaml
 
-All configuration files has an ''core'' part with configurations about the specific part.
-Common for all configuration file is the ''core/loglevel'' option.
+All configuration files has an ''common'' part that is shared with all modules.
+Currently ''loglevel'' and ''logfile'' are the only things that uses the common options.
+
+Each part has an configuration block named ''sams.$program_name'', for example ''sams.collector'',
+with configurations about the specific part.
+
+All parts can use the same configuration file as all options are in different namespace.
 
 More information about the specific configuration needed for each part in the parts documentation.
 
@@ -17,7 +22,7 @@ More information about the specific configuration needed for each part in the pa
 
 ```
 ---
-core:  
+sams.collector:  
   pid_finder_update_interval: 30
   pid_finder: sams.pidfinder.Slurm
   samplers:

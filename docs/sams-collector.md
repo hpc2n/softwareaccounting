@@ -41,21 +41,11 @@ Default: ''hostname'' of the machine.
 
 == --logfile=<filename>
 
-If set a logfile will be created at <filename>.
-
-The logfile have substitions ''%(jobid)s'' and ''%(node)s'' to create more unique names.
-
-Logfile can also be set via the configuration file. If provided on command line the command line option will be used.
+[See logging](logging.md)
 
 == --loglevel=
 
-Sets the loglevel for the logfile.
-
-Loglevel can also be set via the configuration file. If provided on command line the command line option will be used.
-
-Available options: CRITICAL, ERROR, WARNING, INFO, DEBUG 
-
-Default: ERROR
+[See logging](logging.md)
 
 == --daemon
 
@@ -87,27 +77,17 @@ A list of plugins that stores the metrics from the samplers.
 
 == logfile
 
-If set a logfile will be created.
-
-The logfile have substitions ''%(jobid)s'' and ''%(node)s'' to create more unique names.
-
-Logfile can also be set via the command line. If provided on command line the command line option will be used.
+[See logging](logging.md)
 
 == loglevel
 
-Sets the loglevel for the logfile.
-
-Loglevel can also be set via the command line. If provided on command line the command line option will be used.
-
-Available options: CRITICAL, ERROR, WARNING, INFO, DEBUG 
-
-Default: ERROR
+[See logging](logging.md)
 
 = Configuration Example
 
 ```
 ---
-core:  
+sams-collector:  
   pid_finder_update_interval: 30
   pid_finder: sams.pidfinder.Slurm
   samplers:

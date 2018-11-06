@@ -17,21 +17,11 @@ Default: /etc/sams/sams-post-receiver.yaml
 
 == --logfile=<filename>
 
-If set a logfile will be created at <filename>.
-
-The logfile have substitions ''%(jobid)s'' and ''%(node)s'' to create more unique names.
-
-Logfile can also be set via the configuration file. If provided on command line the command line option will be used.
+[See logging](logging.md)
 
 == --loglevel=
 
-Sets the loglevel for the logfile.
-
-Loglevel can also be set via the configuration file. If provided on command line the command line option will be used.
-
-Available options: CRITICAL, ERROR, WARNING, INFO, DEBUG 
-
-Default: ERROR
+[See logging](logging.md)
 
 == --daemon
 
@@ -65,27 +55,17 @@ The number of files to put in any directory.
 
 == logfile
 
-If set a logfile will be created.
-
-The logfile have substitions ''%(jobid)s'' and ''%(node)s'' to create more unique names.
-
-Logfile can also be set via the command line. If provided on command line the command line option will be used.
+[See logging](logging.md)
 
 == loglevel
 
-Sets the loglevel for the logfile.
-
-Loglevel can also be set via the command line. If provided on command line the command line option will be used.
-
-Available options: CRITICAL, ERROR, WARNING, INFO, DEBUG 
-
-Default: ERROR
+[See logging](logging.md)
 
 = Configuration Example
 
 ```
 ---
-core:  
+sams.post-receiver:  
   port: 8081
   base_path: /data/softwareaccounting/data
   jobid_hash_size: 10000
