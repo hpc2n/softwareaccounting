@@ -1,89 +1,89 @@
 
-= SAMS collector
+# SAMS collector
 
 The *sams-collector* is run on the compute-node and collects information about the running jobs.
 
-= Parts
+# Parts
 
 The collector contains of three parts. The *pidfinder*, the *sampler* and the *outputs*.
 
-== pidfinder
+## pidfinder
 
 This plugin finds process ids (PID) of a job.
 
-== sampler
+## sampler
 
 This plugins gets the PIDs from pidfinder and collects metrics about the processes.
 
-== output
+## output
 
 This plugins output the result of the samplers info different kinds of ways.
 
-= Command line arguments
+# Command line arguments
 
-== --jobid=
+## --jobid=
 
 Jobid to collect information about. 
 
 Note: In slurm this must be the ''JobIDRaw'' and not the jobid with job array extension (NNNNNN_A)
 
-== --config=<file>
+## --config=<file>
 
 Path to configuration file.
 
 Default: /etc/sams/sams-collector.yaml
 
-== --node=
+## --node=
 
 Name of the current node. 
 
 Default: ''hostname'' of the machine.
 
-== --logfile=<filename>
+## --logfile=<filename>
 
 [See logging](logging.md)
 
-== --loglevel=
+## --loglevel=
 
 [See logging](logging.md)
 
-== --daemon
+## --daemon
 
 Send collector into background.
 
-== --pidfile=<path>
+## --pidfile=<path>
 
 Create pid file at <path>.
 
-= Configuration
+# Configuration
 
 Core options of SAMS collector.
 
-== pid_finder_update_interval
+## pid_finder_update_interval
 
 The number of seconds to wait before trying to find new pids.
 
-== pid_finder
+## pid_finder
 
 Name of the plugin that finds PIDs.
 
-== samplers
+## samplers
 
 A list of plugins that sample metrics about the PIDs.
 
-== outputs
+## outputs
 
 A list of plugins that stores the metrics from the samplers.
 
-== logfile
+## logfile
 
 [See logging](logging.md)
 
-== loglevel
+## loglevel
 
 [See logging](logging.md)
 
-= Configuration Example
+# Configuration Example
 
 ```
 ---

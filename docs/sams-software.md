@@ -1,11 +1,11 @@
 
-= Software within SUPR/SAMS
+# Software within SUPR/SAMS
 
 Software should be reported with a name and major version number.
 
 The versionstr can represent a more local version number with patches.
 
-= Software Table
+# Software Table
 
 This is an selection of software that exist within SNIC.
 

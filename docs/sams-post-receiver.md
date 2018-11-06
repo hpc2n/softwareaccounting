@@ -1,5 +1,5 @@
 
-= SAMS POST receiver
+# SAMS POST receiver
 
 The POST receiver is run on the main node to collect information from the SAMS collector sent via the [*sams.output.Http*](output/Http.md) plugin.
 
@@ -7,61 +7,61 @@ The POST reciver does not have any kind of security. Use for example nginx to ad
 
 Example nginx configuration provided at the bottom of this page.
 
-= Command line arguments
+# Command line arguments
 
-== --config=<file>
+## --config=<file>
 
 Path to configuration file.
 
 Default: /etc/sams/sams-post-receiver.yaml
 
-== --logfile=<filename>
+## --logfile=<filename>
 
 [See logging](logging.md)
 
-== --loglevel=
+## --loglevel=
 
 [See logging](logging.md)
 
-== --daemon
+## --daemon
 
 Send collector into background.
 
 Daemon can also be set via the configuration file. If provided on command line the command line option will be used.
 
-== --pidfile=<path>
+## --pidfile=<path>
 
 Create pid file at <path>.
 
 Pidfile can also be set via the configuration file. If provided on command line the command line option will be used.
 
-= Configuration
+# Configuration
 
 Core options of SAMS POST receiver.
 
-== port
+## port
 
 TCP port to listen to.
 
 Default: 8080
 
-== base_path
+## base_path
 
 Path to save incomming data to.
 
-== jobid_hash_size
+## jobid_hash_size
 
 The number of files to put in any directory.
 
-== logfile
+## logfile
 
 [See logging](logging.md)
 
-== loglevel
+## loglevel
 
 [See logging](logging.md)
 
-= Configuration Example
+# Configuration Example
 
 ```
 ---
@@ -73,7 +73,7 @@ sams.post-receiver:
   loglevel: ERROR
 ```
 
-= Example nginx configuration
+# Example nginx configuration
 
 This configuration uses basic auth to secure the POST receiver
 
@@ -112,7 +112,7 @@ server {
 }
 ```
 
-= systemd service example
+# systemd service example
 
 ```
 ```

@@ -1,9 +1,9 @@
 
-= Basic flow
+# Basic flow
 
 ![flow](flow.png "flow")
 
-== sams-collector
+## sams-collector
 
 The [*sams-collector*](sams-collector.md) is using a *pidfinder* module to detect PIDs related to the running job.
 
@@ -28,12 +28,12 @@ real time usage of different metrics. An example module that sends data to and g
 provided ([*sams.output.Carbon*](output/Carbon.md)) and an sampler that fetch
 data from the Nvidia SMI command about GPU usage ([*sams.sampler.NvidiaSMI*](sampler/NvidiaSMI.md)) are available.
 
-== post-receiver
+## post-receiver
 
 The [*sams-post-receiver*](sams-post-receiver.md) can be used to receive the output 
 from the [*sams.output.Http*](output/Http.md) module and collected to disk.
 
-== aggregator
+## aggregator
 
 The [*sams-aggregator*](sams-aggregator.md) is used to parse the output from the [*sams-collector*](sams-collector.md) using a set of 
 aggreagors. For SUPR/SAMS software accounting the [*sams.aggregator.SoftwareAccounting*](aggregator/SoftwareAccounting.md) 
@@ -45,7 +45,7 @@ To pick up the files from the [*sams-collector*](sams-collector.md) or [*sams-po
 [*sams.aggregator.SoftwareAccounting*](aggregator/SoftwareAccounting.md) store the output of the aggregation into an Sqlite3 database
 that are later used with the [*sams-software-updater*](sams-software-updater.md).
 
-== software-updater
+## software-updater
 
 [*sams-software-updater*](sams-software-updater.md) uses two type of modules to convert executable paths into software.
 
