@@ -18,6 +18,7 @@ import sams.core
 
 logger = logging.getLogger(__name__)
 
+id = 'sams.collector'
 
 class Options:
     def usage(self):
@@ -86,16 +87,20 @@ class Main:
         # Logging
         loglevel = self.options.loglevel
         if not loglevel:
-            loglevel = self.config.get(['core','loglevel'],'ERROR')
+            loglevel = self.config.get([id,'loglevel'],'ERROR')
+        if not loglevel:
+            loglevel = self.config.get(['common','loglevel'],'ERROR')
         loglevel_n = getattr(logging, loglevel.upper(), None)
         if not isinstance(loglevel_n, int):
             raise ValueError('Invalid log level: %s' % loglevel)
         logfile = self.options.logfile
         if not logfile:
-            logfile = self.config.get(['core','logfile'])
+            logfile = self.config.get([id,'logfile'])
+        if not logfile:
+            logfile = self.config.get(['common','logfile'])
         if logfile:
             logfile = logfile % { 'jobid': self.options.jobid, 'node': self.options.node }           
-        logformat = self.config.get(['core','logformat'],'%(asctime)s %(name)s:%(levelname)s %(message)s')
+        logformat = self.config.get([id,'logformat'],'%(asctime)s %(name)s:%(levelname)s %(message)s')
         if logfile:
             logging.basicConfig(filename=logfile, filemode='a',
                                 format=logformat,level=loglevel_n)
@@ -148,7 +153,7 @@ class Main:
         self.pidQueue = sams.core.OneToN("pidQueue")
         self.outQueue = sams.core.OneToN("outQueue")
 
-        for o in self.config.get(['core','outputs'],[]):
+        for o in self.config.get([id,'outputs'],[]):
             logger.info("Load: %s",o)
             try:
                 Output = sams.core.ClassLoader.load(o,'Output')
@@ -162,7 +167,7 @@ class Main:
                 self.cleanup()
                 exit(1)
 
-        for s in self.config.get(['core','samplers'],[]):
+        for s in self.config.get([id,'samplers'],[]):
             logger.info("Load: %s",s)
             try:
                 Sampler = sams.core.ClassLoader.load(s,'Sampler')
@@ -177,11 +182,11 @@ class Main:
                 exit(1)
  
         # load PIDFinder class
-        PidFinder = sams.core.ClassLoader.load(self.config.get(['core','pid_finder']),'PIDFinder')        
+        PidFinder = sams.core.ClassLoader.load(self.config.get([id,'pid_finder']),'PIDFinder')        
         try:
-            pid_finder = PidFinder(self.config.get(['core','pid_finder']),self.options.jobid,self.config)
+            pid_finder = PidFinder(self.config.get([id,'pid_finder']),self.options.jobid,self.config)
         except Exception as e:
-            logger.error("Failed to initialize: %s" % self.config.get(['core','pid_finder']))
+            logger.error("Failed to initialize: %s" % self.config.get([id,'pid_finder']))
             logger.error(e)
             self.cleanup()
             exit(1)
@@ -190,7 +195,7 @@ class Main:
             pids = pid_finder.find()
             if len(pids):
                 self.pidQueue.put(pids)
-            self.exit.wait(self.config.get(['core','pid_finder_update_interval'],30))
+            self.exit.wait(self.config.get([id,'pid_finder_update_interval'],30))
 
         self.cleanup()
 

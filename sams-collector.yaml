@@ -1,5 +1,5 @@
 ---
-core:  
+sams.collector:  
   pid_finder_update_interval: 30
   pid_finder: sams.pidfinder.Slurm
   samplers:
