@@ -1,11 +1,11 @@
 
 = SAMS collector
 
-The collector is run on the compute-node and collects information about the running jobs.
+The *sams-collector* is run on the compute-node and collects information about the running jobs.
 
 = Parts
 
-The collector contains of three parts. The pidfinder, the sampler and the outputs.
+The collector contains of three parts. The *pidfinder*, the *sampler* and the *outputs*.
 
 == pidfinder
 

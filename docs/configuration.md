@@ -8,10 +8,10 @@ all configuration.
 
 All parts of the process uses an config file. Defaults to /etc/sams/$program_name.yaml
 
-All configuration files has an ''common'' part that is shared with all modules.
-Currently ''loglevel'' and ''logfile'' are the only things that uses the common options.
+All configuration files has an *common* part that is shared with all modules.
+Currently *loglevel* and *logfile* are the only things that uses the common options.
 
-Each part has an configuration block named ''sams.$program_name'', for example ''sams.collector'',
+Each part has an configuration block named *sams.$program_name*, for example [*sams-collector*](sams-collector.md),
 with configurations about the specific part.
 
 All parts can use the same configuration file as all options are in different namespace.

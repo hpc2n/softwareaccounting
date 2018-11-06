@@ -1,7 +1,7 @@
 
 = SAMS POST receiver
 
-The POST receiver is run on the main node to collect information from the SAMS collector sent via the sams.output.Http plugin.
+The POST receiver is run on the main node to collect information from the SAMS collector sent via the [*sams.output.Http*](output/Http.md) plugin.
 
 The POST reciver does not have any kind of security. Use for example nginx to add security via for example IP, basic-auth and/or certificate.
 
@@ -110,4 +110,9 @@ server {
         proxy_read_timeout 900;
     }
 }
+```
+
+= systemd service example
+
+```
 ```

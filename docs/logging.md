@@ -5,7 +5,7 @@ Logging can be specified on three(3) different places and are picked up in this 
 
 * Command line
 * part specific block in config file.
-* ''common'' block in config file.
+* *common* block in config file.
 
 = Command line
 
