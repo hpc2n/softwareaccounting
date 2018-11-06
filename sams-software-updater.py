@@ -14,6 +14,8 @@ import sams.core
 
 logger = logging.getLogger(__name__)
 
+id = 'sams.software-updater'
+
 class Options:
     def usage(self):
         print("usage....")
@@ -50,14 +52,18 @@ class Main:
         # Logging
         loglevel = self.options.loglevel
         if not loglevel:
-            loglevel = self.config.get(['core','loglevel'],'ERROR')
+            loglevel = self.config.get([id,'loglevel'],'ERROR')
+        if not loglevel:
+            loglevel = self.config.get(['common','loglevel'],'ERROR')
         loglevel_n = getattr(logging, loglevel.upper(), None)
         if not isinstance(loglevel_n, int):
             raise ValueError('Invalid log level: %s' % loglevel)
         logfile = self.options.logfile
         if not logfile:
-            logfile = self.config.get(['core','logfile'])        
-        logformat = self.config.get(['core','logformat'],'%(asctime)s %(name)s:%(levelname)s %(message)s')
+            logfile = self.config.get([id,'logfile'])        
+        if not logfile:
+            logfile = self.config.get(['common','logfile'])        
+        logformat = self.config.get([id,'logformat'],'%(asctime)s %(name)s:%(levelname)s %(message)s')
         if logfile:
             logging.basicConfig(filename=logfile, filemode='a',
                                 format=logformat,level=loglevel_n)
@@ -65,7 +71,7 @@ class Main:
             logging.basicConfig(format=logformat,level=loglevel_n) 
 
     def start(self):                
-        updater = self.config.get(['core','updater'])
+        updater = self.config.get([id,'updater'])
         try:
             Updater = sams.core.ClassLoader.load(updater,'Software')
             self.updater = Updater(updater,self.config)
@@ -74,7 +80,7 @@ class Main:
             logger.exception(e)
             exit(1)
 
-        backend = self.config.get(['core','backend'])
+        backend = self.config.get([id,'backend'])
         try:
             Backend = sams.core.ClassLoader.load(backend,'Backend')
             self.backend = Backend(backend,self.config)

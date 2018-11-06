@@ -1,5 +1,5 @@
 ---
-core:
+sams.software-updater:
   loglevel: ERROR
 
   backend: sams.backend.SoftwareAccounting
@@ -11,6 +11,11 @@ sams.backend.SoftwareAccounting:
 
 sams.software.Regexp:
   rules:
+    - match: '^/lap/slurm/(?P<version>[^/]+)/'
+      software: slurm
+      version: "%(version)s"
+      versionstr: ""
+      ignore: true
     - match: '^/lap/(?P<software>[^/]+)/'
       software: lap
       version: "%(software)s"
@@ -19,13 +24,34 @@ sams.software.Regexp:
       software: system
       version: "/usr/"
       versionstr: ""
+    - match: '^/scratch/'
+      software: user
+      version: "/scratch/"
+      versionstr: ""
+      user_provided: true
+    - match: '^/tmp/'
+      software: user
+      version: "/tmp/"
+      versionstr: ""
+      user_provided: true
     - match: '^/(?P<path>s?bin)/'
       software: "system"
       version: "/%(path)s/"
       versionstr: ""
+      ignore: true
     - match: '^/pfs/nobackup/home/./(?P<username>[^/]+)/'
       software: "user_pfs"
       version: "%(username)s"
+      versionstr: ""
+      user_provided: true
+    - match: '^/pfs/nobackup/projects/(?P<class>[^/]+/[^/]+)/(?P<project>[^/]+)/'
+      software: "pfs_projects"
+      version: "%(project)s"
+      versionstr: "%(class)s"
+      user_provided: true
+    - match: '^/afs/hpc2n.umu.se/lap/(?P<software>[^/]+)/(?P<version>[^/]+)/'
+      software: "%(software)s"
+      version: "%(version)s"
       versionstr: ""
       user_provided: true
     - match: '^/afs/hpc2n.umu.se/home/./(?P<username>[^/]+)/'
