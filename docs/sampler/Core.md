@@ -25,6 +25,7 @@ Name of the current node. Either ''hostname'' or --node.
 
 # Example configuration
 
-> sams.sampler.Core:
->   sampler_interval: 60
-
+```
+sams.sampler.Core:
+  sampler_interval: 60
+```

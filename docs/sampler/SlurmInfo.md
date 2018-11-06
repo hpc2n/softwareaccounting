@@ -49,14 +49,14 @@ UserID of username
 
 # Example configuration
 
-> sams.sampler.SlurmInfo:
->   sampler_interval: 60
->
->   # path to scontrol command
->   scontrol: /usr/bin/scontrol
->
->   # extra environments for command
->   environment:
->     TZ: "UTC"
+```
+sams.sampler.SlurmInfo:
+  sampler_interval: 60
 
+  # path to scontrol command
+  scontrol: /usr/bin/scontrol
 
+  # extra environments for command
+  environment:
+    TZ: "UTC"
+```

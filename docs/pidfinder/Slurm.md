@@ -13,7 +13,8 @@ Default value: 600
 
 # Example configuration
 
-> sams.pidfinder.Slurm:
->   # How long to wait (in seconds) after process was removed.
->   grace_period: 600
-
+```
+sams.pidfinder.Slurm:
+  # How long to wait (in seconds) after process was removed.
+  grace_period: 600
+```

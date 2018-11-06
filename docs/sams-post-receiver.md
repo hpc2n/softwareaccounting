@@ -83,47 +83,51 @@ Default: ERROR
 
 = Configuration Example
 
-> ---
-> core:  
->   port: 8081
->   base_path: /data/softwareaccounting/data
->   jobid_hash_size: 10000
->   logfile: /var/log/sams-post-receiver.log
->   loglevel: ERROR
+```
+---
+core:  
+  port: 8081
+  base_path: /data/softwareaccounting/data
+  jobid_hash_size: 10000
+  logfile: /var/log/sams-post-receiver.log
+  loglevel: ERROR
+```
 
 = Example nginx configuration
 
 This configuration uses basic auth to secure the POST receiver
 
-> #
-> # SAMS POST receiver nginx configuration
-> #
-> 
-> server {
->     listen       [::]:8443;
->     listen       *:8443;
->     server_name  server.example.com;
-> 
->     access_log   /var/log/nginx/sams-post-receiver.access.log;
->     error_log   /var/log/nginx/sams-post-receiver.error.log info; 
-> 
->     ssl on;
->     ssl_certificate      /etc/certificates/server.cert.pem;
->     ssl_certificate_key  /etc/certificates/server.key.pem;
-> 
->     # Makes hardy FF fail to load these pages
->     ssl_protocols  TLSv1 TLSv1.1 TLSv1.2;
-> 
->     client_max_body_size 512m;
-> 
->     location /cluster {
->         rewrite /cluster/(.*) /$1  break;
-> 
->         auth_basic           "Basic auth";
->         auth_basic_user_file /etc/nginx/htpasswd; 
-> 
->         proxy_pass         http://127.0.0.1:8080/;
->         proxy_redirect     off;
->         proxy_read_timeout 900;
->     }
-> }
+```
+#
+# SAMS POST receiver nginx configuration
+#
+
+server {
+    listen       [::]:8443;
+    listen       *:8443;
+    server_name  server.example.com;
+
+    access_log   /var/log/nginx/sams-post-receiver.access.log;
+    error_log   /var/log/nginx/sams-post-receiver.error.log info; 
+
+    ssl on;
+    ssl_certificate      /etc/certificates/server.cert.pem;
+    ssl_certificate_key  /etc/certificates/server.key.pem;
+
+    # Makes hardy FF fail to load these pages
+    ssl_protocols  TLSv1 TLSv1.1 TLSv1.2;
+
+    client_max_body_size 512m;
+
+    location /cluster {
+        rewrite /cluster/(.*) /$1  break;
+
+        auth_basic           "Basic auth";
+        auth_basic_user_file /etc/nginx/htpasswd; 
+
+        proxy_pass         http://127.0.0.1:8080/;
+        proxy_redirect     off;
+        proxy_read_timeout 900;
+    }
+}
+```

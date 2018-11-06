@@ -37,6 +37,7 @@ Last time an sample was made (s since epoch).
 
 # Example configuration
 
-> sams.sampler.Software:
->   sampler_interval: 60
-
+```
+sams.sampler.Software:
+  sampler_interval: 60
+```
