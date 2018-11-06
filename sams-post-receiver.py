@@ -19,6 +19,8 @@ import sams.core
 import logging
 logger = logging.getLogger(__name__)
 
+id = 'sams.post-receiver'
+
 class Receiver(MethodView):
     def __init__(self,base_path,jobid_hash_size):
         super(Receiver,self).__init__()
@@ -93,14 +95,18 @@ class Main:
         # Logging
         loglevel = self.options.loglevel
         if not loglevel:
-            loglevel = self.config.get(['core','loglevel'],'ERROR')
+            loglevel = self.config.get([id,'loglevel'],'ERROR')
+        if not loglevel:
+            loglevel = self.config.get(['common','loglevel'],'ERROR')
         loglevel_n = getattr(logging, loglevel.upper(), None)
         if not isinstance(loglevel_n, int):
             raise ValueError('Invalid log level: %s' % loglevel)
         logfile = self.options.logfile
         if not logfile:
-            logfile = self.config.get(['core','logfile'])
-        logformat = self.config.get(['core','logformat'],'%(asctime)s %(name)s:%(levelname)s %(message)s')
+            logfile = self.config.get([id,'logfile'])
+        if not logfile:
+            logfile = self.config.get(['common','logfile'])
+        logformat = self.config.get([id,'logformat'],'%(asctime)s %(name)s:%(levelname)s %(message)s')
         if logfile:
             logging.basicConfig(filename=logfile, filemode='a',
                                 format=logformat,level=loglevel_n)
@@ -110,11 +116,11 @@ class Main:
     def start(self):
         app = Flask(__name__)
         view_func = Receiver.as_view('receiver', 
-                                base_path=self.config.get(['core','base_path'],'/tmp'),
-                                jobid_hash_size=self.config.get(['core','jobid_hash_size'])
+                                base_path=self.config.get([id,'base_path'],'/tmp'),
+                                jobid_hash_size=self.config.get([id,'jobid_hash_size'])
                              )
         app.add_url_rule('/<int:jobid>/<filename>',view_func=view_func)
-        app.run(host=self.config.get(['core','bind'],'127.0.0.1'), port=self.config.get(['core','port'],8080) )
+        app.run(host=self.config.get([id,'bind'],'127.0.0.1'), port=self.config.get([id,'port'],8080) )
 
 if __name__ == "__main__":
     Main().start()
