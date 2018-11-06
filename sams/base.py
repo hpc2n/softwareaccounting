@@ -145,7 +145,7 @@ class Output(threading.Thread):
         self.config = config
 
         self.dataQueue = queue.Queue()
-        self.jobid = self.config.get(['core','jobid'])
+        self.jobid = self.config.get(['options','jobid'])
 
     def run(self):
         while True:
