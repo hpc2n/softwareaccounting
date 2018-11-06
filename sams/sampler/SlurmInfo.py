@@ -53,7 +53,7 @@ class Sampler(sams.base.Sampler):
     def sample(self):
         logger.debug("sample()")
 
-        scontrol=self.config.get([self.id,'scontrol'],'/usr/local/bin/scontrol')
+        scontrol=self.config.get([self.id,'scontrol'],'/usr/bin/scontrol')
         jobid=self.config.get(['options','jobid'],0)
 
         command = COMMAND % (scontrol,jobid)
