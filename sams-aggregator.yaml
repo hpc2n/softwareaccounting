@@ -1,5 +1,5 @@
 ---
-core:  
+sams.aggregator:  
   loaders:
     - sams.loader.File
   aggregators:
@@ -17,3 +17,4 @@ sams.aggregator.SoftwareAccounting:
   jobid_hash_size: 300000000
   file_pattern: "sa-%(jobid_hash)d.db"
   db_path: /data/softwareaccounting/db
+  cluster: CLUSTER.hpc2n.umu.se
