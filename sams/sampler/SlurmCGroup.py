@@ -7,7 +7,7 @@ sams.sampler.SlurmCGroup:
     # in seconds
     sampler_interval: 100
 
-    cgroup_base_path: /cgroup
+    cgroup_base: /cgroup
 
 Output:
 {
