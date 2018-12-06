@@ -50,6 +50,7 @@ class Process:
 
         try:
             self.exe = os.readlink('/proc/%d/exe' % self.pid)
+            logger.debug("Pid: %d (JobId: %d) has exe: %s",pid,jobid,self.exe)
         except IOError as err:
             logger.debug("Pid: %d (JobId: %d) has no exe or pid has disapeard",pid,jobid)
             self.ignore = True
@@ -69,7 +70,10 @@ class Process:
         """ Update information about pids """
 
         if self.done:
+            logger.debug("Pid: %d is done",self.pid)
             return
+
+        logger.debug("Update pid: %d",self.pid)
 
         self.uptime = uptime
 
@@ -91,6 +95,8 @@ class Process:
                             'user': stats['user'],
                             'system': stats['system'],
                         }
+                    logger.debug("Task usage for pid: %d, task: %d, user: %f, system: %f", 
+                                    self.pid, task, stats['user'], stats['system'])
                     
             except IOError as err:
                 logger.debug("Ignore missing task for pid: %d", self.pid)
@@ -124,7 +130,9 @@ class Sampler(sams.base.Sampler):
             uptime = float(f.readline().split()[0])
         
         for pid in self.pids:
+            logger.debug("evaluate pid: %d",pid)
             if not pid in self.processes.keys():
+                logger.debug("Create new instance of Process for pid: %d",pid)
                 self.processes[pid] = Process(pid,self.jobid)
             self.processes[pid].update(uptime)
 
@@ -158,6 +166,7 @@ class Sampler(sams.base.Sampler):
         aggr = {}
         total = { 'user': 0.0, 'system': 0.0 }
         for a in [p.aggregate() for p in filter(lambda p: not p.ignore, self.processes.values())]:
+            logger.debug("_aggregate: exe: %s, user: %f, system: %f", a['exe'],a['user'],a['system'])
             exe = a['exe']
             if not exe in aggr:
                 aggr[exe] = { 'user': 0.0, 'system': 0.0 }
