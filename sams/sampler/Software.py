@@ -51,7 +51,7 @@ class Process:
         try:
             self.exe = os.readlink('/proc/%d/exe' % self.pid)
             logger.debug("Pid: %d (JobId: %d) has exe: %s",pid,jobid,self.exe)
-        except IOError as err:
+        except Exception as err:
             logger.debug("Pid: %d (JobId: %d) has no exe or pid has disapeard",pid,jobid)
             self.ignore = True
             return
@@ -80,12 +80,11 @@ class Process:
         try:
             tasks = filter(lambda f: re.match('^\d+$',f),os.listdir('/proc/%d/task' % self.pid))
             tasks = map(lambda t: int(t),tasks)
-        except IOError as err:
-            # Ignore if no tasks exists anymore (missing pid)
-            logger.debug("No pids left/or no pids yet, should not happen")
+        except Exception as err:
+            logger.debug("Failed to read /proc/%d/task, most likely due to process ending",self.pid)
             self.done = True
             return
-        
+
         for task in tasks:
             try:
                 with open('/proc/%d/task/%d/stat' % (self.pid,task)) as f:
@@ -98,11 +97,9 @@ class Process:
                     logger.debug("Task usage for pid: %d, task: %d, user: %f, system: %f", 
                                     self.pid, task, stats['user'], stats['system'])
                     
-            except IOError as err:
+            except Exception as err:
                 logger.debug("Ignore missing task for pid: %d", self.pid)
                 self.done = True
-                # Ignore missing task (or pid)
-                pass
 
         self.updated = time.time()      
 
