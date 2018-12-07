@@ -55,6 +55,7 @@ class Sampler(threading.Thread):
                 if not pids:
                     self.pidQueue.task_done()
                     break
+                logger.debug("Received new pids: %s", pids)
                 self.pids.extend(pids)
                 self.pidQueue.task_done()
             except queue.Empty as e:
