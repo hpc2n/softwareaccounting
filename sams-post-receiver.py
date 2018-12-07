@@ -37,7 +37,7 @@ class Receiver(MethodView):
             if not os.path.isdir(base_path):
                 try:
                     os.mkdir(base_path)
-                except IOError as err:
+                except Exception as err:
                     # Handle possible raise from other process
                     if not os.path.isdir(base_path):
                         assert False, "Failed to mkdir '%s' " % base_path
@@ -47,11 +47,11 @@ class Receiver(MethodView):
             with open(os.path.join(base_path,tfilename),"wb") as file:
                 file.write(request.data)
             os.rename(os.path.join(base_path,tfilename),os.path.join(base_path,filename))
-        except IOError as err:            
+        except Exception as err:
             logger.debug("Failed to write file")
             try:
                 os.unlink(os.path.join(base_path,tfilename))
-            except IOError as err:
+            except Exception as err:
                 # Just log unlink errors
                 logger.error("Failed to unlink tmp file")                
                 pass
