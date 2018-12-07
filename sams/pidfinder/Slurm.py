@@ -34,7 +34,7 @@ class Pids(object):
                 if m:                  
                     if int(m.group(1)) == self.jobid:
                         return True
-        except IOError as err:
+        except Exception as err:
             pass
         
         # This pid is not within the Slurm CGroup.
