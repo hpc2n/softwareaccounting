@@ -62,7 +62,7 @@ class Sampler(sams.base.Sampler):
                     if m:
                         self.cgroup = m.group(1)
                         return True
-            except IOError as e:
+            except Exception as e:
                 logger.debug("Failed to fetch cpuset for pid: %d", self.pids[0])
         return False
 
