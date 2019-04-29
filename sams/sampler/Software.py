@@ -137,15 +137,18 @@ class Sampler(sams.base.Sampler):
         aggr,total = self._aggregate()
         if self.last_sample_time:            
             time_diff = time.time()-self.last_sample_time
-            self.store({
-                'current': {
-                    'user': (total['user']-self.last_total['user'])/time_diff,
-                    'system': (total['system']-self.last_total['system'])/time_diff
-                }
-            })
-
-        self.last_total = total
-        self.last_sample_time = time.time()
+            if time_diff > self.sampler_interval/2:
+                self.store({
+                    'current': {
+                        'user': (total['user']-self.last_total['user'])/time_diff,
+                        'system': (total['system']-self.last_total['system'])/time_diff
+                    }
+                })
+                self.last_total = total
+                self.last_sample_time = time.time()
+        else:
+            self.last_total = total
+            self.last_sample_time = time.time()
 
     def last_updated(self):
         procs = list(filter(lambda p: not p.ignore,self.processes.values()))
