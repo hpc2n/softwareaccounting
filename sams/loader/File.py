@@ -44,6 +44,8 @@ class Loader(sams.base.Loader):
                 return json.load(file)
         except Exception as e:
             logger.error("Failed to load: %s", filename)
+        except ValueError as e:
++            logger.error("Failed to decode JSON in file: %s", filename)
         return None
 
     def error(self):
