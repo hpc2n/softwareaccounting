@@ -40,6 +40,7 @@ class Sampler(threading.Thread):
         self.jobid = self.config.get(['options','jobid'])
         self.pidQueue = queue.Queue()
         self.pids = []
+        self.sampler_interval = self.config.get([self.id,"sampler_interval"],60)
 
     def init(self):
         pass
@@ -51,7 +52,7 @@ class Sampler(threading.Thread):
             logger.exception("Failed to do self.init in %s" % self.id,e)
         while True:
             try:
-                pids = self.pidQueue.get(timeout = self.config.get([self.id,"sampler_interval"],60))
+                pids = self.pidQueue.get(timeout = self.sampler_interval)
                 if not pids:
                     self.pidQueue.task_done()
                     break
