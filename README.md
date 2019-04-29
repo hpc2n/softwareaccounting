@@ -1,7 +1,7 @@
 
 # Needed packages
 
-## Ununtu
+## Ubuntu
 
 ### Python3
 
