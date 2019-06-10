@@ -92,6 +92,15 @@ TABLES = [
     '''
     CREATE INDEX IF NOT EXISTS command_jobid_node_software_idx on command(jobid,node,software);
     ''',
+    '''
+    CREATE INDEX IF NOT EXISTS command_updated_idx on command(updated);
+    ''',
+    '''
+    CREATE INDEX IF NOT EXISTS software_last_updated_idx on software(last_updated);
+    ''',
+    '''
+    CREATE INDEX IF NOT EXISTS jobs_jobid_idx on jobs(jobid);
+    ''',
 ]
 
 # Update/Insert SQL
