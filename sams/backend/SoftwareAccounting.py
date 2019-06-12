@@ -68,7 +68,7 @@ class Backend(sams.base.Backend):
     def update(self,software):
         """ Information aggregate method """
 
-        # Get database for jobid
+        # Get databases
         dbs = self.get_databases()
         for db in dbs:
             dbh = self._open_db(db)
