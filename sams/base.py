@@ -128,6 +128,9 @@ class Backend(object):
     def update(self,updater):
         raise Exception("Not implemented")
 
+    def extract(self,xyz):
+        raise Exception("Not implemented")
+
 class Software(object):
     """ Software base class """
 
