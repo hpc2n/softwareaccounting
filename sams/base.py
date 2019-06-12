@@ -188,3 +188,13 @@ class Output(threading.Thread):
 
     def exit(self):
         self.dataQueue.put(None)
+
+class XMLWriter(object):
+    """ XMLWriter base class """
+
+    def __init__(self,id,config):
+        self.id = id
+        self.config = config
+
+    def write(self,data):
+        raise Exception("Not implemented")
