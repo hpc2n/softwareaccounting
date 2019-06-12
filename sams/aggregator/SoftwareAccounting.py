@@ -90,6 +90,14 @@ TABLES = [
     );
     ''',
     '''
+    CREATE TABLE IF NOT EXISTS last_sent (
+        timestamp      INTEGER
+    );
+    ''',
+    '''
+    INSERT INTO last_sent(timestamp) SELECT 0 WHERE NOT EXISTS(SELECT 1 FROM last_sent);
+    ''',
+    '''
     CREATE INDEX IF NOT EXISTS command_jobid_node_software_idx on command(jobid,node,software);
     ''',
     '''
@@ -101,6 +109,18 @@ TABLES = [
     '''
     CREATE INDEX IF NOT EXISTS jobs_jobid_idx on jobs(jobid);
     ''',
+    '''
+    CREATE INDEX IF NOT EXISTS jobs_start_time_idx on jobs(start_time);
+    ''',
+    '''
+    CREATE INDEX IF NOT EXISTS jobs_end_time_idx on jobs(end_time);
+    ''',
+    '''
+    CREATE INDEX IF NOT EXISTS jobs_user_time_idx on jobs(user_time);
+    ''',
+    '''
+    CREATE INDEX IF NOT EXISTS jobs_system_time_idx on jobs(system_time);
+    '''
 ]
 
 # Update/Insert SQL
