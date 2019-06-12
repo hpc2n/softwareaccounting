@@ -1,0 +1,13 @@
+---
+sams.software-extractor:
+  loglevel: ERROR
+
+  backend: sams.backend.SoftwareAccounting
+  xmlwriter: sams.xmlwriter.File
+
+sams.backend.SoftwareAccounting:
+  file_pattern: 'sa-\d+.db'
+  db_path: /data/softwareaccounting/kebnekaise/db
+
+sams.xmlwriter.File:
+  output_path: /scratch/output/records
