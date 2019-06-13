@@ -175,7 +175,7 @@ class Aggregator(sams.base.Aggregator):
         self.db_path = self.config.get([self.id,'db_path'])
         self.cluster = self.config.get([self.id,'cluster'])
         self.file_pattern = self.config.get([self.id,'file_pattern'],"sa-%(jobid_hash)d.db")
-        self.jobid_hash_size = self.config.get([self.id,'jobid_hash_size'],1000000000)
+        self.jobid_hash_size = self.config.get([self.id,'jobid_hash_size'],0)
         self.inserted = {}
 
     def _open_db(self,jobid_hash):
@@ -192,14 +192,18 @@ class Aggregator(sams.base.Aggregator):
 
     def get_db(self,jobid):
         """ get db connection based on jobid / jobid_hash_size """
-        jobid_hash = int(jobid / self.jobid_hash_size)
+        jobid_hash = 0
+        if self.jobid_hash_size > 0:
+            jobid_hash = int(jobid / self.jobid_hash_size)
         if jobid_hash in self.db:
             return self.db[jobid_hash]
         return self._open_db(jobid_hash)
 
     def save_id(self,jobid,table,value,id):
         """ Only try to insert once / session """
-        jobid_hash = int(jobid / self.jobid_hash_size)
+        jobid_hash = 0
+        if self.jobid_hash_size > 0:
+            jobid_hash = int(jobid / self.jobid_hash_size)
         if value not in self.inserted[jobid_hash][table]:
             self.inserted[jobid_hash][table][value] = id
         logger.debug("save_id(%d (%d),%s,%s,%d)" % (jobid,jobid_hash,table,value,id))
@@ -207,13 +211,17 @@ class Aggregator(sams.base.Aggregator):
 
     def get_id(self,jobid,table,value):
         """ Only try to insert once / session """
-        jobid_hash = int(jobid / self.jobid_hash_size)
+        jobid_hash = 0
+        if self.jobid_hash_size > 0:
+            jobid_hash = int(jobid / self.jobid_hash_size)
         logger.debug("get_id(%d (%d),%s,%s,%d)" % (jobid,jobid_hash,table,value,self.inserted[jobid_hash][table][value]))
         return self.inserted[jobid_hash][table][value]
 
     def do_insert(self,jobid,table,value):
         """ Only try to insert once / session """
-        jobid_hash = int(jobid / self.jobid_hash_size)
+        jobid_hash = 0
+        if self.jobid_hash_size > 0:
+            jobid_hash = int(jobid / self.jobid_hash_size)
         if jobid_hash not in self.inserted:
             self.inserted[jobid_hash] = {}
         if table not in self.inserted[jobid_hash]:
