@@ -7,7 +7,7 @@ sams.software-extractor:
 
 sams.backend.SoftwareAccounting:
   file_pattern: 'sa-\d+.db'
-  db_path: /data/softwareaccounting/kebnekaise/db
+  db_path: /data/softwareaccounting/CLUSTER/db
 
 sams.xmlwriter.File:
   output_path: /scratch/output/records
