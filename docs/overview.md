@@ -51,3 +51,9 @@ that are later used with the [*sams-software-updater*](sams-software-updater.md)
 
 The [*sams.backend.SoftwareAccounting*](backend/SoftwareAccounting.md) is used to fetch non updated path and convert them
 into softwares with the help of the [*sams.software.Regexp*](software/Regexp.md) that uses regexps to match different paths into software.
+
+## software-extractor
+
+[*sams-software-extractor*](sams-software-extractor.md) is used to extractor softwares from the database and write the xml files that can be sent to SAMS.
+
+The [*sams.backend.SoftwareAccounting*](backend/SoftwareAccounting.md) is used to fetch jobs and softwares and with help of [*sams.xmlwriter.File*](xmlwriter/File.md) convert them into xml files.
