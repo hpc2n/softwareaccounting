@@ -52,6 +52,7 @@ class Backend(sams.base.Backend):
         super(Backend,self).__init__(id,config)
         self.db_path = self.config.get([self.id,'db_path'])
         self.file_pattern = re.compile(self.config.get([self.id,'file_pattern'],"sa-\d+.db"))
+        self.dry_run(False)
 
     def _open_db(self,db):
         """ Open database object """
@@ -64,6 +65,9 @@ class Backend(sams.base.Backend):
         dbs = filter(lambda file: self.file_pattern.match(file),dbs)
         dbs = map(lambda file: os.path.join(self.db_path,file), dbs)        
         return list(dbs)
+
+    def dry_run(self,dry):
+        self._dry_run = dry
 
     def update(self,software):
         """ Information aggregate method """
@@ -81,15 +85,17 @@ class Backend(sams.base.Backend):
             for row in rows:
                 info = software.get(row[1])
                 if info:
-                    logger.debug(info) 
-                    c.execute(UPDATE_SOFTWARE,{ 'software': info['software'],'version': info['version']
+                    logger.debug(info)
+                    if not self._dry_run:
+                        c.execute(UPDATE_SOFTWARE,{ 'software': info['software'],'version': info['version']
                                              ,'versionstr': info['versionstr'],'user_provided': info['user_provided'], 
                                              'id': row[0], 'ignore': info['ignore'] })
             
             logger.info("Done")
             # Commit data to disk
-            c.execute('COMMIT')
-            dbh.commit()
+            if not self._dry_run: 
+                c.execute('COMMIT')
+                dbh.commit()
             dbh.close()
 
     def extract(self):
@@ -101,7 +107,6 @@ class Backend(sams.base.Backend):
             dbh = self._open_db(db)
             c = dbh.cursor()
             updated = [ts for ts in c.execute('SELECT timestamp from last_sent')][0][0]
-            pp.pprint(updated)
             rows = [row for row in c.execute(EXTRACT_SOFTWARE,{'updated': updated})]
             dbh.close()
 
