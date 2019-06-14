@@ -23,6 +23,8 @@ class XMLWriter(sams.base.XMLWriter):
     def __init__(self,id,config):
         super(XMLWriter,self).__init__(id,config)
         self.create_time = time.time()
+        self.remove_less_then = self.config.get([self.id,'remove_less_then'],1.0)
+        self.jobs_per_file = self.config.get([self.id,'jobs_per_file'],1000)
 
     def prettify(self,elem):
         """Return a pretty-printed XML string for the Element.
@@ -45,8 +47,8 @@ class XMLWriter(sams.base.XMLWriter):
             output_file = os.path.join(output_path,"%s.%d.xml") % (str(self.create_time),n)
             n = n + 1
 
-            # Create files with 1000 jobs
-            (output,data) = (data[:1000],data[1000:])
+            # Create files with 'self.jobs_per_file' jobs
+            (output,data) = (data[:self.jobs_per_file],data[self.jobs_per_file:])
 
             # Write file
             with open(output_file,"w") as f:
@@ -80,7 +82,7 @@ class XMLWriter(sams.base.XMLWriter):
         r.append(jri)
 
         # Software
-        for sw in job.softwares():
+        for sw in job.softwares(self.remove_less_then):
             s = Element("{%s}Software" % SA_NAMESPACE)
             # Software Name
             name = Element("{%s}Name" % SA_NAMESPACE)
@@ -100,7 +102,7 @@ class XMLWriter(sams.base.XMLWriter):
             s.append(user_provided)
             # Usage in %
             usage = Element("{%s}Usage" % SA_NAMESPACE)
-            usage.text = "%.2f" % ( 100*sw.cpu/job.total_cpu() )
+            usage.text = "%.2f" % ( 100*sw.cpu/job.total_cpu(self.remove_less_then) )
             s.append(usage)
 
             r.append(s)
