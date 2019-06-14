@@ -1,7 +1,18 @@
 """
-Doccu...
+Module that writes XML files for SAMS into files.
 
 Config Options:
+
+sams.xmlwriter.File:
+    # Where to write output files.
+    output_path: "/var/spool/softwareaccounting/records"
+
+    # Software that uses less then 1% cpu of the job are removed
+    remove_less_then: 1.0
+
+    # Jobs / File
+    jobs_per_file: 1000
+
 """
 import sams.base
 import re
