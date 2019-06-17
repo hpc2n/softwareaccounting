@@ -6,7 +6,7 @@ import time
 try:
     from yaml import CLoader as YamlLoader, CDumper as YamlDumper
 except ImportError:
-    from yaml import YamlLoader, YamlDumper
+    from yaml import SafeLoader as YamlLoader, SafeDumper as YamlDumper
 import threading
 try:
     import queue
