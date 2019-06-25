@@ -55,11 +55,11 @@ class Loader(sams.base.Loader):
         out_path = os.path.join(self.error_path,self.current_file['path'])
         if not os.path.isdir(out_path):
             try:
-                os.mkdir(out_path)
+                os.makedirs(out_path)
             except Exception as err:
                 # Handle possible raise from other process
                 if not os.path.isdir(out_path):
-                    assert False, "Failed to mkdir '%s' " % out_path
+                    assert False, "Failed to makedirs '%s' " % out_path
 
         # Rename file to error directory
         os.rename(os.path.join(self.in_path,self.current_file['path'],self.current_file['file']),
@@ -75,11 +75,11 @@ class Loader(sams.base.Loader):
         out_path = os.path.join(self.archive_path,self.current_file['path'])
         if not os.path.isdir(out_path):
             try:
-                os.mkdir(out_path)
+                os.makedirs(out_path)
             except Exception as err:
                 # Handle possible raise from other process
                 if not os.path.isdir(out_path):
-                    assert False, "Failed to mkdir '%s' " % out_path
+                    assert False, "Failed to makedirs '%s' " % out_path
 
         # Rename file to archive directory
         os.rename(os.path.join(self.in_path,self.current_file['path'],self.current_file['file']),
