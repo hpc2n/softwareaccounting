@@ -53,13 +53,14 @@ setup(name='sams-software-accounting',
       packages=['sams','sams.aggregator','sams.loader','sams.output','sams.pidfinder','sams.sampler',
                 'sams.backend','sams.software'],
       scripts = ['sams-aggregator.py','sams-collector.py','sams-post-receiver.py',
-                 'sams-post-receiver.py','sams-software-updater.py'],
+                 'sams-post-receiver.py','sams-software-extractor.py','sams-software-updater.py'],
       cmdclass = cmdclasses,
 
       data_files = [
         ('etc/sams', ['sams-aggregator.yaml']),
         ('etc/sams', ['sams-collector.yaml']),
         ('etc/sams', ['sams-post-receiver.yaml']),
+        ('etc/sams', ['sams-software-extractor.yaml']),
         ('etc/sams', ['sams-software-updater.yaml']),
         ('etc/sams', ['sams-post-receiver.yaml']),
       ]
