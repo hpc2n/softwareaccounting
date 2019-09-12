@@ -288,7 +288,7 @@ class Aggregator(sams.base.Aggregator):
             ncpus = data['sams.sampler.SlurmInfo']['cpus']
     
         # Insert information about job
-        c.execute(INSERT_JOBS,{'jobid': jobid, 'user':user,'project':project,'ncpus':ncpus, 'recordid': recordid})
+        c.execute(INSERT_JOBS,{'jobid': jobid, 'user':user_id,'project':project_id,'ncpus':ncpus, 'recordid': recordid})
         id = c.lastrowid
 
         # Insert node
