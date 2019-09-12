@@ -33,11 +33,14 @@ SELECT x.software,x.version,x.versionstr,x.jobid,x.recordid,
         sum(x.cpu) as cpu,max(x.updated) as updated,x.user_provided
 FROM (
              SELECT s.software,s.version,s.versionstr,j.jobid,sum(c.user+c.sys) as cpu, j.recordid, j.id,
-                    max(s.last_updated) as updated,s.user_provided
+                    max(max(s.last_updated,c.updated)) as updated,s.user_provided
              FROM software s, command c, jobs j
              WHERE c.software = s.id and c.jobid = j.id and NOT s.ignore and
                 j.id in (select DISTINCT jobid from command where updated > :updated UNION
-                    select DISTINCT id from software  where last_updated > :updated)
+                    select DISTINCT jobid from command where software in (
+                                select DISTINCT id from software where last_updated > :updated and NOT ignore
+                        )
+                )
              GROUP BY s.software,s.version,s.versionstr,s.user_provided,j.jobid,j.recordid,j.id
           ) x
 WHERE x.recordid is not null
