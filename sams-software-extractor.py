@@ -76,7 +76,7 @@ class Main:
             XMLWriter = sams.core.ClassLoader.load(xmlwriter,'XMLWriter')
             self.xmlwriter = XMLWriter(xmlwriter,self.config)
         except Exception as e:
-            logger.error("Failed to initialize: %s" % updater)
+            logger.error("Failed to initialize: %s" % xmlwriter)
             logger.exception(e)
             exit(1)
 
@@ -85,7 +85,7 @@ class Main:
             Backend = sams.core.ClassLoader.load(backend,'Backend')
             self.backend = Backend(backend,self.config)
         except Exception as e:
-            logger.error("Failed to initialize: %s" % updater)
+            logger.error("Failed to initialize: %s" % backend)
             logger.exception(e)
             exit(1)
 
