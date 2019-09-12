@@ -26,7 +26,7 @@ UPDATE_SOFTWARE = '''
     UPDATE software 
     SET software = :software, version = :version, versionstr = :versionstr, 
         user_provided = :user_provided, ignore = :ignore, last_updated = strftime('%s','now')
-    WHERE id = :id
+    WHERE id = :id and software is NULL
 '''
 EXTRACT_SOFTWARE = '''
 SELECT x.software,x.version,x.versionstr,x.jobid,x.recordid,
