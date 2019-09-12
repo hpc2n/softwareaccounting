@@ -47,6 +47,8 @@ class XMLWriter(sams.base.XMLWriter):
     def write(self,data):
         """ Data write method """
 
+        data = list(data)
+
         # If no data awailable don't do anything
         if len(data) == 0:
             return
@@ -62,7 +64,7 @@ class XMLWriter(sams.base.XMLWriter):
             (output,data) = (data[:self.jobs_per_file],data[self.jobs_per_file:])
 
             # Write file
-            with open(output_file,"w") as f:
+            with open(output_file,"wb") as f:
                 f.write(self.generate_xml(output))
 
     def generate_xml(self,data):
