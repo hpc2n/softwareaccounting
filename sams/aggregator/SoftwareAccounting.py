@@ -128,9 +128,10 @@ INSERT_USER=''' insert or replace into users (id,user) values ((select ID from u
 INSERT_PROJECT=''' insert or replace into projects (id,project) values ((select ID from projects where project = :project), :project); '''
 INSERT_JOBS=''' insert or replace into jobs (id,jobid,user,project,ncpus,recordid) values ((select ID from jobs where jobid = :jobid), :jobid, :user ,:project, :ncpus, :recordid); '''
 INSERT_NODE=''' insert or replace into node (id,node) values ((select ID from node where node = :node), :node); '''
-INSERT_SOFTWARE=''' insert or replace into software (id,path) values ((select ID from software where path = :software), :software); '''
+FETCH_SOFTWARE_ID=''' select ID from software where path = :software; '''
+INSERT_SOFTWARE=''' insert or ignore into software (id,path) values ((select ID from software where path = :software), :software); '''
 INSERT_COMMAND='''
-insert or replace into command (id,jobid,node,software,start_time,end_time,user,sys,updated) values
+insert or ignore into command (id,jobid,node,software,start_time,end_time,user,sys,updated) values
 (
         (
                 select ID from command 
@@ -303,14 +304,19 @@ class Aggregator(sams.base.Aggregator):
         # Insert information about running commands
         for sw,info in data['sams.sampler.Software']['execs'].items():
             # Insert software
-            sw_id = None
+            sw_id = None            
             if self.do_insert(jobid,'softwares',sw):
-                c.execute(INSERT_SOFTWARE,{ 'software': sw })
-                sw_id = self.save_id(jobid,'softwares',sw,c.lastrowid)
-                logger.debug("Inserted sw: %s as %d (%d)" % (sw,c.lastrowid,sw_id))
+                sw_id_row = [ts for ts in c.execute(FETCH_SOFTWARE_ID, {'software': sw })]
+                if len(sw_id_row):
+                    sw_id = self.save_id(jobid,'softwares',sw,sw_id_row[0][0])
+                    logger.debug("Fetched sw: %s as %d (%d)" % (sw,sw_id_row[0][0],sw_id))
+                else:
+                    c.execute(INSERT_SOFTWARE,{ 'software': sw })
+                    sw_id = self.save_id(jobid,'softwares',sw,c.lastrowid)
+                    logger.debug("Inserted sw: %s as %d (%d)" % (sw,c.lastrowid,sw_id))
             else:
                 sw_id = self.get_id(jobid,'softwares',sw)
-                logger.debug("Fetched sw: %s as %d" % (sw,sw_id))
+                logger.debug("Cached sw: %s as %d" % (sw,sw_id))
 
             c.execute(INSERT_COMMAND,{
                 'id': id,
