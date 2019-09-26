@@ -277,7 +277,7 @@ class Aggregator(sams.base.Aggregator):
                 logger.debug("Fetched user: %s as %d" % (user,user_id))
 
 
-        recordid = None
+        recordid = "%s:%s" % (self.cluster,jobid)
         if 'starttime' in data['sams.sampler.SlurmInfo']:
             starttime = data['sams.sampler.SlurmInfo']['starttime']
             starttime = starttime.replace('-','').replace('T','').replace(':','')
