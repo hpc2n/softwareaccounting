@@ -63,8 +63,6 @@ class Main:
             logfile = self.config.get([id,'logfile'])
         if not logfile:
             logfile = self.config.get(['common','logfile'])
-        if logfile:
-            logfile = logfile % { 'jobid': self.options.jobid, 'node': self.options.node }
         logformat = self.config.get([id,'logformat'],'%(asctime)s %(name)s:%(levelname)s %(message)s')
         if logfile:
             logging.basicConfig(filename=logfile, filemode='a',
