@@ -53,7 +53,8 @@ setup(name='sams-software-accounting',
       packages=['sams','sams.aggregator','sams.loader','sams.output','sams.pidfinder','sams.sampler',
                 'sams.backend','sams.software','sams.xmlwriter'],
       scripts = ['sams-aggregator.py','sams-collector.py','sams-post-receiver.py',
-                 'sams-post-receiver.py','sams-software-extractor.py','sams-software-updater.py'],
+                 'sams-post-receiver.py','sams-software-extractor.py','sams-software-updater.py',
+                 'extras/sgas-sa-registrant/bin/sgas-sa-registrant'],
       cmdclass = cmdclasses,
 
       data_files = [
@@ -63,6 +64,7 @@ setup(name='sams-software-accounting',
         ('etc/sams', ['sams-software-extractor.yaml']),
         ('etc/sams', ['sams-software-updater.yaml']),
         ('etc/sams', ['sams-post-receiver.yaml']),
+        ('etc/sams', ['extras/sgas-sa-registrant/etc/sgas-sa-registrant.conf']),
       ]
 
 )

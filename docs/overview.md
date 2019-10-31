@@ -58,4 +58,4 @@ into softwares with the help of the [*sams.software.Regexp*](software/Regexp.md)
 
 The [*sams.backend.SoftwareAccounting*](backend/SoftwareAccounting.md) is used to fetch jobs and softwares and with help of [*sams.xmlwriter.File*](xmlwriter/File.md) convert them into xml files.
 
-Send the xml files with the [*sgas-sa-registrant*](https://github.com/hpc2n/)
+Send the xml files with the [*sgas-sa-registrant*](https://github.com/hpc2n/sams) also provided in the extras folder.
