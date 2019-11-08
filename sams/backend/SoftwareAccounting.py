@@ -48,6 +48,17 @@ GROUP BY x.software,x.version,x.versionstr,x.jobid,recordid,x.user_provided
 ORDER BY x.jobid
 '''
 
+RESET_PATH = '''
+UPDATE software SET software = NULL where path = :path
+'''
+
+SHOW_SOFTWARE = '''
+SELECT path,software,version,versionstr,user_provided,ignore,last_updated from software where path like :path order by path
+'''
+
+SHOW_UNDETERMINED_SOFTWARE = '''
+SELECT path from software where software IS NULL order by path
+'''
 
 class Backend(sams.base.Backend):
     """ SAMS Software accounting aggregator """
@@ -86,6 +97,7 @@ class Backend(sams.base.Backend):
 
             rows = [row for row in c.execute(FIND_SOFTWARE)]
             for row in rows:
+                logger.debug("Software: %s (ID: %s)" % (row[1], row[0]))
                 info = software.get(row[1])
                 if info:
                     logger.debug(info)
@@ -136,3 +148,40 @@ class Backend(sams.base.Backend):
             c.execute('UPDATE last_sent set timestamp = :timestamp', {'timestamp': self.updated[db]})
             dbh.commit()
             dbh.close()
+
+    def _print_software(self,software):
+        print("Path: %s" % software[0])
+        if software[1]:
+            print("\tSoftware     : %s" % software[1])
+            print("\tVersion      : %s" % software[2])
+            print("\tLocal Version: %s" % software[3])
+            print("\tUser Provided: %s" % software[4])
+            print("\tIgnore       : %s" % software[5])
+        else:
+            print("\tSoftware is not determined")
+
+    def show_paths(self,path):
+        for db in self.get_databases():
+            dbh = self._open_db(db)
+            c = dbh.cursor()
+            for software in c.execute(SHOW_SOFTWARE,{'path': path}):
+                self._print_software(software)
+            dbh.close()
+
+    def show_undetermined(self):
+        for db in self.get_databases():
+            dbh = self._open_db(db)
+            c = dbh.cursor()
+            for software in c.execute(SHOW_UNDETERMINED_SOFTWARE):
+                print(software[0])
+            dbh.close()
+
+    def reset_path(self,path):
+        self.show_paths(path)
+        if not self._dry_run:
+            for db in self.get_databases():
+                dbh = self._open_db(db)
+                c = dbh.cursor()
+                c.execute(RESET_PATH, {'path': path})
+                dbh.commit()
+                dbh.close()
