@@ -3,6 +3,9 @@
 
 Pid finder using the slurm cgroup information in /proc
 
+If uncontained ssh into nodes are used the processes are not
+accounted for.
+
 # Config options
 
 ## grace_period
