@@ -6,7 +6,7 @@ Data Aggregator for SAMS Software accounting
 
 from __future__ import print_function
 
-import getopt
+from optparse import OptionParser
 import logging
 import os
 import platform
@@ -20,54 +20,26 @@ logger = logging.getLogger(__name__)
 
 id = 'sams.collector'
 
-class Options:
-    def usage(self):
-        print("usage....")
-
-    def __init__(self,inargs):
-        try:
-            opts, args = getopt.getopt(inargs, "", ["help", "jobid=","config=",
-                                                    "node=","logfile=","loglevel=",
-                                                    "daemon","pidfile="])
-        except getopt.GetoptError as err:
-            # print help information and exit:
-            print(str(err))  # will print something like "option -a not recognized"
-            self.usage()
-            sys.exit(2)
-
-        self.node = platform.node().split(".")[0]
-        self.jobid = None
-        self.config = '/etc/sams/sams-collector.yaml'
-        self.logfile = None
-        self.loglevel = None
-        self.daemon = False
-        self.pidfile = None
-        
-        for o, a in opts:
-            if o in "--node":
-                self.node = a
-            elif o in "--jobid":
-                self.jobid = int(a)
-            elif o in "--config":
-                self.config = a
-            elif o in "--logfile":
-                self.logfile = a
-            elif o in "--loglevel":
-                self.loglevel = a
-            elif o in "--pidfile":
-                self.pidfile = a
-            elif o in "--daemon":
-                self.daemon = True
-            else:
-                assert False, "unhandled option %s = %s" % (o,a)
-
-        if not self.jobid:
-            assert False, "Missing option --jobid"
-     
 class Main:
 
     def __init__(self):
-        self.options = Options(sys.argv[1:])
+        # Options
+        parser = OptionParser()
+        parser.add_option("--config", type="string", action="store", dest="config", default="/etc/sams/sams-collector.yaml", help="Config file [%default]")
+        parser.add_option("--logfile", type="string", action="store", dest="logfile", help="Log file")
+        parser.add_option("--loglevel", type="string", action="store", dest="loglevel", help="Loglevel")
+        parser.add_option("--jobid", type="int", action="store", dest="jobid", help="Slurm JobID")
+        parser.add_option("--node", type="string", action="store", dest="node", default=platform.node().split(".")[0], help="Node name [%default]")
+        parser.add_option("--daemon", action="store_true", dest="daemon", default=False, help="Send to background as daemon")
+        parser.add_option("--pidfile", type="string", action="store", dest="pidfile", help="Pidfile")
+
+        (self.options,self.args) = parser.parse_args()
+
+        if not self.options.jobid:
+            print("Missing option --jobid")
+            parser.print_help()
+            exit(1)
+
         self.config = sams.core.Config(self.options.config, {
             'options': {
                 'jobid': self.options.jobid,

@@ -8,7 +8,7 @@ from __future__ import print_function
 
 import os
 import sys
-import getopt
+from optparse import OptionParser
 
 from flask import Flask
 from flask import request
@@ -58,40 +58,19 @@ class Receiver(MethodView):
             raise Exception("Failed to write")
         return "OK"
 
-
-class Options:
-    def usage(self):
-        print("usage....")
-
-    def __init__(self,inargs):
-        try:
-            opts, args = getopt.getopt(inargs, "", ["help", "config=","logfile=","loglevel="])
-        except getopt.GetoptError as err:
-            # print help information and exit:
-            print(str(err))  # will print something like "option -a not recognized"
-            self.usage()
-            sys.exit(2)
-
-        self.config = '/etc/sams/sams-post-receiver.yaml'
-        self.logfile = None
-        self.loglevel = None
-        
-        for o, a in opts:
-            if o in "--config":
-                self.config = a
-            elif o in "--logfile":
-                    self.logfile = a
-            elif o in "--loglevel":
-                self.loglevel = a
-            else:
-                assert False, "unhandled option %s = %s" % (o,a)
-     
 class Main:
 
     def __init__(self):
-        self.options = Options(sys.argv[1:])
-        self.config = sams.core.Config(self.options.config,{})
+        # Options
+        parser = OptionParser()
+        parser.add_option("--config", type="string", action="store", dest="config", default="/etc/sams/sams-post-receiver.yaml", help="Config file [%default]")
+        parser.add_option("--logfile", type="string", action="store", dest="logfile", help="Log file")
+        parser.add_option("--loglevel", type="string", action="store", dest="loglevel", help="Loglevel")
 
+        (self.options,self.args) = parser.parse_args()
+
+        self.config = sams.core.Config(self.options.config,{})
+        
         # Logging
         loglevel = self.options.loglevel
         if not loglevel:
