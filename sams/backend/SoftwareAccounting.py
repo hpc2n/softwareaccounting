@@ -49,7 +49,7 @@ ORDER BY x.jobid
 '''
 
 RESET_PATH = '''
-UPDATE software SET software = NULL where path = :path
+UPDATE software SET software = NULL where path LIKE :path
 '''
 
 SHOW_SOFTWARE = '''
