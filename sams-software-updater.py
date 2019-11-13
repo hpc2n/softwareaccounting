@@ -27,8 +27,8 @@ class Main:
         parser.add_option("--loglevel", type="string", action="store", dest="loglevel", help="Loglevel")
         parser.add_option("--dry-run", action="store_true", dest="dry_run", default=False, help="Dry run")
         parser.add_option("--reset-path", type="string", action="store", dest="reset_path", help="Reset specific path(s), SQL 'like' can be used")
-        parser.add_option("--show-paths", action="store_true", dest="show_path", default=False, help="show all paths in database")
-        parser.add_option("--show-path", type="string", action="store", dest="show_paths", help="Show specific path(s), SQL 'like' can be used")
+        parser.add_option("--show-paths", action="store_true", dest="show_paths", default=False, help="show all paths in database")
+        parser.add_option("--show-path", type="string", action="store", dest="show_path", help="Show specific path(s), SQL 'like' can be used")
         parser.add_option("--show-undetermined", action="store_true", dest="show_undetermined", default=False, help="show all paths that are undetermined")
         parser.add_option("--test-path", type="string", action="store", dest="test_path", help="Test a path against rules")
 
@@ -88,8 +88,10 @@ class Main:
                 print("\tLocal Version: %s" % result['versionstr'])
                 print("\tUser Provided: %s" % result['user_provided'])
                 print("\tIgnore       : %s" % result['ignore'])
+        elif self.options.show_path:
+            self.backend.show_paths(self.options.show_path)
         elif self.options.show_paths:
-            self.backend.show_paths(self.options.show_paths)
+            self.backend.show_paths("%")
         elif self.options.show_undetermined:
             self.backend.show_undetermined()
         elif self.options.reset_path:
