@@ -53,7 +53,13 @@ UPDATE software SET software = NULL where path LIKE :path
 '''
 
 SHOW_SOFTWARE = '''
-SELECT path,software,version,versionstr,user_provided,ignore,last_updated from software where path like :path order by path
+SELECT s.path,s.software,s.version,s.versionstr,s.user_provided,s.ignore,s.last_updated,
+            sum(j.ncpus*(j.end_time-j.start_time)*(c.user+c.sys)/(j.user_time+j.system_time)) as cpu,
+            count(distinct j.id) as jobcount
+        FROM command c,jobs j,software s
+        WHERE c.jobid = j.id AND c.software = s.id AND s.path like :path
+        GROUP BY path
+        ORDER BY cpu
 '''
 
 SHOW_UNDETERMINED_SOFTWARE = '''
@@ -157,6 +163,8 @@ class Backend(sams.base.Backend):
             print("\tLocal Version: %s" % software[3])
             print("\tUser Provided: %s" % software[4])
             print("\tIgnore       : %s" % software[5])
+            print("\tCore Hours   : %.1f" % (software[7] / 3600.0))
+            print("\tJob Count    : %d" % software[8])
         else:
             print("\tSoftware is not determined")
 
