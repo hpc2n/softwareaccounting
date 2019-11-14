@@ -4,15 +4,17 @@ Software accounting storage "backend" for updating the list of softwares
 Config options:
 
 sams.backend.SoftwareAccounting:
-    # sqlite file pattern (regexp)
-    file_pattern: 'sa-\d+.db'
+    # Number of jobs in 
+    jobid_hash_size: 0      # All in one.
+
+    # sqlite file name(s)
+    file_pattern: 'sa-%(jobid_hash)d.db'
 
     # Path to sqlite db files
     db_path: /data/softwareaccounting/CLUSTER/db
 
     # clustername (used for calculating SGAS recordid)
     clustername: CLUSTER
-
 """
 
 import sqlite3
