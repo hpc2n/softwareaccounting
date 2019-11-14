@@ -19,6 +19,10 @@ the different nodes into one place.
 
 # Command line arguments
 
+## --help
+
+Usage information
+
 ## --config=<file>
 
 Path to configuration file.

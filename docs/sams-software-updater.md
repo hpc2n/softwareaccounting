@@ -21,6 +21,10 @@ This plugin shows and updates software information from the backend.
 
 # Command line arguments
 
+## --help
+
+Usage information
+
 ## --config=<file>
 
 Path to configuration file.

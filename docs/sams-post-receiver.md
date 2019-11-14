@@ -9,6 +9,10 @@ Example nginx configuration provided at the bottom of this page.
 
 # Command line arguments
 
+## --help
+
+Usage information
+
 ## --config=<file>
 
 Path to configuration file.

@@ -19,6 +19,10 @@ xmlwriter plugin.
 
 # Command line arguments
 
+## --help
+
+Usage information
+
 ## --config=<file>
 
 Path to configuration file.
