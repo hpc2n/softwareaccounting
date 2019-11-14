@@ -19,7 +19,7 @@ One or more output module can be used at any time.
 The two basic output modules are [*sams.output.File*](output/File.md) and [*sams.output.Http*](output/Http.md).
 
 The first one writes files to a filesystem. Either an shared filesytem or to a local filesystem that needs to 
-be transported to a master node after the completed job for further processing with for example rsync.
+be transported to a master node after the completed job for further processing with for example rsync or simular.
 
 The [*sams.output.Http*](output/Http.md) module send the same data using the http:// protocol to a receiving webservice.
 
