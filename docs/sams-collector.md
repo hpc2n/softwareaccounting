@@ -21,6 +21,10 @@ This plugins output the result of the samplers info different kinds of ways.
 
 # Command line arguments
 
+## --help
+
+Usage information
+
 ## --jobid=
 
 Jobid to collect information about. 
@@ -114,3 +118,40 @@ sams.output.File:
   file_pattern: "%(jobid)s.%(node)s.json"
   jobid_hash_size: 1000
 ```
+
+# Example usage
+
+In Slurm prolog start
+
+	sams-collector.py --config=/path/config.yaml --jobid=$SLURM_JOB_ID --daemon --pidfile=/var/run/sams-collector.$SLURM_JOB_ID
+
+The sams-collector needs to run as root. 
+
+In Slurm epilog kill -HUP.
+
+If HUP i missing the collector will exit after 10 minutes without active processes.
+
+See below for example usage with systemd.
+
+## Systemd startup example
+
+Starting and stopping the software accounting with systemd is easy
+
+create the file: /etc/systemd/system/softwareaccounting@.service
+with the following content:
+
+'''
+[Unit]
+Description=SAMS Software Accounting (%i)
+
+[Service]
+Environment=PYTHONPATH=/lap/softwareaccounting/lib/python3.5/site-packages
+PIDFile=/var/run/software-accounting.%i.pid
+ExecStart=/lap/softwareaccounting/bin/sams-collector.py --jobid=%i --config=/etc/slurm/softwareaccounting.yaml
+KillSignal=SIGHUP
+KillMode=process
+'''
+
+To start the accounting process just run: systemctl start softwareaccounting@${SLURM_JOB_ID}.service
+in the slurm prolog and put: systemctl stop softwareaccounting@${SLURM_JOB_ID}.service
+in the slurm epilog.
