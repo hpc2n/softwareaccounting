@@ -63,11 +63,11 @@ class Output(sams.base.Output):
 
             if not os.path.isdir(base_path):
                 try:
-                    os.mkdir(base_path)
+                    os.makedirs(base_path)
                 except Exception as err:
                     # Handle possible raise from other process
                     if not os.path.isdir(base_path):
-                        assert False, "Failed to mkdir '%s' " % base_path
+                        assert False, "Failed to makedirs '%s' " % base_path
 
         try:
             with open(os.path.join(base_path,tfilename),"w") as file:
