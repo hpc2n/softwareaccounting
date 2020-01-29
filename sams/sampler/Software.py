@@ -99,7 +99,6 @@ class Process:
                     
             except Exception as err:
                 logger.debug("Ignore missing task for pid: %d", self.pid)
-                self.done = True
 
         self.updated = time.time()      
 
