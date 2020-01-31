@@ -59,7 +59,7 @@ class Process:
     def _parse_stat(self,stat):
         """ Parse the relevant content from /proc/***/stat """
 
-        m = re.search(r'^\d+ \(.*\) [RSDZTyEXxKWP] (.*)',stat)
+        m = re.search(r'^\d+ \(.*\) [RSDZTyEXxKWPI] (.*)',stat)
         stats = m.group(1).split(r' ')
         return {
             'user'  : float(stats[14-4])/self.clock_tics,   # User CPU time in s.
