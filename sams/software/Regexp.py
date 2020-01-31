@@ -14,6 +14,14 @@ sams.software.Regexp:
           user_provided: true
           ignore: false
 
+    rewrite:
+        # Must match all "match" to do update.
+        - match:
+            software: '(?P<software>)',
+          update:
+            version: '%(software)s'
+
+
 """
 import sams.base
 import re
@@ -26,28 +34,75 @@ class Software(sams.base.Software):
     def __init__(self,id,config):
         super(Software,self).__init__(id,config)
         self.rules = self.config.get([self.id,'rules'],[])
+        self.rewrite = self.config.get([self.id,'rewrite'],[])
 
-    def get(self,path):
-        """ Information aggregate method """
+    def _handle_rewrite(self,software,rw):
+        """ Handle rewrite transformation """
+        input = dict(software)
 
-        for rule in self.rules:
-            reg = re.compile(rule['match'])
-            m = reg.match(path)
-            if m:
-                d = m.groupdict()
-                up = False
-                if 'user_provided' in rule:
-                    up = rule['user_provided']
-                ig = False
-                if 'ignore' in rule:
-                    ig = rule['ignore']
-                return {
+        if not 'match' in rw:
+            logging.error("rewrite rule has no 'match' entry ignoring")
+            return software
+
+        if not 'update' in rw:
+            logging.error("rewrite rule has no 'update' entry ignoring")
+            return software
+
+        match = 0
+        for k in ['software','version','versionstr']:
+            if k in rw['match']:
+                reg = re.compile(rw['match'][k])
+                m = reg.match(software[k])
+                if not m:
+                    return software
+                input.update(m.groupdict())
+                match = 1
+
+        # If no match don't update
+        if not match:
+            return software
+
+        for k in ['software','version','versionstr']:
+            if k in rw['update']:
+                software[k] = rw['update'][k] % input
+
+        return software
+
+    def _handle_rewrites(self,software):
+        """ Handle rewrite transformations """
+        for rw in self.rewrite:
+            software = self._handle_rewrite(software,rw)
+
+        return software
+
+    def _handle_rule(self,rule,path):
+        """ Handle rule transformation """
+        reg = re.compile(rule['match'])
+        m = reg.match(path)
+        if m:
+            d = m.groupdict()
+            up = False
+            if 'user_provided' in rule:
+                up = rule['user_provided']
+            ig = False
+            if 'ignore' in rule:
+                ig = rule['ignore']
+            return self._handle_rewrites({
                     'software': rule['software'] % d,
                     'version': rule['version'] % d,
                     'versionstr': rule['versionstr'] % d,
                     'user_provided': up,
                     'ignore': ig
-                }
+                })
+        return None
+
+    def get(self,path):
+        """ Information aggregate method """
+
+        for rule in self.rules:
+            s = self._handle_rule(rule,path)
+            if s:
+                return s
             
         logging.info("Path not found: %s" % path)
 
