@@ -248,6 +248,9 @@ class Aggregator(sams.base.Aggregator):
                 logger.info("Jobid: %d on node %s has no %s" % (jobid,node,module))
                 raise Exception("Jobid: %d on node %s has no %s" % (jobid,node,module))
 
+        if len(data['sams.sampler.Software']['execs']) == 0:
+            raise Exception("Jobid: %d on node %s has no execs" % (jobid,node))
+
         # Begin transaction
         c.execute('BEGIN TRANSACTION')
 
