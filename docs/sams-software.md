@@ -5,6 +5,12 @@ Software should be reported with a name and major version number.
 
 The versionstr can represent a more local version number with patches.
 
+## Version numbers.
+
+As a general rule never send in a Version number with more then two(2) levels.
+
+For example "Python/3.7.1" should be sent as "Python/3.7".
+
 # Software Table
 
 This is an selection of software that exist within SNIC.
