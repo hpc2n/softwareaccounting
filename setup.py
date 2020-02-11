@@ -58,13 +58,13 @@ setup(name='sams-software-accounting',
       cmdclass = cmdclasses,
 
       data_files = [
-        ('etc/sams', ['sams-aggregator.yaml']),
-        ('etc/sams', ['sams-collector.yaml']),
-        ('etc/sams', ['sams-post-receiver.yaml']),
-        ('etc/sams', ['sams-software-extractor.yaml']),
-        ('etc/sams', ['sams-software-updater.yaml']),
-        ('etc/sams', ['sams-post-receiver.yaml']),
-        ('etc/sams', ['extras/sgas-sa-registrant/etc/sgas-sa-registrant.conf']),
+        ('/etc/sams', ['sams-aggregator.yaml']),
+        ('/etc/sams', ['sams-collector.yaml']),
+        ('/etc/sams', ['sams-post-receiver.yaml']),
+        ('/etc/sams', ['sams-software-extractor.yaml']),
+        ('/etc/sams', ['sams-software-updater.yaml']),
+        ('/etc/sams', ['sams-post-receiver.yaml']),
+        ('/etc/sams', ['extras/sgas-sa-registrant/etc/sgas-sa-registrant.conf']),
       ]
 
 )
