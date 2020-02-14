@@ -51,7 +51,7 @@ class Main:
         # stdout/stderr will be closed.
         if self.options.daemon:
             try:
-                sams.core.createDaemon()
+                sams.core.createDaemon(umask=int(self.config.get([id,'umask'],'077'),8))
             except Exception as e:
                 logger.exception(e)
                 exit(1)

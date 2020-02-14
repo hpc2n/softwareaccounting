@@ -101,6 +101,7 @@ sams-collector:
   outputs:
     - sams.output.File
 
+  umask: '077' # only used in daemon mode.
   logfile: /var/log/sams-collector.%(jobid)s.%(node)s.log
   loglevel: ERROR
 
