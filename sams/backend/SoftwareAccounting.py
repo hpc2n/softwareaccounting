@@ -49,7 +49,7 @@ ORDER BY x.jobid
 '''
 
 RESET_PATH = '''
-UPDATE software SET software = NULL where path LIKE :path
+UPDATE software SET software = NULL where path GLOB :path
 '''
 
 SHOW_PATH = '''
@@ -57,7 +57,7 @@ SELECT s.path,s.software,s.version,s.versionstr,s.user_provided,s.ignore,s.last_
             sum(j.ncpus*(j.end_time-j.start_time)*(c.user+c.sys)/(j.user_time+j.system_time)) as cpu,
             count(distinct j.id) as jobcount
         FROM command c,jobs j,software s
-        WHERE c.jobid = j.id AND c.software = s.id AND s.path like :path AND j.user_time+j.system_time > 0
+        WHERE c.jobid = j.id AND c.software = s.id AND s.path GLOB :path AND j.user_time+j.system_time > 0
         GROUP BY path
         ORDER BY cpu
 '''
@@ -67,7 +67,7 @@ SELECT s.path,s.software,s.version,s.versionstr,s.user_provided,s.ignore,s.last_
             sum(j.ncpus*(j.end_time-j.start_time)*(c.user+c.sys)/(j.user_time+j.system_time)) as cpu,
             count(distinct j.id) as jobcount
         FROM command c,jobs j,software s
-        WHERE c.jobid = j.id AND c.software = s.id AND s.software like :software AND j.user_time+j.system_time > 0
+        WHERE c.jobid = j.id AND c.software = s.id AND s.software GLOB :software AND j.user_time+j.system_time > 0
         GROUP BY path
         ORDER BY cpu
 '''

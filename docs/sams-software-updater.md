@@ -47,13 +47,13 @@ Do a dry run
 
 Reset the path of <path> to be able to update the path.
 
-<path> uses SQL LIKE to update multiple paths.
+<path> uses GLOB to update multiple paths.
 
 ## --show-path=<path>
 
 Show software information about the <path>.
 
-<path> uses SQL LIKE to show multiple paths.
+<path> uses GLOB to show multiple paths.
 
 ## --show-paths
 

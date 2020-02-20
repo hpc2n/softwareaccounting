@@ -26,10 +26,10 @@ class Main:
         parser.add_option("--logfile", type="string", action="store", dest="logfile", help="Log file")
         parser.add_option("--loglevel", type="string", action="store", dest="loglevel", help="Loglevel")
         parser.add_option("--dry-run", action="store_true", dest="dry_run", default=False, help="Dry run")
-        parser.add_option("--reset-path", type="string", action="store", dest="reset_path", help="Reset specific path(s), SQL 'like' can be used")
+        parser.add_option("--reset-path", type="string", action="store", dest="reset_path", help="Reset specific path(s), GLOB can be used")
         parser.add_option("--show-paths", action="store_true", dest="show_paths", default=False, help="show all paths in database")
-        parser.add_option("--show-path", type="string", action="store", dest="show_path", help="Show specific path(s), SQL 'like' can be used")
-        parser.add_option("--show-software", type="string", action="store", dest="show_software", help="Show specific softwares(s), SQL 'like' can be used")
+        parser.add_option("--show-path", type="string", action="store", dest="show_path", help="Show specific path(s), GLOB can be used")
+        parser.add_option("--show-software", type="string", action="store", dest="show_software", help="Show specific softwares(s), GLOB can be used")
         parser.add_option("--show-undetermined", action="store_true", dest="show_undetermined", default=False, help="show all paths that are undetermined")
         parser.add_option("--test-path", type="string", action="store", dest="test_path", help="Test a path against rules")
 
