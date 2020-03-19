@@ -103,7 +103,8 @@ class Main:
             try:
                 self.backend.update(self.updater)
             except Exception as e:
-                logger.exception("Failed to update",e)
+                logger.error("Failed to update")
+                logger.exception(e)
 
 if __name__ == "__main__":
     Main().start()
