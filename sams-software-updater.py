@@ -94,7 +94,7 @@ class Main:
         elif self.options.show_path:
             self.backend.show_paths(self.options.show_path)
         elif self.options.show_paths:
-            self.backend.show_paths("%")
+            self.backend.show_paths("*")
         elif self.options.show_undetermined:
             self.backend.show_undetermined()
         elif self.options.reset_path:
