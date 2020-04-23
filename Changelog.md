@@ -13,7 +13,7 @@ Upgrading from v1.1 does not require any changes to configurations files.
 
 # Version 1.1 - 2020-01-31
 
-- Rewrite feature added to Regexp module. See: [docs/software/Regexp.md](docs/software/Regexp.md)
+- Rewrite feature added to Regexp module. See: [*sams.software.Regexp*](docs/software/Regexp.md)
 - sams-post-receiver, sams.loader.File and sams.output.File makes target directory tree.
 
 ## Upgrading
