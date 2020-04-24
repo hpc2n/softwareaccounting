@@ -11,6 +11,12 @@ As a general rule never send in a Version number with more then two(2) levels.
 
 For example "Python/3.7.1" should be sent as "Python/3.7".
 
+## Unknwon/Unclassified softwares
+
+Software from user home directories and project storage are to be reported as
+*software*=*unclassified* with a empty *version*. *versionstr* can be used for
+tracing user, project, directories or simular.
+
 # Software Table
 
 This is an selection of software that exist within SNIC.
