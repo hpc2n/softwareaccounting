@@ -52,22 +52,12 @@ RESET_PATH = '''
 UPDATE software SET software = NULL where path GLOB :path
 '''
 
-SHOW_PATH = '''
-SELECT s.path,s.software,s.version,s.versionstr,s.user_provided,s.ignore,s.last_updated,
-            sum(j.ncpus*(j.end_time-j.start_time)*(c.user+c.sys)/(j.user_time+j.system_time)) as cpu,
-            count(distinct j.id) as jobcount
-        FROM command c,jobs j,software s
-        WHERE c.jobid = j.id AND c.software = s.id AND s.path GLOB :path AND j.user_time+j.system_time > 0
-        GROUP BY path
-        ORDER BY cpu
-'''
-
 SHOW_SOFTWARE = '''
 SELECT s.path,s.software,s.version,s.versionstr,s.user_provided,s.ignore,s.last_updated,
             sum(j.ncpus*(j.end_time-j.start_time)*(c.user+c.sys)/(j.user_time+j.system_time)) as cpu,
             count(distinct j.id) as jobcount
         FROM command c,jobs j,software s
-        WHERE c.jobid = j.id AND c.software = s.id AND s.software GLOB :software AND j.user_time+j.system_time > 0
+        WHERE c.jobid = j.id AND c.software = s.id AND s.path GLOB :path AND s.software GLOB :software AND j.user_time+j.system_time > 0
         GROUP BY path
         ORDER BY cpu
 '''
@@ -178,20 +168,16 @@ class Backend(sams.base.Backend):
         else:
             print("\tSoftware is not determined")
 
-    def show_software(self,software):
+    def show_software(self,software=None,path=None):
+        if not software:
+            software = '*'
+        if not path:
+            path = '*'
         for db in self.get_databases():
             dbh = self._open_db(db)
             c = dbh.cursor()
-            for s in c.execute(SHOW_SOFTWARE,{'software': software}):
+            for s in c.execute(SHOW_SOFTWARE,dict(software = software, path = path)):
                 self._print_software(s)
-            dbh.close()
-
-    def show_paths(self,path):
-        for db in self.get_databases():
-            dbh = self._open_db(db)
-            c = dbh.cursor()
-            for software in c.execute(SHOW_PATH,{'path': path}):
-                self._print_software(software)
             dbh.close()
 
     def show_undetermined(self):

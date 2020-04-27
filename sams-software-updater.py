@@ -89,12 +89,11 @@ class Main:
                 print("\tLocal Version: %s" % result['versionstr'])
                 print("\tUser Provided: %s" % result['user_provided'])
                 print("\tIgnore       : %s" % result['ignore'])
-        elif self.options.show_software:
-            self.backend.show_software(self.options.show_software)
-        elif self.options.show_path:
-            self.backend.show_paths(self.options.show_path)
+        elif self.options.show_software or self.options.show_path:
+            self.backend.show_software(software = self.options.show_software,
+                                        path = self.options.show_path)
         elif self.options.show_paths:
-            self.backend.show_paths("*")
+            self.backend.show_software()
         elif self.options.show_undetermined:
             self.backend.show_undetermined()
         elif self.options.reset_path:
