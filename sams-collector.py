@@ -7,12 +7,14 @@ Data Aggregator for SAMS Software accounting
 from __future__ import print_function
 
 from optparse import OptionParser
+from datetime import datetime, timedelta
 import logging
 import os
 import platform
 import signal
 import sys
 import threading
+import time
 
 import sams.core
 
@@ -163,11 +165,16 @@ class Main:
             self.cleanup()
             exit(1)
 
+        last_check = datetime.now()
         while not self.exit.is_set() and not pid_finder.done():
-            pids = pid_finder.find()
-            if len(pids):
-                self.pidQueue.put(pids)
-            self.exit.wait(self.config.get([id,'pid_finder_update_interval'],30))
+            # After 'pid_finder_update_interval' seconds check for new pids
+            if datetime.now()-last_check >= timedelta(seconds = self.config.get([id,'pid_finder_update_interval'],30)):
+                last_check = datetime.now()
+                pids = pid_finder.find()
+                if len(pids):
+                    self.pidQueue.put(pids)
+        
+            time.sleep(3)
 
         self.cleanup()
 
