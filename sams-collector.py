@@ -7,6 +7,7 @@ Data Aggregator for SAMS Software accounting
 from __future__ import print_function
 
 from optparse import OptionParser
+import json
 import logging
 import os
 import platform
@@ -32,6 +33,7 @@ class Main:
         parser.add_option("--node", type="string", action="store", dest="node", default=platform.node().split(".")[0], help="Node name [%default]")
         parser.add_option("--daemon", action="store_true", dest="daemon", default=False, help="Send to background as daemon")
         parser.add_option("--pidfile", type="string", action="store", dest="pidfile", help="Pidfile")
+        parser.add_option("--test-output", type="string", action="store", dest="testoutput", help="path to json-data that is sent to output modules for testing")
 
         (self.options,self.args) = parser.parse_args()
 
@@ -119,6 +121,22 @@ class Main:
         self.pidQueue.exit()
         self.outQueue.exit()
 
+    def test_output(self):
+        with open(self.options.testoutput) as json_file:
+            data = json.load(json_file)
+
+        for o in self.config.get([id,'outputs'],[]):
+            logger.info("Load: %s",o)
+            try:
+                Output = sams.core.ClassLoader.load(o,'Output')
+                output = Output(o,self.config)
+                output.store(data)
+                output.write()
+            except Exception as e:
+                logger.error("Failed to initialize: %s" % o)
+                logger.error(e)
+                exit(1)
+
     def start(self):
         self.samplers = []
         self.outputs = []
@@ -172,4 +190,8 @@ class Main:
         self.cleanup()
 
 if __name__ == "__main__":
-    Main().start()
+    main = Main()
+    if main.options.testoutput:
+        main.test_output()
+    else:
+        main.start()

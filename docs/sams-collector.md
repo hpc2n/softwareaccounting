@@ -59,6 +59,10 @@ Send collector into background.
 
 Create pid file at <path>.
 
+## --test-output=<json_file>
+
+Test output module with data from <json_file>.
+
 # Configuration
 
 Core options of SAMS collector.
