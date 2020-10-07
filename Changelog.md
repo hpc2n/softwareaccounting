@@ -1,6 +1,8 @@
 
 # Master
 
+- --test-output option added to [*sams-collector*](docs/sams-collector.md).
+- Collectd output module added.
 - Enables to use --show-software and --show-path together in [*sams-software-updater*](docs/sams-software-updater.md).
 
 # Version 1.2 - 2020-04-06
