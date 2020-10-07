@@ -1,5 +1,11 @@
 # FAQ
 
+## Python 2 or Python 3?
+
+Python 2 should work but we have seen strange behaviour on some systems using Python 2.
+
+Python 3 is recommended.
+
 ## I have updated the config but all my old jobs are still wrong!
 
 Only new paths are evaulated. Old paths needs to be reseted using the --reset-path argument
