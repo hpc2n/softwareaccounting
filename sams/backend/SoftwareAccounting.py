@@ -163,7 +163,7 @@ class Backend(sams.base.Backend):
             print("\tLocal Version: %s" % software[3])
             print("\tUser Provided: %s" % software[4])
             print("\tIgnore       : %s" % software[5])
-            print("\tCore Hours   : %.1f" % (software[7] / 3600.0))
+            print("\tCore Hours   : %.1f" % (software[7] / 3600.0 if software[7] is not None else 0.))
             print("\tJob Count    : %d" % software[8])
         else:
             print("\tSoftware is not determined")
