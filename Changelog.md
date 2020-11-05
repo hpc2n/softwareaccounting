@@ -1,10 +1,14 @@
 
-# Master
+# Version 1.3 - 2020-11-05
 
 - --test-output option added to [*sams-collector*](docs/sams-collector.md).
 - Collectd output module added.
 - Enables to use --show-software and --show-path together in [*sams-software-updater*](docs/sams-software-updater.md).
 - Export software with user/project specific information in software/version/local version. [*backend/SoftwareAccounting*](docs/backend/SoftwareAccounting.md)
+
+## Upgrading
+
+Upgrading from v1.2 does not require any changes to configurations files.
 
 # Version 1.2 - 2020-04-06
 
