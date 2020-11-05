@@ -189,7 +189,7 @@ class Backend(sams.base.Backend):
             dbh.close()
 
     def reset_path(self,path):
-        self.show_paths(path)
+        self.show_software(path=path)
         if not self._dry_run:
             for db in self.get_databases():
                 dbh = self._open_db(db)
