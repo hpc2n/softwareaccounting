@@ -30,9 +30,9 @@ UPDATE_SOFTWARE = '''
 '''
 EXTRACT_SOFTWARE = '''
 SELECT x.software,x.version,x.versionstr,x.jobid,x.recordid,
-        sum(x.cpu) as cpu,max(x.updated) as updated,x.user_provided
+        sum(x.cpu) as cpu,max(x.updated) as updated,x.user_provided, users.user,projects.project
 FROM (
-             SELECT s.software,s.version,s.versionstr,j.jobid,sum(c.user+c.sys) as cpu, j.recordid, j.id,
+             SELECT s.software,s.version,s.versionstr,j.jobid,j.user,j.project,sum(c.user+c.sys) as cpu, j.recordid, j.id,
                     max(max(s.last_updated,c.updated)) as updated,s.user_provided
              FROM software s, command c, jobs j
              WHERE c.software = s.id and c.jobid = j.id and NOT s.ignore and
@@ -41,10 +41,12 @@ FROM (
                                 select DISTINCT id from software where last_updated > :updated and NOT ignore
                         )
                 )
-             GROUP BY s.software,s.version,s.versionstr,s.user_provided,j.jobid,j.recordid,j.id
+             GROUP BY s.software,s.version,s.versionstr,s.user_provided,j.jobid,j.recordid,j.id,j.user,j.project
           ) x
+LEFT JOIN users ON x.user = users.id
+LEFT JOIN projects ON x.project = projects.id
 WHERE x.recordid is not null
-GROUP BY x.software,x.version,x.versionstr,x.jobid,recordid,x.user_provided
+GROUP BY x.software,x.version,x.versionstr,x.jobid,recordid,x.user_provided,users.user,projects.project
 ORDER BY x.jobid
 '''
 
@@ -135,8 +137,12 @@ class Backend(sams.base.Backend):
                 if not row[3] in jobs:
                     jobs[row[3]] = JobSoftware(row[3],row[4])
 
+                software = row[0] % dict( user = row[8], project = row[9])
+                version = row[1] % dict( user = row[8], project = row[9])
+                versionstr = row[2] % dict( user = row[8], project = row[9])
+
                 jobs[row[3]].addSoftware(
-                    Software(row[0],row[1],row[2],row[7],row[5])
+                    Software(software,version,versionstr,row[7],row[5])
                 )
 
                 if updated < row[6]:

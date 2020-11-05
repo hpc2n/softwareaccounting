@@ -29,4 +29,9 @@ argument --reset-path="*".
 Next time ''sams-software-updater'' is run all paths will be evaluated again and
 the ''sams-software-extractor'' will export all jobs again.
 
+## How do I handle softwares run from user writable dir like /tmp?
 
+Using %(user)s and/or %(project)s in local version will work well.
+
+If used with the [*sams.software.Regexp*](software/Regexp.md) module you will have to
+write %%(user)s and %%(project)s to prevent Regexp module to try to replace them locally.

@@ -18,6 +18,10 @@ Sqlite file pattern (regexp).
 
 Default: sa-\d+.db
 
+# Extract user/project specific data for a software.
+
+If software, version, local version contains a %(user)s or %(project)s string it will be replaced with the user/project of the running job.
+
 # Example configuration
 
 ```
