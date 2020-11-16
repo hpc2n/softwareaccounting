@@ -2,6 +2,7 @@ import os
 from distutils.core import setup
 from distutils.command.install import install
 from distutils.command.install_data import install_data
+import setuptools
 
 from sams import __version__
 
