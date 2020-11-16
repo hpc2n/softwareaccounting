@@ -55,6 +55,12 @@ setup(name='sams-software-accounting',
       scripts = ['sams-aggregator.py','sams-collector.py','sams-post-receiver.py',
                  'sams-post-receiver.py','sams-software-extractor.py','sams-software-updater.py',
                  'extras/sgas-sa-registrant/bin/sgas-sa-registrant'],
+      install_requires = [
+          'Flask',
+          'httplib2',
+          'Twisted',
+          'PyYAML',
+      ],
       cmdclass = cmdclasses,
 
       data_files = [
