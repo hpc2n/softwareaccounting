@@ -54,7 +54,7 @@ setup(name='sams-software-accounting',
       packages=['sams','sams.aggregator','sams.loader','sams.output','sams.pidfinder','sams.sampler',
                 'sams.backend','sams.software','sams.xmlwriter'],
       scripts = ['sams-aggregator.py','sams-collector.py','sams-post-receiver.py',
-                 'sams-post-receiver.py','sams-software-extractor.py','sams-software-updater.py',
+                 'sams-software-extractor.py','sams-software-updater.py',
                  'extras/sgas-sa-registrant/bin/sgas-sa-registrant'],
       install_requires = [
           'Flask',
