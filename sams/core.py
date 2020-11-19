@@ -1,9 +1,6 @@
 
 import yaml
-try:
-    from yaml import CLoader as YamlLoader, CDumper as YamlDumper
-except ImportError:
-    from yaml import SafeLoader as YamlLoader, SafeDumper as YamlDumper
+
 import threading
 try:
     import queue
@@ -20,7 +17,7 @@ class Config:
     def __init__(self,config_file,extra={}):
         self._cfg = {}
         with open(config_file,"r") as file:
-            self._cfg = yaml.load(file, Loader=YamlLoader)
+            self._cfg = yaml.load(file, Loader=yaml.SafeLoader)
 
         self._cfg = self._merge(extra,self._cfg)
     

@@ -3,11 +3,8 @@ Base classes
 """
 import time
 
-try:
-    from yaml import CLoader as YamlLoader, CDumper as YamlDumper
-except ImportError:
-    from yaml import SafeLoader as YamlLoader, SafeDumper as YamlDumper
 import threading
+
 try:
     import queue
 except ImportError:
