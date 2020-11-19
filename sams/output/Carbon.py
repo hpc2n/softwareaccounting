@@ -71,6 +71,7 @@ class Output(sams.base.Output):
 
         flatdict = self.dict2str(data)
         for d in flatdict:
+            logger.debug("flatdict: %s" % d)
             for metric,destination in self.metrics.items():                
                 reg = re.compile(metric)
                 m = reg.match(d['match'])
