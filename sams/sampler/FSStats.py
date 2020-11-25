@@ -23,23 +23,14 @@ Output:
 import glob
 import logging
 import os
-import re
 
 import sams.base
 
 logger = logging.getLogger(__name__)
 
-import subprocess
-import threading
-
-try:
-    import queue
-except ImportError:
-    import Queue as queue
-
 
 class FSStats:
-    def __init__(self, mount_points=[]):
+    def __init__(self, mount_points):
         self.mount_points = mount_points
 
     def sample(self):
