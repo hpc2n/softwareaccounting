@@ -23,30 +23,19 @@ Output:
 }
 """
 
-import glob
 import logging
-import os
-import re
+import subprocess
 
 import sams.base
 
 logger = logging.getLogger(__name__)
 
-import subprocess
-import threading
-
-try:
-    import queue
-except ImportError:
-    import Queue as queue
-
-
 class ZFSStats:
-    def __init__(self, zfs_command="/sbin/zfs", volumes=[]):
+    def __init__(self, volumes, zfs_command="/sbin/zfs"):
         self.volumes = volumes
         self.zfs_command = zfs_command
 
-    def zfs_data(volume):
+    def zfs_data(self, volume):
         process = subprocess.Popen(
             [self.zfs_command, "list", "-Hp", "-o", "used,avail", volume],
             stdout=subprocess.PIPE,
@@ -58,7 +47,7 @@ class ZFSStats:
         ret = {}
         for v in self.volumes:
             try:
-                (used, avail) = zfs_data(v)
+                (used, avail) = self.zfs_data(v)
                 ret[v] = dict(size=avail, free=avail - used, used=used)
             except Exception as e:
                 logger.error(e)
