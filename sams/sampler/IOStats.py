@@ -36,19 +36,17 @@ Output:
 import glob
 import logging
 import os
-import re
-
-import sams.base
-
-logger = logging.getLogger(__name__)
-
 import subprocess
 import threading
+
+import sams.base
 
 try:
     import queue
 except ImportError:
     import Queue as queue
+
+logger = logging.getLogger(__name__)
 
 COMMAND = """%(iostat_command)s -xy -p %(devices)s %(interval)s"""
 
