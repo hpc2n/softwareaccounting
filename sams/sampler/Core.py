@@ -13,12 +13,17 @@ Output:
     node: 0,
 }
 """
-import sams.base
 
+import sams.base
 import logging
+
 logger = logging.getLogger(__name__)
 
 class Sampler(sams.base.Sampler):
+    def __init__(self, id, outQueue, config):
+        super(Sampler, self).__init__(id, outQueue, config)
+        self.core = {}
+
     def init(self):
         logger.debug("init()")
         self.core = {
