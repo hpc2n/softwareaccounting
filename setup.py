@@ -2,6 +2,7 @@ import os
 from distutils.core import setup
 from distutils.command.install import install
 from distutils.command.install_data import install_data
+import setuptools
 
 from sams import __version__
 
@@ -53,8 +54,14 @@ setup(name='sams-software-accounting',
       packages=['sams','sams.aggregator','sams.loader','sams.output','sams.pidfinder','sams.sampler',
                 'sams.backend','sams.software','sams.xmlwriter'],
       scripts = ['sams-aggregator.py','sams-collector.py','sams-post-receiver.py',
-                 'sams-post-receiver.py','sams-software-extractor.py','sams-software-updater.py',
+                 'sams-software-extractor.py','sams-software-updater.py',
                  'extras/sgas-sa-registrant/bin/sgas-sa-registrant'],
+      install_requires = [
+          'Flask',
+          'httplib2',
+          'Twisted',
+          'PyYAML',
+      ],
       cmdclass = cmdclasses,
 
       data_files = [
