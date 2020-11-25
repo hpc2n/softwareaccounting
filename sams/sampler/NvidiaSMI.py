@@ -34,48 +34,62 @@ Output:
         clocks_current_graphics: 0,
         clocks_current_sm: 0,
         utilization_gpu: 0,
-        utilization_memory: 0 
+        utilization_memory: 0
     }
 }
 
 """
-import sams.base
+import logging
 import os
 import re
-
-import logging
-logger = logging.getLogger(__name__)
-
 import subprocess
 import threading
-try:
-        import queue
-except ImportError:
-        import Queue as queue
 
-COMMAND='''%s --query-gpu=index,%s --format=csv,nounits -l %d -i %s'''
+import sams.base
+
+logger = logging.getLogger(__name__)
+
+try:
+    import queue
+except ImportError:
+    import Queue as queue
+
+COMMAND = """%s --query-gpu=index,%s --format=csv,nounits -l %d -i %s"""
+
 
 class SMI(threading.Thread):
-    def __init__(self,gpus=[],t=10,command="/usr/bin/nvidia-smi",nvidia_smi_metrics=[]):
-        super(SMI,self).__init__()
+    def __init__(
+        self, gpus, t=10, command="/usr/bin/nvidia-smi", nvidia_smi_metrics=['index']
+    ):
+        super(SMI, self).__init__()
         self.gpus = gpus
         self.t = t
         self.command = command
         self.queue = queue.Queue()
         self.stop_event = threading.Event()
-        self.nvidia_smi_metrics = ",".join([re.sub("[^a-z0-9_\.]+","",m) for m in nvidia_smi_metrics])
+        self.nvidia_smi_metrics = ",".join(
+            [re.sub(r"[^a-z0-9_\.]+", "", m) for m in nvidia_smi_metrics]
+        )
 
     def run(self):
-        command = COMMAND % (self.command,self.nvidia_smi_metrics,self.t,",".join(self.gpus))
+        command = COMMAND % (
+            self.command,
+            self.nvidia_smi_metrics,
+            self.t,
+            ",".join(self.gpus),
+        )
         try:
-            process = subprocess.Popen(command.split(" "),stdout=subprocess.PIPE)
+            process = subprocess.Popen(command.split(" "), stdout=subprocess.PIPE)
             head = process.stdout.readline()
-            headers = map(lambda h: re.sub(r' \[[^\]]+\]$','',h).replace('.','_'),head.decode('ascii').replace('\n','').split(", "))
+            headers = map(
+                lambda h: re.sub(r" \[[^\]]+\]$", "", h).replace(".", "_"),
+                head.decode("ascii").replace("\n", "").split(", "),
+            )
             headers = list(headers)
-            for line in iter(process.stdout.readline,b''):
+            for line in iter(process.stdout.readline, b""):
                 if self.stopped():
                     break
-                items = line.decode('ascii').replace('\n','').split(", ")                
+                items = line.decode("ascii").replace("\n", "").split(", ")
                 out = {}
                 for h in headers:
                     out[h] = items[0]
@@ -85,30 +99,50 @@ class SMI(threading.Thread):
             logger.exception(e)
         process.kill()
         logger.debug("Exiting...")
-    
+
     def stop(self):
         self.stop_event.set()
 
     def stopped(self):
         return self.stop_event.is_set()
 
+
 class Sampler(sams.base.Sampler):
-    def __init__(self,id,outQueue,config):
-        super(Sampler,self).__init__(id,outQueue,config)
-        self.processes = {}        
-        self.sampler_interval = self.config.get([self.id,"sampler_interval"],60)
-        self.gpu_index_environment = self.config.get([self.id,"gpu_index_environment"],'SLURM_JOB_GPUS')
-        self.nvidia_smi_command = self.config.get([self.id,"nvidia_smi_command"],'/usr/bin/nvidia-smi')
-        self.nvidia_smi_metrics = self.config.get([self.id,"nvidia_smi_metrics"],['power.draw','power.limit','clocks.applications.memory',
-                                                                                    'clocks.applications.graphics','clocks.current.graphics',
-                                                                                    'clocks.current.sm','utilization.gpu','utilization.memory'])
+    def __init__(self, id, outQueue, config):
+        super(Sampler, self).__init__(id, outQueue, config)
+        self.processes = {}
+        self.sampler_interval = self.config.get([self.id, "sampler_interval"], 60)
+        self.gpu_index_environment = self.config.get(
+            [self.id, "gpu_index_environment"], "SLURM_JOB_GPUS"
+        )
+        self.nvidia_smi_command = self.config.get(
+            [self.id, "nvidia_smi_command"], "/usr/bin/nvidia-smi"
+        )
+        self.nvidia_smi_metrics = self.config.get(
+            [self.id, "nvidia_smi_metrics"],
+            [
+                "power.draw",
+                "power.limit",
+                "clocks.applications.memory",
+                "clocks.applications.graphics",
+                "clocks.current.graphics",
+                "clocks.current.sm",
+                "utilization.gpu",
+                "utilization.memory",
+            ],
+        )
 
         self.smi = None
         if self.gpu_index_environment in os.environ:
-            self.gpustr = os.environ[self.gpu_index_environment]            
+            self.gpustr = os.environ[self.gpu_index_environment]
             if self.gpustr:
-                gpus=self.gpustr.split(",")
-                self.smi = SMI(gpus=gpus,t=self.sampler_interval,command=self.nvidia_smi_command,nvidia_smi_metrics=self.nvidia_smi_metrics)
+                gpus = self.gpustr.split(",")
+                self.smi = SMI(
+                    gpus=gpus,
+                    t=self.sampler_interval,
+                    command=self.nvidia_smi_command,
+                    nvidia_smi_metrics=self.nvidia_smi_metrics,
+                )
                 self.smi.start()
 
     def do_sample(self):
@@ -119,11 +153,9 @@ class Sampler(sams.base.Sampler):
         while not self.smi.queue.empty():
             data = self.smi.queue.get()
             logger.debug(data)
-            index = data['index']
-            del data['index']
-            self.store({
-                index: data
-            })
+            index = data["index"]
+            del data["index"]
+            self.store({index: data})
 
     def final_data(self):
         if self.smi:
