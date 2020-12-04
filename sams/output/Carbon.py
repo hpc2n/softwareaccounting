@@ -7,6 +7,10 @@ sams.output.Carbon:
     server: carbon.server.example.com
     port: 2003
 
+    # Server list
+    servers:
+      - carbon.server.example.com:2003
+
     # Fetches the value from dict-value and put into dict-key
     # This can be used in the 'metrics' dict-value with %(key)s
     map:
@@ -39,8 +43,10 @@ class Output(sams.base.Output):
         self.static_map = self.config.get([self.id,"static_map"],{})
         self.map = self.config.get([self.id,"map"],{})
         self.metrics = self.config.get([self.id,"metrics"],{})
-        self.server = self.config.get([self.id,"server"],'localhost')
-        self.port = self.config.get([self.id,"port"],2003)
+        server = self.config.get([self.id,"server"],'localhost')
+        port = self.config.get([self.id,"port"],2003)
+        self.servers = self.config.get([self.id,"servers"],['localhost:2003'])
+        self.servers.append("%s:%d" % (server,port))
         self.data = {}
 
         # UDP Socket
@@ -97,8 +103,15 @@ class Output(sams.base.Output):
             return
 
         message = "%s %s %d\n" % (dest,value,int(time.time()))
-        logger.debug("Sending: %s to %s:%s" % (message,self.server,self.port))
-        self.sock.sendto(str.encode(message), (self.server, self.port))
+
+        for server_str in self.servers:
+            (server,port) = server_str.split(":",2)
+            try: 
+                logger.debug("Sending: %s to %s:%s" % (message,server,port))
+                self.sock.sendto(str.encode(message), (server, int(port)))
+                logger.debug("Sending OK: %s to %s:%s" % (message,server,port))
+            except Exception as e:
+                logger.debug(e)
         
     def write(self):
         pass
