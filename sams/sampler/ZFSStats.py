@@ -30,6 +30,7 @@ import sams.base
 
 logger = logging.getLogger(__name__)
 
+
 class ZFSStats:
     def __init__(self, volumes, zfs_command="/sbin/zfs"):
         self.volumes = volumes
@@ -48,7 +49,7 @@ class ZFSStats:
         for v in self.volumes:
             try:
                 (used, avail) = self.zfs_data(v)
-                ret[v] = dict(size=avail, free=avail - used, used=used)
+                ret[v] = dict(size=avail + used, free=avail, used=used)
             except Exception as e:
                 logger.error(e)
         return ret
