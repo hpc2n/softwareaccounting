@@ -85,6 +85,7 @@ class Output(sams.base.Output):
             d[k] = m
 
         try:
+            d['metric'] = d['metric'].replace("/", "_")
             dest = destination % d
         except Exception as e:
             logger.error(e)
