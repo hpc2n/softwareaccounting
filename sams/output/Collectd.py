@@ -95,7 +95,7 @@ class Output(sams.base.Output):
             logger.warning("%s got no metric" % (dest))
             return
 
-        message = "PUTVAL %s %d:%s" % (dest,int(time.time()),value)
+        message = "PUTVAL %s interval=30 %d:%s" % (dest, int(time.time()), value)
         logger.debug("Sending: %s" % (message))
 
         try:
