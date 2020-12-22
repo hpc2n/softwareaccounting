@@ -101,7 +101,7 @@ class Output(sams.base.Output):
         try:
             sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
             sock.connect(self.socket)
-            sock.send(str.encode(message + "\n"))
+            sock.send((message + "\n").encode('utf8', 'replace'))
             reply = sock.recv(1024)
             logger.debug("Reply from collectd: %s" % (reply))
             sock.close()
