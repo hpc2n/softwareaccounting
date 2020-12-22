@@ -102,6 +102,8 @@ class Output(sams.base.Output):
             sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
             sock.connect(self.socket)
             sock.send(str.encode(message + "\n"))
+            reply = sock.recv(1024)
+            logger.debug("Reply from collectd: %s" % (reply))
             sock.close()
         except socket.error as e:
             logger.error("Failed to send: %s to %s" % (message,self.socket))
