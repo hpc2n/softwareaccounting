@@ -85,6 +85,7 @@ class Output(sams.base.Output):
             d[k] = m
 
         try:
+            d['metric'] = d['metric'].replace("/", "_")
             dest = destination % d
         except Exception as e:
             logger.error(e)
@@ -94,13 +95,15 @@ class Output(sams.base.Output):
             logger.warning("%s got no metric" % (dest))
             return
 
-        message = "PUTVAL %s %d:%s" % (dest,int(time.time()),value)
+        message = "PUTVAL %s interval=30 %d:%s" % (dest, int(time.time()), value)
         logger.debug("Sending: %s" % (message))
 
         try:
             sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
             sock.connect(self.socket)
-            sock.send(str.encode(message + "\n"))
+            sock.send((message + "\n").encode('utf8', 'replace'))
+            reply = sock.recv(1024)
+            logger.debug("Reply from collectd: %s" % (reply))
             sock.close()
         except socket.error as e:
             logger.error("Failed to send: %s to %s" % (message,self.socket))
