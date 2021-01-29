@@ -174,7 +174,7 @@ class Output(threading.Thread):
                 break
             try:
                 self.store({ data['id']: data['data'] })
-            except:
+            except Exception as e:
                 logger.exception("Failed to store",e)
             if 'type' in data and data['type'] == 'final':
                 try:
