@@ -94,9 +94,14 @@ class Main:
         for l in self.loaders:
             l.load()
             while True:
-                data = l.next()
-                if not data:
-                    break
+                try:
+                    data = l.next()
+                    if not data:
+                        break
+                except Exception as e:
+                    l.error()
+                    continue
+
                 try:
                     logger.debug("Data: %s",data)
                     for a in self.aggregators:

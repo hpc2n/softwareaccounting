@@ -61,9 +61,7 @@ class Loader(sams.base.Loader):
             with open(filename,"r") as file:
                 return json.load(file)
         except Exception as e:
-            logger.error("Failed to load: %s", filename)
-        except ValueError as e:
-            logger.error("Failed to decode JSON in file: %s", filename)
+            raise Exception("Failed to load: %s due to %s" % (filename,str(e)))
         return None
 
     def error(self):
