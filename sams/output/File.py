@@ -14,10 +14,6 @@ sams.output.File:
   # "Hash" the output based on --jobid / jobid_hash_size
   jobid_hash_size: 1000
 
-  # If set uses the sysfsuid() syscall to write files as uid.
-  # This does not work on lustre.
-  # write_as_uid: 2066
-
   # Skip the list of modules.
   exclude: ['sams.sampler.ModuleName']
 """
@@ -26,7 +22,6 @@ import logging
 import os
 
 import sams.base
-import sams.setfsuid
 
 logger = logging.getLogger(__name__)
 
@@ -50,10 +45,6 @@ class Output(sams.base.Output):
         jobid = self.config.get(['options','jobid'],0)
         node  = self.config.get(['options','node'],0)
         jobid_hash_size = self.config.get([self.id,'jobid_hash_size'])
-        write_as_uid = self.config.get([self.id,'write_as_uid'])
-
-        if write_as_uid is not None:
-            logger.error(sams.setfsuid.setfsuid(write_as_uid))
 
         filename = file_pattern % { 'jobid': jobid, 'node': node }
         tfilename = ".%s" % filename
