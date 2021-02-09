@@ -5,6 +5,12 @@ Matches a path using an regexp rule into a software.
 
 # Config options
 
+## stop_on_rewrite_match
+
+Break rewrite rules if match is found.
+
+Default: false
+
 ## rules
 
 An list of regexp rules that are matched into an software defition.

@@ -21,6 +21,7 @@ along with this program; If not, see <http://www.gnu.org/licenses/>.
 Config Options:
 
 sams.software.Regexp:
+    stop_on_rewrite_match: false
     rules:
         # Things matched in "match" can used in software, version and versionstr to update
         # the items.
@@ -52,6 +53,7 @@ class Software(sams.base.Software):
         super(Software,self).__init__(id,config)
         self.rules = self.config.get([self.id,'rules'],[])
         self.rewrite = self.config.get([self.id,'rewrite'],[])
+        self.stop_on_rewrite_match = self.config.get([self.id,'stop_on_rewrite_match'],False)
 
     def _handle_rewrite(self,software,rw):
         """ Handle rewrite transformation """
@@ -59,13 +61,13 @@ class Software(sams.base.Software):
 
         if not 'match' in rw:
             logging.error("rewrite rule has no 'match' entry ignoring")
-            return software
+            return (software,False)
 
         if not 'update' in rw:
             logging.error("rewrite rule has no 'update' entry ignoring")
-            return software
+            return (software,False)
 
-        match = 0
+        match = False
         for k in ['software','version','versionstr']:
             if k in rw['match']:
                 reg = re.compile(rw['match'][k])
@@ -73,22 +75,24 @@ class Software(sams.base.Software):
                 if not m:
                     return software
                 input.update(m.groupdict())
-                match = 1
+                match = True
 
         # If no match don't update
         if not match:
-            return software
+            return (software,False)
 
         for k in ['software','version','versionstr']:
             if k in rw['update']:
                 software[k] = rw['update'][k] % input
 
-        return software
+        return (software,True)
 
     def _handle_rewrites(self,software):
         """ Handle rewrite transformations """
         for rw in self.rewrite:
-            software = self._handle_rewrite(software,rw)
+            (software,match) = self._handle_rewrite(software,rw)
+            if match and self.stop_on_rewrite_match:
+                break
 
         return software
 
@@ -120,9 +124,7 @@ class Software(sams.base.Software):
             s = self._handle_rule(rule,path)
             if s:
                 return s
-            
+
         logging.info("Path not found: %s" % path)
 
         return None
-            
-
