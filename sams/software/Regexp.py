@@ -73,7 +73,7 @@ class Software(sams.base.Software):
                 reg = re.compile(rw['match'][k])
                 m = reg.match(software[k])
                 if not m:
-                    return software
+                    return (software,False)
                 input.update(m.groupdict())
                 match = True
 
