@@ -1,3 +1,16 @@
+# Version 1.4 - 2021-02-11
+
+- Fix/cleanup of yaml module import. Fixes Issue#17
+- New sams.sampler.FSStats module. Fetches Metrics from a filesystem
+- New sams.sampler.IOStats. Fetches metrics from iostat command about block devices
+- Updated setup.py. Patches from Pär Lindfors <par.lindfors@uppmax.uu.se>
+- Make nvidia-smi metrics configurable.
+- New sams.sampler.ZFSStats. ZFS metrics sampler.
+- Updated Collectd module.
+- Removed write_as_uid/setfsuid due to license problems.
+- LICENSE added to the project. Fixes Issue#14
+- Experimental output module for Prometheus node-exporter.
+- Support for stopping rewrite rules on match.
 
 # Version 1.3 - 2020-11-05
 
