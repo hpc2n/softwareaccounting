@@ -12,6 +12,10 @@
 - Experimental output module for Prometheus node-exporter.
 - Support for stopping rewrite rules on match.
 
+## Upgrading
+
+Upgrading from v1.3 does not require any changes to configurations files.
+
 # Version 1.3 - 2020-11-05
 
 - --test-output option added to [*sams-collector*](docs/sams-collector.md).
