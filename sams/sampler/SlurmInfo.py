@@ -111,10 +111,15 @@ class Sampler(sams.base.Sampler):
         if nodes:
             self.data["nodes"] = nodes.group(1)
 
-        # Find username/uid in string
+        # Find NumCPUs in string
         cpus = re.search(r"NumCPUs=(\d+)", data)
         if cpus:
             self.data["cpus"] = cpus.group(1)
+
+        # Find partition in string
+        partition = re.search(r"Partition=(\S+) ", data)
+        if partition:
+            self.data["partition"] = partition.group(1)
 
         # Find StartTime
         starttime = re.search(r"StartTime=(\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\d)", data)
