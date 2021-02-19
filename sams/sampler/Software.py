@@ -25,6 +25,9 @@ sams.sampler.Software:
     # in seconds
     sampler_interval: 100
 
+    # Map current running execs into softwares for live reporting
+    # software_mapper: sams.software.Regexp
+
 Output:
 Every sample:
 {
@@ -50,6 +53,7 @@ summary:
 }
 """
 import sams.base
+import sams.core
 import time
 import os
 import re
@@ -136,6 +140,35 @@ class Sampler(sams.base.Sampler):
         self.create_time = time.time()
         self.last_sample_time = None
         self.last_total = None
+        self.software_mapper = None
+
+        software_mapper = self.config.get([id,'software_mapper'],None)
+        if software_mapper is not None:
+            logger.debug("Loading software_mapper: %s", software_mapper)
+            try:
+                Software = sams.core.ClassLoader.load(software_mapper,'Software')
+                self.software_mapper = Software(software_mapper,config)
+            except Exception as e:
+                logger.error("Failed to initialize: %s" % software_mapper)
+                logger.exception(e)
+
+    def map_software(self,aggr):
+        output = {}
+        if not self.software_mapper:
+            logger.debug("No software_mapper loaded...")
+            return output
+        for exe,data in aggr.items():
+            try:
+                sw = self.software_mapper.get(exe)
+                if sw['ignore']:
+                    continue
+                if sw['software'] not in output:
+                    output[sw['software']] = {'user':0,'system':0}
+                output[sw['software']]['user'] += data['user']
+                output[sw['software']]['system'] += data['system']
+            except Exception as e:
+                logger.debug(e)
+        return output
 
     def sample(self):
         logger.debug("sample()")
@@ -157,6 +190,9 @@ class Sampler(sams.base.Sampler):
             if time_diff > self.sampler_interval/2:
                 self.store({
                     'current': {
+                        'software': self.map_software(aggr),
+                        'total_user': total['user'],
+                        'total_system': total['system'],
                         'user': (total['user']-self.last_total['user'])/time_diff,
                         'system': (total['system']-self.last_total['system'])/time_diff
                     }

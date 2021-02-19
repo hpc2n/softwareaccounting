@@ -11,6 +11,16 @@ How long to wait (in seconds) for next time the sampling will be executed.
 
 Default value: 60
 
+## software_mapper
+
+Map current running execs into softwares for live reporting.
+
+The mapper value should be a package with a sams.base.Software class in.
+
+Example value is sams.software.Regexp.
+
+Default value: None
+
 # Output
 
 ## current
