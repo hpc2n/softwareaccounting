@@ -72,7 +72,7 @@ class Output(sams.base.Output):
         out = []
         for key in dct.keys():
             nb = "/".join([base, key])
-            if key in dct and type(dct[key]) is dict:
+            if key in dct and isinstance(dct[key],dict):
                 out = out + self.dict2str(dct[key], base=nb)
             else:
                 out = out + [{"match": nb, "value": dct[key]}]
@@ -108,7 +108,7 @@ class Output(sams.base.Output):
 
         try:
             helped = {}
-            metric_re = re.compile("^(\S+){")
+            metric_re = re.compile(r"^(\S+){")
             with open(self.output_file + ".new", "w") as f:
                 for m in sorted(self.promdata.keys()):
                     match = metric_re.match(m)
