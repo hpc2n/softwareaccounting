@@ -58,7 +58,7 @@ class Output(sams.base.Output):
 
     def write(self):
         base_path=self.config.get([self.id,"base_path"],"/tmp")
-        file_pattern = self.config.get([self.id,"file_pattern"],"%(jobid).%(node).json")
+        file_pattern = self.config.get([self.id,"file_pattern"],"%(jobid)s.%(node)s.json")
         jobid = self.config.get(['options','jobid'],0)
         node  = self.config.get(['options','node'],0)
         jobid_hash_size = self.config.get([self.id,'jobid_hash_size'])
