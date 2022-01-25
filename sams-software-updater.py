@@ -197,14 +197,19 @@ class Main:
             self.backend.show_undetermined()
         elif self.options.reset_path:
             self.backend.reset_path(self.options.reset_path)
+            self.update()
         elif self.options.reset_software:
             self.backend.reset_software(self.options.reset_software)
+            self.update()
         else:
-            try:
-                self.backend.update(self.updater)
-            except Exception as e:
-                logger.error("Failed to update")
-                logger.exception(e)
+            self.update()
+
+    def update(self):
+        try:
+            self.backend.update(self.updater)
+        except Exception as e:
+            logger.error("Failed to update")
+            logger.exception(e)
 
 
 if __name__ == "__main__":
