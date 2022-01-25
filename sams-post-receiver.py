@@ -24,12 +24,14 @@ from __future__ import print_function
 
 import logging
 import os
+import sys
 from optparse import OptionParser
 
 from flask import Flask, request
 from flask.views import MethodView
 
 import sams.core
+from sams import __version__
 
 logger = logging.getLogger(__name__)
 
@@ -82,6 +84,13 @@ class Main:
         # Options
         parser = OptionParser()
         parser.add_option(
+            "--version",
+            action="store_true",
+            dest="show_version",
+            default=False,
+            help="Show version",
+        )
+        parser.add_option(
             "--config",
             type="string",
             action="store",
@@ -101,6 +110,10 @@ class Main:
         )
 
         (self.options, self.args) = parser.parse_args()
+
+        if self.options.show_version:
+            print("SAMS Software Accounting version %s" % __version__)
+            sys.exit(0)
 
         self.config = sams.core.Config(self.options.config, {})
 

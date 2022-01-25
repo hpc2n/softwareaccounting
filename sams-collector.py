@@ -32,6 +32,7 @@ import threading
 from optparse import OptionParser
 
 import sams.core
+from sams import __version__
 
 logger = logging.getLogger(__name__)
 
@@ -47,6 +48,13 @@ class Main:
 
         # Options
         parser = OptionParser()
+        parser.add_option(
+            "--version",
+            action="store_true",
+            dest="show_version",
+            default=False,
+            help="Show version",
+        )
         parser.add_option(
             "--config",
             type="string",
@@ -95,6 +103,10 @@ class Main:
         )
 
         (self.options, self.args) = parser.parse_args()
+
+        if self.options.show_version:
+            print("SAMS Software Accounting version %s" % __version__)
+            sys.exit(0)
 
         if not self.options.jobid:
             print("Missing option --jobid")
