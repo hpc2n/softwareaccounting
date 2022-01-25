@@ -62,6 +62,9 @@ class Sampler(sams.base.Sampler):
         memory_usage = self.read_cgroup("memory", "memory.usage_in_bytes")
         memory_limit = self.read_cgroup("memory", "memory.limit_in_bytes")
         memory_max_usage = self.read_cgroup("memory", "memory.max_usage_in_bytes")
+        memory_usage_and_swap = self.read_cgroup(
+            "memory", "memory.memsw.usage_in_bytes"
+        )
 
         self.store(
             {
@@ -69,6 +72,7 @@ class Sampler(sams.base.Sampler):
                 "memory_usage": memory_usage,
                 "memory_limit": memory_limit,
                 "memory_max_usage": memory_max_usage,
+                "memory_swap": str(int(memory_usage_and_swap) - int(memory_usage)),
             }
         )
 
