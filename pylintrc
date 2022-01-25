@@ -1,0 +1,74 @@
+[MESSAGES CONTROL]
+
+disable=
+    # TESTS WE WILL NOT BE ABLE TO ENABLE SOON
+
+    # need 3.0 to work.
+    super-with-arguments,
+
+    # We ignore that we have many attributes
+    too-many-instance-attributes,
+
+    # We have not been good at having docstrings. Unless we fix that,
+    # we cannot use this.
+    missing-docstring,
+
+    # Our whitespace does not conform to pylint's expectations.
+    bad-whitespace,
+
+    # We use else after return in quite a few instances.
+    no-else-return,
+
+    # We like to use 'return (foo > 10)' instead of 'return foo > 10'
+    # for clarity.
+    superfluous-parens,
+
+    # We use "except Exception:" in a lot of places and have no immediate
+    # plans to change that.
+    broad-except,
+
+    # We use constructs like "if condition: break" in a lot of places.
+    # We would like to continue to do that without adding pylint comments
+    # in the code, so we will do without this test.
+    multiple-statements,
+
+    # We still redefine "round" a lot but have tried to leave other
+    # builtins unshadowed. It would be great to be able to just
+    # whitelist "round" here, but we have found no configuration option
+    # for that.
+    redefined-builtin,
+
+    # This triggers a lot of warnings, for example when we have a view
+    # function 'project' and then use 'project' as a variable inside
+    # other functions.
+    redefined-outer-name,
+
+    # Thomas wants to have an empty line at the end of files.
+    # Stop complaining about trailing newlines to allow that.
+    trailing-newlines,
+
+    # TESTS WE HOPE TO ENABLE AFTER SOME FIXES
+
+    # We do not agree with pylint about variable names
+    # (but we should be able to use --*-naming-style instead of disabling)
+    invalid-name,
+
+    # We would like to check what autopep8 thinks about these too before
+    # fixing anything.
+    bad-continuation,
+
+    # Opinions about too many or too few entities
+    # Check this and add pylint: disable=... instead?
+    too-many-return-statements,
+    too-many-branches,
+    too-many-locals,
+    too-many-statements,
+    too-many-public-methods,
+    too-many-arguments,
+    too-few-public-methods,
+
+    # We do not want this wisdom at the moment.
+    duplicate-code
+
+[FORMAT]
+max-line-length = 140
