@@ -105,9 +105,54 @@ sams.backend.SoftwareAccounting:
 
 sams.software.Regexp:
   rules:
-    - match: '^/bin/bash'
-      software: bash
-      version: "system"
+    - match: '^/usr/'
+      software: system
+      version: "/usr/"
+      versionstr: ""
+    - match: '^/scratch/'
+      software: user
+      version: "/scratch/"
+      versionstr: ""
+      user_provided: true
+    - match: '^/tmp/'
+      software: user
+      version: "/tmp/"
+      versionstr: ""
+      user_provided: true
+    - match: '^/(?P<path>s?bin)/'
+      software: "system"
+      version: "/%(path)s/"
       versionstr: ""
       ignore: true
+    - match: '^/home/./(?P<username>[^/]+)/'
+      software: "unclassified"
+      version: ""
+      versionstr: "%(username)s"
+      user_provided: true
+    - match: '^/cvmfs/ebsw/[^/]+/software/Core/(?P<software>[^/]+)/(?P<version>[^/]+)/'
+      software: "%(software)s"
+      version: "%(version)s"
+      versionstr: "Core/%(software)s/%(version)s"
+    - match: '^/cvmfs/ebsw/[^/]+/software/Compiler/(?P<vstr>[^/]+/[^/]+)/(?P<software>[^/]+)/(?P<version>[^/]+)'
+      software: "%(software)s"
+      version: "%(version)s"
+      versionstr: "Core/%(vstr)s/%(software)s/%(version)s"
+    - match: '^/cvmfs/ebsw/[^/]+/software/MPI/(?P<vstr>[^/]+/[^/]+/[^/]+/[^/]+)/(?P<software>[^/]+)/(?P<version>[^/]+)'
+      software: "%(software)s"
+      version: "%(version)s"
+      versionstr: "MPI/%(vstr)s/%(software)s/%(version)s"
+    - match: '^/cvmfs/ebsw/[^/]+/software/(?P<software>[^/]+)/(?P<version>[^/]+)'
+      software: "%(software)s"
+      version: "%(version)s"
+      versionstr: "%(software)s/%(version)s"
+
+  # Rewrite rules.
+  rewrite:  
+    # Catch all common types
+    # Convert 1.2.3 => 1.2, 1.2-local-stuff => 1.2
+    - match:
+        software: '^.*$'
+        version: '^(?P<newver>\d+\.\d+)[^\d]'
+      update:
+        version: '%(newver)s'
 ```

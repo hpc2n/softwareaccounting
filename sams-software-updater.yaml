@@ -11,15 +11,6 @@ sams.backend.SoftwareAccounting:
 
 sams.software.Regexp:
   rules:
-    - match: '^/lap/slurm/(?P<version>[^/]+)/'
-      software: slurm
-      version: "%(version)s"
-      versionstr: ""
-      ignore: true
-    - match: '^/lap/(?P<software>[^/]+)/'
-      software: lap
-      version: "%(software)s"
-      versionstr: ""
     - match: '^/usr/'
       software: system
       version: "/usr/"
@@ -39,43 +30,34 @@ sams.software.Regexp:
       version: "/%(path)s/"
       versionstr: ""
       ignore: true
-    - match: '^/pfs/nobackup/home/./(?P<username>[^/]+)/'
-      software: "user_pfs"
-      version: "%(username)s"
-      versionstr: ""
+    - match: '^/home/./(?P<username>[^/]+)/'
+      software: "unclassified"
+      version: ""
+      versionstr: "%(username)s"
       user_provided: true
-    - match: '^/pfs/nobackup/projects/(?P<class>[^/]+/[^/]+)/(?P<project>[^/]+)/'
-      software: "pfs_projects"
-      version: "%(project)s"
-      versionstr: "%(class)s"
-      user_provided: true
-    - match: '^/afs/hpc2n.umu.se/lap/(?P<software>[^/]+)/(?P<version>[^/]+)/'
-      software: "%(software)s"
-      version: "%(version)s"
-      versionstr: ""
-      user_provided: true
-    - match: '^/afs/hpc2n.umu.se/home/./(?P<username>[^/]+)/'
-      software: "user_afs"
-      version: "%(username)s"
-      versionstr: ""
-      user_provided: true
-    - match: '^/pfs/software/eb/[^/]+/software/Core/(?P<software>[^/]+)/(?P<version>[^/]+)/'
+    - match: '^/cvmfs/ebsw/[^/]+/software/Core/(?P<software>[^/]+)/(?P<version>[^/]+)/'
       software: "%(software)s"
       version: "%(version)s"
       versionstr: "Core/%(software)s/%(version)s"
-    - match: '^/pfs/software/eb/[^/]+/software/Compiler/(?P<vstr>[^/]+/[^/]+)/(?P<software>[^/]+)/(?P<version>[^/]+)'
+    - match: '^/cvmfs/ebsw/[^/]+/software/Compiler/(?P<vstr>[^/]+/[^/]+)/(?P<software>[^/]+)/(?P<version>[^/]+)'
       software: "%(software)s"
       version: "%(version)s"
       versionstr: "Core/%(vstr)s/%(software)s/%(version)s"
-    - match: '^/pfs/software/eb/[^/]+/software/MPI/(?P<vstr>[^/]+/[^/]+/[^/]+/[^/]+)/(?P<software>[^/]+)/(?P<version>[^/]+)'
+    - match: '^/cvmfs/ebsw/[^/]+/software/MPI/(?P<vstr>[^/]+/[^/]+/[^/]+/[^/]+)/(?P<software>[^/]+)/(?P<version>[^/]+)'
       software: "%(software)s"
       version: "%(version)s"
       versionstr: "MPI/%(vstr)s/%(software)s/%(version)s"
-    - match: '^/pfs/software/eb/[^/]+/software/MPI/(?P<vstr>[^/]+/[^/]+/[^/]+/[^/]+)/(?P<software>[^/]+)/(?P<version>[^/]+)'
+    - match: '^/cvmfs/ebsw/[^/]+/software/(?P<software>[^/]+)/(?P<version>[^/]+)'
       software: "%(software)s"
       version: "%(version)s"
-      versionstr: "MPI/%(vstr)s/%(software)s/%(version)s"
-    - match: '^/var/lib/singularity/'
-      software: "singularity"
-      version: ""
-      versionstr: ""
+      versionstr: "%(software)s/%(version)s"
+
+  # Rewrite rules.
+  rewrite:  
+    # Catch all common types
+    # Convert 1.2.3 => 1.2, 1.2-local-stuff => 1.2
+    - match:
+        software: '^.*$'
+        version: '^(?P<newver>\d+\.\d+)[^\d]'
+      update:
+        version: '%(newver)s'
