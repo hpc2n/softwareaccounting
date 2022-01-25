@@ -41,90 +41,98 @@ sams.software.Regexp:
 
 
 """
-import sams.base
+import logging
 import re
 
-import logging
+import sams.base
+
 logger = logging.getLogger(__name__)
+
 
 class Software(sams.base.Software):
     """ SAMS Software accounting aggregator """
-    def __init__(self,id,config):
-        super(Software,self).__init__(id,config)
-        self.rules = self.config.get([self.id,'rules'],[])
-        self.rewrite = self.config.get([self.id,'rewrite'],[])
-        self.stop_on_rewrite_match = self.config.get([self.id,'stop_on_rewrite_match'],False)
 
-    def _handle_rewrite(self,software,rw):
+    def __init__(self, id, config):
+        super(Software, self).__init__(id, config)
+        self.rules = self.config.get([self.id, "rules"], [])
+        self.rewrite = self.config.get([self.id, "rewrite"], [])
+        self.stop_on_rewrite_match = self.config.get(
+            [self.id, "stop_on_rewrite_match"], False
+        )
+
+    @classmethod
+    def _handle_rewrite(cls, software, rw):
         """ Handle rewrite transformation """
         input = dict(software)
 
-        if not 'match' in rw:
+        if not "match" in rw:
             logging.error("rewrite rule has no 'match' entry ignoring")
-            return (software,False)
+            return (software, False)
 
-        if not 'update' in rw:
+        if not "update" in rw:
             logging.error("rewrite rule has no 'update' entry ignoring")
-            return (software,False)
+            return (software, False)
 
         match = False
-        for k in ['software','version','versionstr']:
-            if k in rw['match']:
-                reg = re.compile(rw['match'][k])
+        for k in ["software", "version", "versionstr"]:
+            if k in rw["match"]:
+                reg = re.compile(rw["match"][k])
                 m = reg.match(software[k])
                 if not m:
-                    return (software,False)
+                    return (software, False)
                 input.update(m.groupdict())
                 match = True
 
         # If no match don't update
         if not match:
-            return (software,False)
+            return (software, False)
 
-        for k in ['software','version','versionstr']:
-            if k in rw['update']:
-                software[k] = rw['update'][k] % input
+        for k in ["software", "version", "versionstr"]:
+            if k in rw["update"]:
+                software[k] = rw["update"][k] % input
 
-        return (software,True)
+        return (software, True)
 
-    def _handle_rewrites(self,software):
+    def _handle_rewrites(self, software):
         """ Handle rewrite transformations """
         for rw in self.rewrite:
-            (software,match) = self._handle_rewrite(software,rw)
+            (software, match) = self._handle_rewrite(software, rw)
             if match and self.stop_on_rewrite_match:
                 break
 
         return software
 
-    def _handle_rule(self,rule,path):
+    def _handle_rule(self, rule, path):
         """ Handle rule transformation """
-        reg = re.compile(rule['match'])
+        reg = re.compile(rule["match"])
         m = reg.match(path)
         if m:
             d = m.groupdict()
             up = False
-            if 'user_provided' in rule:
-                up = rule['user_provided']
+            if "user_provided" in rule:
+                up = rule["user_provided"]
             ig = False
-            if 'ignore' in rule:
-                ig = rule['ignore']
-            return self._handle_rewrites({
-                    'software': rule['software'] % d,
-                    'version': rule['version'] % d,
-                    'versionstr': rule['versionstr'] % d,
-                    'user_provided': up,
-                    'ignore': ig
-                })
+            if "ignore" in rule:
+                ig = rule["ignore"]
+            return self._handle_rewrites(
+                {
+                    "software": rule["software"] % d,
+                    "version": rule["version"] % d,
+                    "versionstr": rule["versionstr"] % d,
+                    "user_provided": up,
+                    "ignore": ig,
+                }
+            )
         return None
 
-    def get(self,path):
+    def get(self, path):
         """ Information aggregate method """
 
         for rule in self.rules:
-            s = self._handle_rule(rule,path)
+            s = self._handle_rule(rule, path)
             if s:
                 return s
 
-        logging.info("Path not found: %s" % path)
+        logging.info("Path not found: %s", path)
 
         return None
