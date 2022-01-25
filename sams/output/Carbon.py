@@ -39,46 +39,49 @@ sams.output.Carbon:
         cluster: kebnekaise
 
     # Metrics matching dict-key will be sent to carbon server as dict-value
-    metrics:    
-        '^sams.sampler.SlurmCGroup/(?P<metric>\S+)$' : 'sa/%(cluster)s/%(jobid)s/%(node)s/%(metric)s'
+    metrics:
+        '^sams.sampler.SlurmCGroup/(?P<metric>.*)$' : 'sa/%(cluster)s/%(jobid)s/%(node)s/%(metric)s'
 
 """
-import sams.base
-import time
-import socket
-import re
-
 import logging
+import re
+import socket
+import time
+
+import sams.base
+
 logger = logging.getLogger(__name__)
+
 
 class Output(sams.base.Output):
     """ File output Class """
 
-    def __init__(self,id,config):
-        super(Output,self).__init__(id,config)
-        self.static_map = self.config.get([self.id,"static_map"],{})
-        self.map = self.config.get([self.id,"map"],{})
-        self.metrics = self.config.get([self.id,"metrics"],{})
-        server = self.config.get([self.id,"server"],'localhost')
-        port = self.config.get([self.id,"port"],2003)
-        self.servers = self.config.get([self.id,"servers"],['localhost:2003'])
-        self.servers.append("%s:%d" % (server,port))
+    def __init__(self, id, config):
+        super(Output, self).__init__(id, config)
+        self.static_map = self.config.get([self.id, "static_map"], {})
+        self.map = self.config.get([self.id, "map"], {})
+        self.metrics = self.config.get([self.id, "metrics"], {})
+        server = self.config.get([self.id, "server"], "localhost")
+        port = self.config.get([self.id, "port"], 2003)
+        self.servers = self.config.get([self.id, "servers"], ["localhost:2003"])
+        self.servers.append("%s:%d" % (server, port))
         self.data = {}
 
         # UDP Socket
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
-    def dict2str(self,dct,base="",delim="/"):   
+    def dict2str(self, dct, base=""):
         out = []
         for key in dct.keys():
-            nb = "/".join([base,key])
-            if key in dct and type(dct[key]) is dict:
-                out = out + self.dict2str(dct[key],base=nb)
+            nb = "/".join([base, key])
+            if key in dct and isinstance(dct[key]) is dict:
+                out = out + self.dict2str(dct[key], base=nb)
             else:
-                out = out + [{'match': nb, 'value':dct[key]}]
+                out = out + [{"match": nb, "value": dct[key]}]
         return out
 
-    def safe_metric(self, dct, keys):        
+    @classmethod
+    def safe_metric(cls, dct, keys):
         for key in keys:
             if key in dct:
                 dct = dct[key]
@@ -86,49 +89,48 @@ class Output(sams.base.Output):
                 return None
         return dct
 
-    def store(self,data):
-        logger.debug("store: %s" % data)        
-        for k,v in data.items():
+    def store(self, data):
+        logger.debug("store: %s", data)
+        for k, v in data.items():
             self.data[k] = v
 
         flatdict = self.dict2str(data)
         for d in flatdict:
-            logger.debug("flatdict: %s" % d)
-            for metric,destination in self.metrics.items():                
+            logger.debug("flatdict: %s", d)
+            for metric, destination in self.metrics.items():
                 reg = re.compile(metric)
-                m = reg.match(d['match'])
+                m = reg.match(d["match"])
                 if m:
                     di = m.groupdict()
-                    self.send(d['value'],destination,di)
+                    self.send(d["value"], destination, di)
 
-
-    def send(self,value,destination,di):
+    def send(self, value, destination, di):
         d = self.static_map.copy()
         d.update(di)
-        for k,v in self.map.items():
-            m = self.safe_metric(self.data,v.split('/'))
+        for k, v in self.map.items():
+            m = self.safe_metric(self.data, v.split("/"))
             if not m:
-                logger.warning("map: %s: %s is missing" % (k,v))
+                logger.warning("map: %s: %s is missing", k, v)
                 return
             d[k] = m
 
         dest = destination % d
 
         if not value:
-            logger.warning("%s got no metric" % (dest))
+            logger.warning("%s got no metric", dest)
             return
 
-        message = "%s %s %d\n" % (dest,value,int(time.time()))
+        message = "%s %s %d\n" % (dest, value, int(time.time()))
 
         for server_str in self.servers:
-            (server,port) = server_str.split(":",2)
-            try: 
-                logger.debug("Sending: %s to %s:%s" % (message,server,port))
+            (server, port) = server_str.split(":", 2)
+            try:
+                logger.debug("Sending: %s to %s:%s", message, server, port)
                 self.sock.sendto(str.encode(message), (server, int(port)))
-                logger.debug("Sending OK: %s to %s:%s" % (message,server,port))
+                logger.debug("Sending OK: %s to %s:%s", message, server, port)
             except Exception as e:
                 logger.debug(e)
-        
-    def write(self):
-        pass
 
+    @classmethod
+    def write(cls):
+        pass

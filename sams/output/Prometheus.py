@@ -38,7 +38,7 @@ sams.output.Prometheus:
 
     # Metrics matching dict-key will be written to output path
     metrics:
-        '^sams.sampler.SlurmCGroup/(?P<metric>\S+)$' : sa_metric{cluster="%(cluster)s", jobid="%(jobid)s", metric="%(metric)s"}
+        '^sams.sampler.SlurmCGroup/(?P<metric>[^/]+)$' : sa_metric{cluster="%(cluster)s", jobid="%(jobid)s", metric="%(metric)s"}
 """
 
 import logging
@@ -68,17 +68,18 @@ class Output(sams.base.Output):
         self.data = {}
         self.promdata = {}
 
-    def dict2str(self, dct, base="", delim="/"):
+    def dict2str(self, dct, base=""):
         out = []
         for key in dct.keys():
             nb = "/".join([base, key])
-            if key in dct and isinstance(dct[key],dict):
+            if key in dct and isinstance(dct[key], dict):
                 out = out + self.dict2str(dct[key], base=nb)
             else:
                 out = out + [{"match": nb, "value": dct[key]}]
         return out
 
-    def safe_metric(self, dct, keys):
+    @classmethod
+    def safe_metric(cls, dct, keys):
         for key in keys:
             if key in dct:
                 dct = dct[key]
@@ -87,7 +88,7 @@ class Output(sams.base.Output):
         return dct
 
     def store(self, data):
-        logger.debug("store: %s" % data)
+        logger.debug("store: %s", data)
         for k, v in data.items():
             self.data[k] = v
 
@@ -138,7 +139,7 @@ class Output(sams.base.Output):
         for k, v in self.map.items():
             m = self.safe_metric(self.data, v.split("/"))
             if not m:
-                logger.warning("map: %s: %s is missing" % (k, v))
+                logger.warning("map: %s: %s is missing", k, v)
                 return
             d[k] = m
 
@@ -149,11 +150,11 @@ class Output(sams.base.Output):
             return
 
         if not value:
-            logger.warning("%s got no metric" % (dest))
+            logger.warning("%s got no metric", dest)
             return
 
         self.promdata[dest] = value
-        logger.debug("Store: %s = %s" % (dest, str(value)))
+        logger.debug("Store: %s = %s", dest, str(value))
 
     def write(self):
         if not self.promdata:
