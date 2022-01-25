@@ -60,7 +60,7 @@ class Config:
     def _get(self, cfg, items):
         """ Helper function to do the recursive fetch of values from cfg """
         item = items[0]
-        if item in cfg:
+        if item in cfg and cfg[item]:
             if len(items) > 1:
                 return self._get(cfg[item], items[1:])
             else:
