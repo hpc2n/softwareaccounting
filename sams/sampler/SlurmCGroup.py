@@ -89,7 +89,8 @@ class Sampler(sams.base.Sampler):
                 logger.debug(e)
         return False
 
-    def _cpucount(self, count):
+    @classmethod
+    def _cpucount(cls, count):
         """ Calculate number of cpus from a "N,N-N"-structure """
         cpu_count = 0
         for c in count.split(","):
@@ -115,5 +116,6 @@ class Sampler(sams.base.Sampler):
             logger.debug(err)
             return ""
 
-    def final_data(self):
+    @classmethod
+    def final_data(cls):
         return {}

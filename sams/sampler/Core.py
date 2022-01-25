@@ -30,10 +30,12 @@ Output:
 }
 """
 
-import sams.base
 import logging
 
+import sams.base
+
 logger = logging.getLogger(__name__)
+
 
 class Sampler(sams.base.Sampler):
     def __init__(self, id, outQueue, config):
@@ -43,8 +45,8 @@ class Sampler(sams.base.Sampler):
     def init(self):
         logger.debug("init()")
         self.core = {
-            'jobid': self.config.get(['options','jobid']),
-            'node': self.config.get(['options','node']),
+            "jobid": self.config.get(["options", "jobid"]),
+            "node": self.config.get(["options", "node"]),
         }
         self.store(self.core)
 

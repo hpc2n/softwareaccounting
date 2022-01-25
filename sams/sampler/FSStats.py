@@ -99,5 +99,6 @@ class Sampler(sams.base.Sampler):
         if self.fsstat:
             self.store(self.fsstat.sample())
 
-    def final_data(self):
+    @classmethod
+    def final_data(cls):
         return {}

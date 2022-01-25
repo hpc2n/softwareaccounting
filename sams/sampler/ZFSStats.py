@@ -99,5 +99,6 @@ class Sampler(sams.base.Sampler):
         if self.zfsstat:
             self.store(self.zfsstat.sample())
 
-    def final_data(self):
+    @classmethod
+    def final_data(cls):
         return {}

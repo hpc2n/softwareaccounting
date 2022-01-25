@@ -76,9 +76,7 @@ COMMAND = """%s --query-gpu=index,%s --format=csv,nounits -l %d -i %s"""
 
 
 class SMI(threading.Thread):
-    def __init__(
-        self, gpus, t=10, command="/usr/bin/nvidia-smi", nvidia_smi_metrics=['index']
-    ):
+    def __init__(self, gpus, t, command, nvidia_smi_metrics):
         super(SMI, self).__init__()
         self.gpus = gpus
         self.t = t

@@ -57,13 +57,9 @@ class Sampler(sams.base.Sampler):
     data = {}
 
     def do_sample(self):
-        if (
-            "account" in self.data
-            and "cpus" in self.data
-            and "nodes" in self.data
-            and "starttime" in self.data
-            and "username" in self.data
-            and "uid" in self.data
+        if all(
+            k in self.data
+            for k in ["account", "cpus", "nodes", "starttime", "username", "uid"]
         ):
             return False
         return True

@@ -70,7 +70,7 @@ COMMAND = """%(iostat_command)s -xy -p %(devices)s %(interval)s"""
 
 
 class IOStats(threading.Thread):
-    def __init__(self, devices, t=60, command="/usr/bin/iostat", device_map={}):
+    def __init__(self, devices, t, command, device_map):
         super(IOStats, self).__init__()
         self.devices = devices
         self.device_map = device_map
