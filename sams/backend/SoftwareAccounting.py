@@ -71,6 +71,10 @@ RESET_PATH = """
 UPDATE software SET software = NULL where path GLOB :path
 """
 
+RESET_SOFTWARE = """
+UPDATE software SET software = NULL where software GLOB :software
+"""
+
 SHOW_SOFTWARE = """
 SELECT s.path,s.software,s.version,s.versionstr,s.user_provided,s.ignore,s.last_updated,
             sum(j.ncpus*(j.end_time-j.start_time)*(c.user+c.sys)/(j.user_time+j.system_time)) as cpu,
@@ -239,5 +243,15 @@ class Backend(sams.base.Backend):
                 dbh = self._open_db(db)
                 c = dbh.cursor()
                 c.execute(RESET_PATH, {"path": path})
+                dbh.commit()
+                dbh.close()
+
+    def reset_software(self, software):
+        self.show_software(software=software)
+        if not self._dry_run:
+            for db in self.get_databases():
+                dbh = self._open_db(db)
+                c = dbh.cursor()
+                c.execute(RESET_SOFTWARE, {"software": software})
                 dbh.commit()
                 dbh.close()

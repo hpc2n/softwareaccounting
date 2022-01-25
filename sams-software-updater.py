@@ -82,6 +82,13 @@ class Main:
             help="Reset specific path(s), GLOB can be used",
         )
         parser.add_option(
+            "--reset-software",
+            type="string",
+            action="store",
+            dest="reset_software",
+            help="Reset specific software(s), GLOB can be used",
+        )
+        parser.add_option(
             "--show-paths",
             action="store_true",
             dest="show_paths",
@@ -190,6 +197,8 @@ class Main:
             self.backend.show_undetermined()
         elif self.options.reset_path:
             self.backend.reset_path(self.options.reset_path)
+        elif self.options.reset_software:
+            self.backend.reset_software(self.options.reset_software)
         else:
             try:
                 self.backend.update(self.updater)
