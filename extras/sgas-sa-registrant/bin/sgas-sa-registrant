@@ -187,10 +187,8 @@ def getConfig(filepath=None):
     if filepath is None:
         filepath = DEFAULT_CONFIG_FILE
 
-    cfg_file = open(filepath,"r")
-
-    cfg = ConfigParser.SafeConfigParser()
-    cfg.readfp(cfg_file)
+    cfg = ConfigParser.ConfigParser()
+    cfg.read(filepath)
     return cfg
 
 
