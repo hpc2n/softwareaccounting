@@ -1,3 +1,18 @@
+# Version 1.5 - 2022-02-04
+
+- Cleanup of code using isort, black and pylint.
+- Fix crach on empty config key. Fixes Issue#23
+- Changed isAlive() to is\_alive() due to deprecation.
+- sams-commands now have a --version flag.
+- Support for --reset-softare= in sams-software-updater
+- After a --reset-command an update is run directly afterwards.
+- Updated examples for sams-software-updater.
+- Add swap output from sams.sampler.SlurmCGroup module. Fixes issue #24
+
+## Upgrading
+
+Upgrading from v1.4 does not require any changes to configurations files.
+
 # Version 1.4 - 2021-02-11
 
 - Fix/cleanup of yaml module import. Fixes Issue#17
@@ -7,7 +22,7 @@
 - Make nvidia-smi metrics configurable.
 - New sams.sampler.ZFSStats. ZFS metrics sampler.
 - Updated Collectd module.
-- Removed write_as_uid/setfsuid due to license problems.
+- Removed write\_as\_uid/setfsuid due to license problems.
 - LICENSE added to the project. Fixes Issue#14
 - Experimental output module for Prometheus node-exporter.
 - Support for stopping rewrite rules on match.
