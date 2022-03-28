@@ -22,6 +22,7 @@ import json
 import logging
 import os
 import re
+import shutil
 
 import sams.base
 
@@ -84,7 +85,7 @@ class Loader(sams.base.Loader):
                     assert False, "Failed to makedirs '%s' " % out_path
 
         # Rename file to error directory
-        os.rename(
+        shutil.move(
             os.path.join(
                 self.in_path, self.current_file["path"], self.current_file["file"]
             ),
@@ -110,7 +111,7 @@ class Loader(sams.base.Loader):
                     assert False, "Failed to makedirs '%s' " % out_path
 
         # Rename file to archive directory
-        os.rename(
+        shutil.move(
             os.path.join(
                 self.in_path, self.current_file["path"], self.current_file["file"]
             ),
