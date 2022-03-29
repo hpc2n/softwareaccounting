@@ -1,4 +1,4 @@
 #!/bin/sh
 
-isort -m 3 *.py sams
-black sams *.py
+isort -m 3 sams-*.py sams
+black sams sams-*.py
