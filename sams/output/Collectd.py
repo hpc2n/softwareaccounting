@@ -64,7 +64,7 @@ class Output(sams.base.Output):
         out = []
         for key in dct.keys():
             nb = "/".join([base, key])
-            if key in dct and isinstance(dct[key]) is dict:
+            if key in dct and isinstance(dct[key], dict):
                 out = out + self.dict2str(dct[key], base=nb)
             else:
                 out = out + [{"match": nb, "value": dct[key]}]
