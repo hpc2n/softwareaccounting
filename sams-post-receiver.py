@@ -45,7 +45,6 @@ class Receiver(MethodView):
         self.jobid_hash_size = jobid_hash_size
 
     def post(self, jobid, filename):
-
         base_path = self.base_path
 
         if self.jobid_hash_size is not None:

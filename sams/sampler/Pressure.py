@@ -49,7 +49,9 @@ class Sampler(sams.base.Sampler):
         self.cgroup_base = self.config.get(
             [self.id, "cgroup_base"], "/sys/fs/cgroup/unified"
         )
-        self.extract_pressure = re.compile(r"^(?P<type>some|full)\s+avg10=(?P<avg10>[\d\.]+)\s+avg60=(?P<avg60>[\d\.]+)\s+avg300=(?P<avg300>[\d\.]+)\s+total=(?P<total>[\d]+)\s*$")
+        self.extract_pressure = re.compile(
+            r"^(?P<type>some|full)\s+avg10=(?P<avg10>[\d\.]+)\s+avg60=(?P<avg60>[\d\.]+)\s+avg300=(?P<avg300>[\d\.]+)\s+total=(?P<total>[\d]+)\s*$"
+        )
 
     def do_sample(self):
         return self._get_cgroup()
@@ -70,7 +72,7 @@ class Sampler(sams.base.Sampler):
         )
 
     def _get_cgroup(self):
-        """ Get the cgroup base path for the slurm job """
+        """Get the cgroup base path for the slurm job"""
         for pid in [pid for pid in self.pids if pid not in self.cgroups]:
             try:
                 with open("/proc/%d/cgroup" % pid, "r") as file:
@@ -112,15 +114,18 @@ class Sampler(sams.base.Sampler):
 
         ret = {}
         for type in types:
-            ret.update({type: dict(
-                avg10 = max(float(v[type]['avg10']) for v in output.values()),
-                avg60 = max(float(v[type]['avg60']) for v in output.values()),
-                avg300 = max(float(v[type]['avg300']) for v in output.values()),
-                total = sum(int(v[type]['total']) for v in output.values()),
-            )})
+            ret.update(
+                {
+                    type: dict(
+                        avg10=max(float(v[type]["avg10"]) for v in output.values()),
+                        avg60=max(float(v[type]["avg60"]) for v in output.values()),
+                        avg300=max(float(v[type]["avg300"]) for v in output.values()),
+                        total=sum(int(v[type]["total"]) for v in output.values()),
+                    )
+                }
+            )
         logger.debug(ret)
         return ret
-
 
     @classmethod
     def final_data(cls):

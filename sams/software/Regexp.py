@@ -50,7 +50,7 @@ logger = logging.getLogger(__name__)
 
 
 class Software(sams.base.Software):
-    """ SAMS Software accounting aggregator """
+    """SAMS Software accounting aggregator"""
 
     def __init__(self, id, config):
         super(Software, self).__init__(id, config)
@@ -62,7 +62,7 @@ class Software(sams.base.Software):
 
     @classmethod
     def _handle_rewrite(cls, software, rw):
-        """ Handle rewrite transformation """
+        """Handle rewrite transformation"""
         input = dict(software)
 
         if not "match" in rw:
@@ -94,7 +94,7 @@ class Software(sams.base.Software):
         return (software, True)
 
     def _handle_rewrites(self, software):
-        """ Handle rewrite transformations """
+        """Handle rewrite transformations"""
         for rw in self.rewrite:
             (software, match) = self._handle_rewrite(software, rw)
             if match and self.stop_on_rewrite_match:
@@ -103,7 +103,7 @@ class Software(sams.base.Software):
         return software
 
     def _handle_rule(self, rule, path):
-        """ Handle rule transformation """
+        """Handle rule transformation"""
         reg = re.compile(rule["match"])
         m = reg.match(path)
         if m:
@@ -126,7 +126,7 @@ class Software(sams.base.Software):
         return None
 
     def get(self, path):
-        """ Information aggregate method """
+        """Information aggregate method"""
 
         for rule in self.rules:
             s = self._handle_rule(rule, path)

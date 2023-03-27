@@ -42,7 +42,7 @@ class Loader(sams.base.Loader):
         self.current_file = None
 
     def load(self):
-        """ Find files in in_path matching file_pattern """
+        """Find files in in_path matching file_pattern"""
         for root, _, files in os.walk(self.in_path):
             for file in files:
                 logger.debug("Found file: %s", file)
@@ -69,7 +69,7 @@ class Loader(sams.base.Loader):
         return None
 
     def error(self):
-        """ move file from in_path -> error_path/ """
+        """move file from in_path -> error_path/"""
         logger.info(
             "Error: %s",
             os.path.join(self.current_file["path"], self.current_file["file"]),
@@ -95,7 +95,7 @@ class Loader(sams.base.Loader):
         self.current_file = None
 
     def commit(self):
-        """ move file from in_path -> archive_path/ """
+        """move file from in_path -> archive_path/"""
         logger.info(
             "Commit: %s",
             os.path.join(self.current_file["path"], self.current_file["file"]),

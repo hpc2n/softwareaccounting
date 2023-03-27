@@ -77,7 +77,7 @@ class Sampler(sams.base.Sampler):
         )
 
     def _get_cgroup(self):
-        """ Get the cgroup base path for the slurm job """
+        """Get the cgroup base path for the slurm job"""
         if self.cgroup:
             return True
         for pid in self.pids:
@@ -95,7 +95,7 @@ class Sampler(sams.base.Sampler):
 
     @classmethod
     def _cpucount(cls, count):
-        """ Calculate number of cpus from a "N,N-N"-structure """
+        """Calculate number of cpus from a "N,N-N"-structure"""
         cpu_count = 0
         for c in count.split(","):
             m = re.search(r"^(\d+)-(\d+)$", c)

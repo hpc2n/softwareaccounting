@@ -93,8 +93,9 @@ SHOW_UNDETERMINED_SOFTWARE = """
 SELECT path from software where software IS NULL order by path
 """
 
+
 class Backend(sams.base.Backend):
-    """ SAMS Software accounting aggregator """
+    """SAMS Software accounting aggregator"""
 
     def __init__(self, id, config):
         super(Backend, self).__init__(id, config)
@@ -102,17 +103,21 @@ class Backend(sams.base.Backend):
         self.file_pattern = re.compile(
             self.config.get([self.id, "file_pattern"], r"sa-\d+.db")
         )
-        self.sqlite_temp_store = self.config.get([self.id, "sqlite_temp_store"], "DEFAULT")
+        self.sqlite_temp_store = self.config.get(
+            [self.id, "sqlite_temp_store"], "DEFAULT"
+        )
 
         if self.sqlite_temp_store not in ["DEFAULT", "FILE", "MEMORY"]:
-            sams.base.BackendException("sqlite_temp_store must be one of DEFAULT, FILE or MEMORY")
+            sams.base.BackendException(
+                "sqlite_temp_store must be one of DEFAULT, FILE or MEMORY"
+            )
 
         self.dry_run(False)
         self.updated = {}
 
     @classmethod
     def _open_db(cls, db):
-        """ Open database object """
+        """Open database object"""
         dbh = sqlite3.connect(db)
         dbh.isolation_level = None
         return dbh
@@ -127,7 +132,7 @@ class Backend(sams.base.Backend):
         self._dry_run = dry
 
     def update(self, software):
-        """ Information aggregate method """
+        """Information aggregate method"""
 
         # Get databases
         dbs = self.get_databases()
@@ -166,7 +171,7 @@ class Backend(sams.base.Backend):
             dbh.close()
 
     def extract(self):
-        """ Software extract method """
+        """Software extract method"""
 
         jobs = {}
         self.updated = {}
@@ -198,7 +203,7 @@ class Backend(sams.base.Backend):
         return jobs.values()
 
     def commit(self):
-        """ Commits last used timestamp to database. """
+        """Commits last used timestamp to database."""
         for db in self.get_databases():
             dbh = self._open_db(db)
             c = dbh.cursor()

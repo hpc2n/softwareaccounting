@@ -47,7 +47,7 @@ ISO_TIME_FORMAT = "%Y-%m-%dT%H:%M:%S"
 
 
 class XMLWriter(sams.base.XMLWriter):
-    """ SAMS Software accounting xml output """
+    """SAMS Software accounting xml output"""
 
     def __init__(self, id, config):
         super(XMLWriter, self).__init__(id, config)
@@ -63,7 +63,7 @@ class XMLWriter(sams.base.XMLWriter):
         return reparsed.toprettyxml(indent="  ", encoding="UTF-8")
 
     def write(self, data):
-        """ Data write method """
+        """Data write method"""
 
         data = list(data)
 
@@ -91,7 +91,7 @@ class XMLWriter(sams.base.XMLWriter):
                 f.write(self.generate_xml(output))
 
     def generate_xml(self, data):
-        """ Generate XML output for SAMS """
+        """Generate XML output for SAMS"""
         ElementTree.register_namespace("sa", SA_NAMESPACE)
         sa_records = Element("{%s}SoftwareAccountingRecords" % SA_NAMESPACE)
 
@@ -103,7 +103,7 @@ class XMLWriter(sams.base.XMLWriter):
         return self.prettify(sa_records)
 
     def generate_job(self, job):
-        """ Generate XML output for each job """
+        """Generate XML output for each job"""
         r = Element("{%s}SoftwareAccountingRecord" % SA_NAMESPACE)
 
         # RecordIdentity
