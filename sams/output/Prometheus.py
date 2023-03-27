@@ -149,7 +149,7 @@ class Output(sams.base.Output):
             logger.error(e)
             return
 
-        if not value:
+        if value is None:
             logger.warning("%s got no metric", dest)
             return
 
