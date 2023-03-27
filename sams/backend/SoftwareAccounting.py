@@ -89,7 +89,6 @@ SHOW_UNDETERMINED_SOFTWARE = """
 SELECT path from software where software IS NULL order by path
 """
 
-
 class Backend(sams.base.Backend):
     """ SAMS Software accounting aggregator """
 

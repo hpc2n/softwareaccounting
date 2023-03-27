@@ -41,9 +41,11 @@ class PIDFinder:
 
     # pylint: disable=no-self-use
     def find(self):
-        raise Exception("Not implemented")
+        raise NotImplementedError("Not implemented")
         # return []
 
+class SamplerException(Exception):
+    pass
 
 class Sampler(threading.Thread):
     """ Sampler base class """
@@ -95,12 +97,12 @@ class Sampler(threading.Thread):
     # this should be implemented in the real Sampler..
     # pylint: disable=no-self-use
     def sample(self):
-        raise Exception("Not implemented")
+        raise NotImplementedError("Not implemented")
 
     # this should be implemented in the real Sampler..
     # pylint: disable=no-self-use
     def final_data(self):
-        raise Exception("Not implemented")
+        raise NotImplementedError("Not implemented")
 
     def do_sample(self):
         return len(self.pids) > 0
@@ -109,6 +111,8 @@ class Sampler(threading.Thread):
         logger.debug("%s exit", self.id)
         self.pidQueue.put(None)
 
+class AggregatorException(Exception):
+    pass
 
 class Aggregator:
     """ Aggregator base class """
@@ -119,7 +123,7 @@ class Aggregator:
 
     # pylint: disable=no-self-use
     def aggregate(self, data):
-        raise Exception("Not implemented")
+        raise NotImplementedError("Not implemented")
 
 
 class Loader:
@@ -131,16 +135,18 @@ class Loader:
 
     # pylint: disable=no-self-use
     def load(self):
-        raise Exception("Not implemented")
+        raise NotImplementedError("Not implemented")
 
     # pylint: disable=no-self-use
     def next(self):
-        raise Exception("Not implemented")
+        raise NotImplementedError("Not implemented")
 
     # pylint: disable=no-self-use
     def commit(self):
-        raise Exception("Not implemented")
+        raise NotImplementedError("Not implemented")
 
+class BackendException(Exception):
+    pass
 
 class Backend:
     """ Backend base class """
@@ -151,11 +157,11 @@ class Backend:
 
     # pylint: disable=no-self-use
     def update(self, software):
-        raise Exception("Not implemented")
+        raise NotImplementedError("Not implemented")
 
     # pylint: disable=no-self-use
     def extract(self):
-        raise Exception("Not implemented")
+        raise NotImplementedError("Not implemented")
 
 
 class Software:
@@ -167,7 +173,7 @@ class Software:
 
     # pylint: disable=no-self-use
     def update(self):
-        raise Exception("Not implemented")
+        raise NotImplementedError("Not implemented")
 
 
 class Output(threading.Thread):
@@ -208,14 +214,14 @@ class Output(threading.Thread):
 
     # pylint: disable=no-self-use
     def store(self, data):
-        raise Exception("Not implemented")
+        raise NotImplementedError("Not implemented")
 
     def final(self, data):
         self.store(data)
 
     # pylint: disable=no-self-use
     def write(self):
-        raise Exception("Not implemented")
+        raise NotImplementedError("Not implemented")
 
     def exit(self):
         self.dataQueue.put(None)
@@ -230,4 +236,4 @@ class XMLWriter:
 
     # pylint: disable=no-self-use
     def write(self, data):
-        raise Exception("Not implemented")
+        raise NotImplementedError("Not implemented")

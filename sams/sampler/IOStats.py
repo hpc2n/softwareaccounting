@@ -129,7 +129,7 @@ class Sampler(sams.base.Sampler):
         self.jobid = self.config.get(["options", "jobid"], 0)
 
         if not self.iostat_devs:
-            raise Exception("iostat_devs not configured")
+            raise sams.base.SamplerException("iostat_devs not configured")
 
         self.job_iostat = None
         devices = []

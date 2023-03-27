@@ -81,7 +81,7 @@ class Sampler(sams.base.Sampler):
         self.jobid = self.config.get(["options", "jobid"], 0)
 
         if not self.volumes:
-            raise Exception("volumes not configured")
+            raise sams.base.SamplerException("volumes not configured")
 
         volumes = [volume % dict(jobid=self.jobid) for volume in self.volumes]
 

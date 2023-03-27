@@ -191,7 +191,6 @@ where jobid in (select id from jobs where start_time is null or end_time is null
 group by jobid
 """
 
-
 class Aggregator(sams.base.Aggregator):
     """ SAMS Software accounting aggregator """
 
@@ -280,12 +279,12 @@ class Aggregator(sams.base.Aggregator):
         for module in ["sams.sampler.Software", "sams.sampler.SlurmInfo"]:
             if not module in data:
                 logger.info("Jobid: %d on node %s has no %s", jobid, node, module)
-                raise Exception(
+                raise sams.base.AggregatorException(
                     "Jobid: %d on node %s has no %s" % (jobid, node, module)
                 )
 
         if len(data["sams.sampler.Software"]["execs"]) == 0:
-            raise Exception("Jobid: %d on node %s has no execs" % (jobid, node))
+            raise sams.base.AggregatorException("Jobid: %d on node %s has no execs" % (jobid, node))
 
         # Begin transaction
         c.execute("BEGIN TRANSACTION")
