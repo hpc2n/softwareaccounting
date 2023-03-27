@@ -32,6 +32,11 @@ sams.backend.SoftwareAccounting:
 
     # clustername (used for calculating SGAS recordid)
     clustername: CLUSTER
+
+    # sqlite temp_store pragma (DEFAULT, FILE or MEMORY)
+    # DEFAULT is normally FILE but is dependent on compile time
+    # options of the sqlite library.
+    sqlite_temp_store: DEFAULT
 """
 
 import logging
@@ -205,6 +210,11 @@ class Aggregator(sams.base.Aggregator):
         self.jobid_hash_size = self.config.get([self.id, "jobid_hash_size"], 0)
         self.inserted = {}
 
+        self.sqlite_temp_store = self.config.get([self.id, "sqlite_temp_store"], "DEFAULT")
+
+        if self.sqlite_temp_store not in ["DEFAULT", "FILE", "MEMORY"]:
+            sams.base.AggregatorException("sqlite_temp_store must be one of DEFAULT, FILE or MEMORY")
+
     def _open_db(self, jobid_hash):
         """ Open database object """
         db = os.path.join(
@@ -213,6 +223,7 @@ class Aggregator(sams.base.Aggregator):
         self.db[jobid_hash] = sqlite3.connect(db)
         self.db[jobid_hash].isolation_level = None
         c = self.db[jobid_hash].cursor()
+        c.execute("PRAGMA temp_store = %s" % self.sqlite_temp_store)
         for sql in TABLES:
             logger.debug(sql)
             c.execute(sql)
@@ -288,6 +299,7 @@ class Aggregator(sams.base.Aggregator):
 
         # Begin transaction
         c.execute("BEGIN TRANSACTION")
+        c.execute("PRAGMA temp_store = %s" % self.sqlite_temp_store)
 
         # If project (account) is defined in data insert into table
         project = None
@@ -399,6 +411,7 @@ class Aggregator(sams.base.Aggregator):
             try:
                 c = db.cursor()
                 c.execute("BEGIN TRANSACTION")
+                c.execute("PRAGMA temp_store = %s" % self.sqlite_temp_store)
                 rows = [row for row in c.execute(FIND_MINMAX_JOBS)]
                 for row in rows:
                     c.execute(

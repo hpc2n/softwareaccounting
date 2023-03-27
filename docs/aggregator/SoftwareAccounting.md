@@ -28,6 +28,14 @@ Name of the database based on the jobid_hash.
 
 Default: sa-%(jobid_hash)d.db
 
+## sqlite_temp_store
+
+sqlite temp_store pragma (DEFAULT, FILE or MEMORY)
+DEFAULT is normally FILE but is dependent on compile time
+options of the sqlite library.
+
+Default: DEFAULT
+
 # Example configuration
 
 ```
@@ -36,4 +44,5 @@ sams.aggregator.SoftwareAccounting:
   file_pattern: "sa-%(jobid_hash)d.db"
   db_path: /data/softwareaccounting/db
   cluster: CLUSTER.example.com
+  sqlite_temp_store: DEFAULT
 ```
