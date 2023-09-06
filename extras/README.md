@@ -1,7 +1,7 @@
 
-= sgas-sa-registrant
+= sgas-registrant
 
-sgas-sa-registrant is copied and modified from the SGAS project.
+sgas-registrant is a copy of bart-registrant from https://github.com/sgas/bart/
 
 Information about SGAS can be found at https://sgas.github.io/ or https://github.com/sgas/
 
