@@ -1,3 +1,14 @@
+# Version 1.7 - 2023-09-06
+
+- Updated sgas-sa-registrant.
+  Same as sgas-bart bart-registrant that uses python3 and does not use twisted.
+
+## Upgrading
+
+Upgrading to 1.7 requires using python3 and compatible requests library
+for the the sgas-sa-registrant and config file need to be updated.
+See example etc/sgas-sa-registrant.conf.
+
 # Version 1.6 - 2023-03-29
 
 - New sams.sampler.Pressure. Fetches pressure metrics from cgroup.
