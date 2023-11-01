@@ -18,9 +18,9 @@ Default: All in one file.
 
 Path to where the sqlite database files are stored.
 
-## clustername
+## cluster
 
-clustername (used for calculating SGAS recordid)
+cluster (used for calculating SGAS recordid)
 
 ## file_pattern
 
