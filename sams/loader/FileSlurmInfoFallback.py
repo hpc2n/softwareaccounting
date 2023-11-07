@@ -44,7 +44,7 @@ class SacctLoader:
                 "-j",
                 str(jobid),
                 "-X",
-                "--noheader",
+                "-n",
                 "-o",
                 "Account,Start,User,NNodes,NCPU,Partition,UID",
             ],
