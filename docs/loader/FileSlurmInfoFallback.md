@@ -35,5 +35,5 @@ sams.loader.FileSlurmInfoFallback:
   file_pattern: '^.*\.json$'
   sacct: /usr/bin/sacct
   environment:
-    TZ=UTC
+    TZ: UTC
 ```
