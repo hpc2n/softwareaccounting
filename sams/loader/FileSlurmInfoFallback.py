@@ -29,17 +29,16 @@ logger = logging.getLogger(__name__)
 
 class SacctLoader:
     def __init__(self, sacct, env):
-        self.sacct = sacct
-        self.env = env
+        self.sacct_bin = sacct
+        # setup environment for running sacct
+        self.env = os.environ.copy()
+        for k, v in env.items():
+            self.env[k] = v
 
     def run(self, jobid):
-        local_env = os.environ.copy()
-        for k, v in self.env.items():
-            local_env[k] = v
-
         process = subprocess.run(
             [
-                self.sacct,
+                self.sacct_bin,
                 "-P",
                 "-j",
                 str(jobid),
@@ -49,7 +48,7 @@ class SacctLoader:
                 "Account,Start,User,NNodes,NCPU,Partition,UID",
             ],
             check=True,
-            env=local_env,
+            env=self.env,
             encoding="utf8",
             stdout=subprocess.PIPE,
         )
@@ -76,16 +75,16 @@ class SacctLoader:
 class Loader(File):
     def __init__(self, id, config):
         super(Loader, self).__init__(id, config)
-        self.sacct = self.config.get([self.id, "sacct"], "/usr/bin/sacct")
-        self.env = self.config.get([self.id, "environment"], {})
+        sacct_bin = self.config.get([self.id, "sacct"], "/usr/bin/sacct")
+        sacct_env = self.config.get([self.id, "environment"], {})
+        self.sacct = SacctLoader(sacct_bin, sacct_env)
 
     def next(self):
         data = super(Loader, self).next()
         if data is None:
             return None
-        if not data.get("sams.sampler.SlurmInfo", {}):
+        if not "sams.sampler.SlurmInfo" in data:
             jobid = int(data["sams.sampler.Core"]["jobid"])
-            sacct = SacctLoader(self.sacct, self.env)
-            data["sams.sampler.SlurmInfo"] = sacct.run(jobid)
+            data["sams.sampler.SlurmInfo"] = self.sacct.run(jobid)
 
         return data
