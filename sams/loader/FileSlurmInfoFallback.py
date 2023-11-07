@@ -37,7 +37,7 @@ class SacctLoader:
         for k, v in self.env.items():
             local_env[k] = v
 
-        process = subprocess.Popen(
+        process = subprocess.run(
             [
                 self.sacct,
                 "-P",
@@ -48,12 +48,20 @@ class SacctLoader:
                 "-o",
                 "Account,Start,User,NNodes,NCPU,Partition,UID",
             ],
+            check=True,
             env=local_env,
+            encoding="utf8",
             stdout=subprocess.PIPE,
         )
-        (account, starttime, username, nodes, cpus, partition, uid) = (
-            process.stdout.readline().decode("ascii").strip().split("|")
-        )
+        (
+            account,
+            starttime,
+            username,
+            nodes,
+            cpus,
+            partition,
+            uid,
+        ) = process.stdout.strip().split("|")
         return dict(
             account=account,
             starttime=starttime,
