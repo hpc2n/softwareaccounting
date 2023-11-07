@@ -73,6 +73,8 @@ class Loader(File):
 
     def next(self):
         data = super(Loader, self).next()
+        if data is None:
+            return None
         if not data.get("sams.sampler.SlurmInfo", {}):
             jobid = int(data["sams.sampler.Core"]["jobid"])
             sacct = SacctLoader(self.sacct, self.env)
