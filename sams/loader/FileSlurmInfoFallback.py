@@ -45,31 +45,35 @@ class SacctLoader:
                 "-X",
                 "-n",
                 "-o",
-                "Account,Start,User,NNodes,NCPU,Partition,UID",
+                "JobIDRaw,Account,Start,User,NNodes,NCPU,Partition,UID",
             ],
             check=True,
             env=self.env,
             encoding="utf8",
             stdout=subprocess.PIPE,
         )
-        (
-            account,
-            starttime,
-            username,
-            nodes,
-            cpus,
-            partition,
-            uid,
-        ) = process.stdout.strip().split("|")
-        return dict(
-            account=account,
-            starttime=starttime,
-            username=username,
-            nodes=nodes,
-            cpus=cpus,
-            partition=partition,
-            uid=uid,
-        )
+        for line in process.stdout.splitlines():
+            (
+                jobidraw,
+                account,
+                starttime,
+                username,
+                nodes,
+                cpus,
+                partition,
+                uid,
+            ) = line.strip().split("|")
+            if int(jobidraw) == jobid:
+                return dict(
+                    account=account,
+                    starttime=starttime,
+                    username=username,
+                    nodes=nodes,
+                    cpus=cpus,
+                    partition=partition,
+                    uid=uid,
+                )
+        raise Exception(f"jobid {jobid} not found in sacct output")
 
 
 class Loader(File):
