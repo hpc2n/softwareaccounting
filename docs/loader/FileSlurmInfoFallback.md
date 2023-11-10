@@ -4,6 +4,9 @@ Extends sams.loader.File but will use sacct to fetch data
 from slurmdbd if sams.sampler.SlurmInfo is not used or 
 failes to fetch data.
 
+A modified file that includes the fetched SlurmInfo is stored in
+archive_path. The original input file is removed.
+
 Used by the [*sams-aggregator*](../sams-aggregator.md)
 
 # Config options

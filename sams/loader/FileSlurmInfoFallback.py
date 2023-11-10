@@ -18,9 +18,12 @@ You should have received a copy of the GNU General Public License
 along with this program; If not, see <http://www.gnu.org/licenses/>.
 """
 
+import json
 import logging
 import os
 import subprocess
+from copy import deepcopy
+from tempfile import mkdtemp
 
 from sams.loader.File import Loader as File
 
@@ -82,13 +85,36 @@ class Loader(File):
         sacct_bin = self.config.get([self.id, "sacct"], "/usr/bin/sacct")
         sacct_env = self.config.get([self.id, "environment"], {})
         self.sacct = SacctLoader(sacct_bin, sacct_env)
+        self.updated_data = None
 
     def next(self):
+        self.updated_data = None
         data = super(Loader, self).next()
         if data is None:
             return None
         if not "sams.sampler.SlurmInfo" in data:
             jobid = int(data["sams.sampler.Core"]["jobid"])
             data["sams.sampler.SlurmInfo"] = self.sacct.run(jobid)
-
+            self.updated_data = deepcopy(data)
         return data
+
+    def commit(self):
+        if self.updated_data:
+            # Write new json file, including the SlurmInfo
+            in_file = self.current_file
+            temp_dir = mkdtemp()
+            with open(
+                os.path.join(temp_dir, self.current_file["file"]), mode="w"
+            ) as new_file:
+                new_file.write(json.dumps(self.updated_data))
+            in_path_save = self.in_path
+            self.in_path = temp_dir
+            self.current_file["path"] = ""
+        # Call the regular commit() function, to move new json file to archive directory
+        super().commit()
+        if self.updated_data:
+            # Cleanup temp dir and original input file
+            self.in_path = in_path_save
+            os.remove(os.path.join(self.in_path, in_file["path"], in_file["file"]))
+            if os.path.exists(temp_dir):
+                os.rmdir(temp_dir)
