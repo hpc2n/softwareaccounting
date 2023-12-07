@@ -30,8 +30,8 @@ sams.backend.SoftwareAccounting:
     # Path to sqlite db files
     db_path: /data/softwareaccounting/CLUSTER/db
 
-    # clustername (used for calculating SGAS recordid)
-    clustername: CLUSTER
+    # cluster (used for calculating SGAS recordid)
+    cluster: CLUSTER
 
     # sqlite temp_store pragma (DEFAULT, FILE or MEMORY)
     # DEFAULT is normally FILE but is dependent on compile time
