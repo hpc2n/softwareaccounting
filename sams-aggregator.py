@@ -129,6 +129,7 @@ class Main:
                     if not data:
                         break
                 except Exception as e:
+                    logger.error(e)
                     l.error()
                     continue
 
