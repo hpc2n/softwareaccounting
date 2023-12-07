@@ -1,3 +1,17 @@
+# Version 1.8 - 2023-12-07
+
+- New database backend that uses PeeWee ORM.
+  See: docs/backend/SoftwareAccountingPW.md, 
+       docs/aggregator/SoftwareAccountingPW.md 
+       and extras/convert/
+- Fixes in sgas-sa-registrant for python 3.6
+- Improved SlurmInfoFallback
+  Pull Request from Pär Lindfors <par.lindfors@uppmax.uu.se>
+
+## Upgrading
+
+Upgrading from v1.7 does not require any changes to configurations files.
+
 # Version 1.7 - 2023-09-06
 
 - Updated sgas-sa-registrant.
