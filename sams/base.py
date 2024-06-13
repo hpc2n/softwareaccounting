@@ -95,12 +95,15 @@ class Sampler(threading.Thread):
     # this should be implemented in the real Sampler..
     # pylint: disable=no-self-use
     def sample(self):
-        raise Exception("Not implemented")
+        raise NotImplementedError
+
+    def collect_sample(self) -> dict:
+        raise NotImplementedError
 
     # this should be implemented in the real Sampler..
     # pylint: disable=no-self-use
     def final_data(self):
-        raise Exception("Not implemented")
+        raise NotImplementedError
 
     def do_sample(self):
         return len(self.pids) > 0

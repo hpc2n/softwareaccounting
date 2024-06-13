@@ -155,8 +155,8 @@ class Sampler(sams.base.Sampler):
         super(Sampler, self).__init__(id, outQueue, config)
         self.processes = {}
         self.create_time = time.time()
-        self.last_sample_time = None
-        self.last_total = None
+        self.previous_sample = None
+        self.previous_sample_time = None
         self.software_mapper = None
 
         software_mapper = self.config.get([id, "software_mapper"], None)
@@ -187,41 +187,44 @@ class Sampler(sams.base.Sampler):
                 logger.debug(e)
         return output
 
-    def sample(self):
-        logger.debug("sample()")
+    def collect_sample(self):
+        logger.debug("collect_sample()")
 
         with open("/proc/uptime", "r") as f:
             uptime = float(f.readline().split()[0])
 
         for pid in self.pids:
             logger.debug("evaluate pid: %d", pid)
-            if not pid in self.processes.keys():
+            if pid not in self.processes.keys():
                 logger.debug("Create new instance of Process for pid: %d", pid)
                 self.processes[pid] = Process(pid, self.jobid)
             self.processes[pid].update(uptime)
 
         # Send information about current usage
         aggr, total = self._aggregate()
-        if self.last_sample_time:
-            time_diff = time.time() - self.last_sample_time
-            if time_diff > self.sampler_interval / 2:
-                self.store(
-                    {
-                        "current": {
-                            "software": self.map_software(aggr),
-                            "total_user": total["user"],
-                            "total_system": total["system"],
-                            "user": (total["user"] - self.last_total["user"])
-                            / time_diff,
-                            "system": (total["system"] - self.last_total["system"])
-                            / time_diff,
-                        }
-                    }
-                )
-                self.last_total = total
-                self.last_sample_time = time.time()
-        else:
-            self.last_total = total
+        sample = dict(current=dict(
+            software=self.map_software(aggr),
+            total_user=total['user'],
+            total_system=total['system']))
+        return sample
+
+    def sample(self):
+        sample = self.collect_sample()
+        if self.previous_sample_time is None:
+            self.previous_sample = sample
+            self.previous_sample_time = time.time()
+            return
+
+        time_diff = time.time() - self.previous_sample_time
+        if time_diff > self.sampler_interval / 2:
+            # augment sample with time derivatives
+            current = sample['current']
+            current['user'] = (
+                    current['total_user'] - self.previous_sample['total_user']) / time_diff
+            current['system'] = (
+                    current['total_system'] - self.previous_sample['total_system']) / time_diff
+            self.store(sample)
+            self.previous_sample = current
             self.last_sample_time = time.time()
 
     def last_updated(self):
@@ -250,7 +253,7 @@ class Sampler(sams.base.Sampler):
                 a["system"],
             )
             exe = a["exe"]
-            if not exe in aggr:
+            if exe not in aggr:
                 aggr[exe] = {"user": 0.0, "system": 0.0}
             aggr[exe]["user"] += a["user"]
             aggr[exe]["system"] += a["system"]
