@@ -20,7 +20,7 @@ along with this program; If not, see <http://www.gnu.org/licenses/>.
 
 import threading
 import time
-from typing import Dict
+from typing import Dict, Iterable
 
 try:
     import queue
@@ -98,7 +98,7 @@ class Sampler(threading.Thread):
         """ Convenience method for creating storage dictionary.
         """
         return dict(id=self.id, data=data, type=type)
-    
+
     @property
     def most_recent_sample(self) -> Iterable[Dict]:
         return self._most_recent_sample
@@ -120,6 +120,7 @@ class Sampler(threading.Thread):
     def exit(self):
         logger.debug("%s exit", self.id)
         self.pidQueue.put(None)
+
 
 
 class Aggregator:

@@ -62,6 +62,7 @@ import os
 import re
 import subprocess
 import threading
+from typing import Dict, Iterable
 
 import sams.base
 
@@ -76,7 +77,12 @@ COMMAND = """%s --query-gpu=index,%s --format=csv,nounits -l %d -i %s"""
 
 
 class SMI(threading.Thread):
-    def __init__(self, gpus, t, command, nvidia_smi_metrics):
+    """ Class for queueuing up GPU statistics asynchronously with the sampler. """
+    def __init__(self,
+                 gpus: str,
+                 t: int,
+                 command: str,
+                 nvidia_smi_metrics: Iterable[str]):
         super(SMI, self).__init__()
         self.gpus = gpus
         self.t = t
@@ -87,7 +93,8 @@ class SMI(threading.Thread):
             [re.sub(r"[^a-z0-9_\.]+", "", m) for m in nvidia_smi_metrics]
         )
 
-    def run(self):
+    def run(self) -> None:
+        """ Job to be executed in separate thread by self.start() """
         command = COMMAND % (
             self.command,
             self.nvidia_smi_metrics,
@@ -116,10 +123,13 @@ class SMI(threading.Thread):
         process.kill()
         logger.debug("Exiting...")
 
-    def stop(self):
+    def stop(self) -> None:
+        """ Stop the threaded job. """
         self.stop_event.set()
 
-    def stopped(self):
+    @property
+    def stopped(self) -> bool:
+        """ Returns ``True`` if the threaded job is stopped. """
         return self.stop_event.is_set()
 
 
@@ -129,25 +139,21 @@ class Sampler(sams.base.Sampler):
         self.processes = {}
         self.sampler_interval = self.config.get([self.id, "sampler_interval"], 60)
         self.gpu_index_environment = self.config.get(
-            [self.id, "gpu_index_environment"], "SLURM_JOB_GPUS"
-        )
+            [self.id, "gpu_index_environment"],
+            "SLURM_JOB_GPUS")
         self.nvidia_smi_command = self.config.get(
-            [self.id, "nvidia_smi_command"], "/usr/bin/nvidia-smi"
-        )
+            [self.id, "nvidia_smi_command"],
+            "/usr/bin/nvidia-smi")
         self.nvidia_smi_metrics = self.config.get(
             [self.id, "nvidia_smi_metrics"],
-            [
-                "power.draw",
-                "power.limit",
-                "clocks.applications.memory",
-                "clocks.applications.graphics",
-                "clocks.current.graphics",
-                "clocks.current.sm",
-                "utilization.gpu",
-                "utilization.memory",
-            ],
-        )
-
+            ["power.draw",
+             "power.limit",
+             "clocks.applications.memory",
+             "clocks.applications.graphics",
+             "clocks.current.graphics",
+             "clocks.current.sm",
+             "utilization.gpu",
+             "utilization.memory"])
         self.smi = None
         if self.gpu_index_environment in os.environ:
             self.gpustr = os.environ[self.gpu_index_environment]
@@ -157,23 +163,29 @@ class Sampler(sams.base.Sampler):
                     gpus=gpus,
                     t=self.sampler_interval,
                     command=self.nvidia_smi_command,
-                    nvidia_smi_metrics=self.nvidia_smi_metrics,
-                )
+                    nvidia_smi_metrics=self.nvidia_smi_metrics)
                 self.smi.start()
 
-    def do_sample(self):
+    def do_sample(self) -> bool:
+        """ Returns ``True`` if a sample can be obtained. """
         return self.smi and not self.smi.queue.empty()
 
     def sample(self):
         logger.debug("sample()")
+        most_recent_sample = []
         while not self.smi.queue.empty():
             data = self.smi.queue.get()
             logger.debug(data)
             index = data["index"]
             del data["index"]
-            self.store({index: data})
+            sample = {index: data}
+            most_recent_sample.append(self.storage_wrapping(sample))
+            self.store(sample)
+        # We always want self.most_recent_sample to return something.
+        if len(most_recent_sample) > 0:
+            self._most_recent_sample = most_recent_sample
 
-    def final_data(self):
+    def final_data(self) -> Dict:
         if self.smi:
             self.smi.stop()
             self.smi.join()
