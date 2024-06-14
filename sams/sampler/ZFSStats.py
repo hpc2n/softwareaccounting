@@ -42,6 +42,7 @@ Output:
 
 import logging
 import subprocess
+from typing import Dict, Iterable
 
 import sams.base
 
@@ -49,15 +50,17 @@ logger = logging.getLogger(__name__)
 
 
 class ZFSStats:
-    def __init__(self, volumes, zfs_command="/sbin/zfs"):
+    def __init__(self,
+                 volumes: Iterable[str],
+                 zfs_command: str = '/sbin/zfs'):
         self.volumes = volumes
         self.zfs_command = zfs_command
 
-    def zfs_data(self, volume):
+    def zfs_data(self,
+                 volume: str):
         process = subprocess.Popen(
-            [self.zfs_command, "list", "-Hp", "-o", "used,avail", volume],
-            stdout=subprocess.PIPE,
-        )
+            [self.zfs_command, 'list', '-Hp', '-o', 'used,avail', volume],
+            stdout=subprocess.PIPE)
         used, avail = process.stdout.readline().strip().split()
         return int(used), int(avail)
 
@@ -76,29 +79,29 @@ class Sampler(sams.base.Sampler):
     def __init__(self, id, outQueue, config):
         super(Sampler, self).__init__(id, outQueue, config)
         self.processes = {}
-        self.volumes = self.config.get([self.id, "volumes"])
-        self.zfs_command = self.config.get([self.id, "zfs_command"], "/sbin/zfs")
-        self.jobid = self.config.get(["options", "jobid"], 0)
-
+        self.volumes = self.config.get([self.id, 'volumes'])
+        self.zfs_command = self.config.get([self.id, 'zfs_command'], '/sbin/zfs')
+        self.jobid = self.config.get(['options', 'jobid'], 0)
         if not self.volumes:
-            raise sams.base.SamplerException("volumes not configured")
-
-        volumes = [volume % dict(jobid=self.jobid) for volume in self.volumes]
-
+            raise sams.base.SamplerException('volumes not configured')
+        volumes = [volume.format(jobid=self.jobid) for volume in self.volumes]
         self.zfsstat = None
         if volumes:
-            self.zfsstat = ZFSStats(volumes=volumes, zfs_command=self.zfs_command)
+            self.zfsstat = ZFSStats(volumes=volumes,
+                                    zfs_command=self.zfs_command)
 
-    def do_sample(self):
-        if not self.zfsstat:
+    def do_sample(self) -> bool:
+        if self.zfsstat is None:
             return False
         return True
 
-    def sample(self):
-        logger.debug("sample()")
-        if self.zfsstat:
-            self.store(self.zfsstat.sample())
+    def sample(self) -> None:
+        logger.debug('sample()')
+        if self.zfsstat is not None:
+            sample = self.zfstat.get_sample()
+            self.store(sample)
+            self._most_recent_sample = self.storage_wrapper(sample)
 
-    @classmethod
-    def final_data(cls):
-        return {}
+    @staticmethod
+    def final_data() -> Dict:
+        return dict()
