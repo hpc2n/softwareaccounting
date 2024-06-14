@@ -191,23 +191,40 @@ class Sampler(sams.base.Sampler):
         return sample
 
     def sample(self):
-        sample = self.collect_sample()
-        if self.previous_sample_time is None:
-            self.previous_sample = sample['current']
-            self.previous_sample_time = time.time()
-            return
+        logger.debug('sample()')
 
-        time_diff = time.time() - self.previous_sample_time
-        if time_diff > self.sampler_interval / 2:
-            # augment sample with time derivatives
-            current = sample['current']
-            current['user'] = (
-                    current['total_user'] - self.previous_sample['total_user']) / time_diff
-            current['system'] = (
-                    current['total_system'] - self.previous_sample['total_system']) / time_diff
-            self.store(sample)
-            self._most_recent_sample = [self.storage_wrapping(sample)]
-            self.previous_sample = current
+        with open('/proc/uptime', 'r') as f:
+            uptime = float(f.readline().split()[0])
+
+        for pid in self.pids:
+            logger.debug(f'evaluate pid: {pid}')
+            if pid not in self.processes.keys():
+                logger.debug(f'Create new instance of Process for pid: {pid}')
+                self.processes[pid] = Process(pid, self.jobid)
+            self.processes[pid].update(uptime)
+
+        # Send information about current usage
+        aggr, total = self._aggregate()
+        if self.previous_sample_time is not None:
+            time_diff = time.time() - self.previous_sample_time
+            if time_diff > self.sampler_interval / 2:
+                self.store(
+                    {
+                        "current": {
+                            "software": self.map_software(aggr),
+                            "total_user": total["user"],
+                            "total_system": total["system"],
+                            "user": (total["user"] - self.previous_total["user"])
+                            / time_diff,
+                            "system": (total["system"] - self.previous_total["system"])
+                            / time_diff,
+                        }
+                    }
+                )
+                self.previous_total = total
+                self.previous_sample_time = time.time()
+        else:
+            self.previous_total = total
             self.previous_sample_time = time.time()
 
     @property

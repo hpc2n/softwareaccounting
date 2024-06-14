@@ -83,14 +83,14 @@ class Sampler(sams.base.Sampler):
             return True
         for pid in self.pids:
             try:
-                with open('/proc/{pid:d}/cpuset', 'r') as file:
+                with open(f'/proc/{pid:d}/cpuset', 'r') as file:
                     cpuset = file.readline()
                     m = re.search(r'^/(slurm/uid_\d+/job_\d+)/', cpuset)
                     if m:
                         self.cgroup = m.group(1)
                         return True
             except Exception as e:
-                logger.debug('Failed to fetch cpuset for pid: {self.pids[0]}', self.pids[0])
+                logger.debug(f'Failed to fetch cpuset for pid: {self.pids[0]}')
                 logger.debug(e)
         return False
 
