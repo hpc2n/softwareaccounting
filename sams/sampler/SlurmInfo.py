@@ -45,6 +45,7 @@ import logging
 import os
 import re
 import subprocess
+from typing import Dict
 
 import sams.base
 
@@ -55,7 +56,7 @@ COMMAND = '{:s} show job {:d} -o'
 
 class Sampler(sams.base.Sampler):
     data = dict()
-    keys = ['account', 'cpus', 'nodes', 'starttime'. 'username', 'uid']
+    keys = ['account', 'cpus', 'nodes', 'starttime', 'username', 'uid']
 
     def do_sample(self):
         if all(k in self.data for k in self.keys):
