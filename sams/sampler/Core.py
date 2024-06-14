@@ -32,6 +32,8 @@ Output:
 
 import logging
 
+from typing import Dict
+
 import sams.base
 
 logger = logging.getLogger(__name__)
@@ -40,21 +42,20 @@ logger = logging.getLogger(__name__)
 class Sampler(sams.base.Sampler):
     def __init__(self, id, outQueue, config):
         super(Sampler, self).__init__(id, outQueue, config)
-        self.core = {}
+        self.core = dict()
 
-    def init(self):
-        logger.debug("init()")
-        self.core = {
-            "jobid": self.config.get(["options", "jobid"]),
-            "node": self.config.get(["options", "node"]),
-        }
+    def init(self) -> None:
+        logger.debug('init()')
+        self.core = dict(jobid=self.config.get(['options', 'jobid']),
+                         node=self.config.get(['options', 'node']))
         self.store(self.core)
+        self._most_recent_sample = self.storage_wrapper(self.core)
 
-    def do_sample(self):
+    def do_sample(self) -> bool:
         return False
 
-    def sample(self):
-        logger.debug("sample()")
+    def sample(self) -> None:
+        logger.debug('sample()')
 
-    def final_data(self):
+    def final_data(self) -> Dict:
         return self.core
