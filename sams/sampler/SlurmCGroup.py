@@ -62,34 +62,27 @@ class Sampler(sams.base.Sampler):
         memory_usage = self.read_cgroup("memory", "memory.usage_in_bytes")
         memory_limit = self.read_cgroup("memory", "memory.limit_in_bytes")
         memory_max_usage = self.read_cgroup("memory", "memory.max_usage_in_bytes")
-        memory_usage_and_swap = self.read_cgroup(
-            "memory", "memory.memsw.usage_in_bytes"
-        )
+        memory_usage_and_swap = self.read_cgroup("memory", "memory.memsw.usage_in_bytes")
 
-        self.store(
-            {
-                "cpus": cpus,
-                "memory_usage": memory_usage,
-                "memory_limit": memory_limit,
-                "memory_max_usage": memory_max_usage,
-                "memory_swap": str(int(memory_usage_and_swap) - int(memory_usage)),
-            }
-        )
+        self.store(dict(cpus=cpus, memory_usage=memory_usage,
+                        memory_limit=memory_limit,
+                        memory_max_usage=memory_max_usage,
+                        memory_swap=str(int(memory_usage_and_swap) - int(memory_usage))))
 
     def _get_cgroup(self):
         """ Get the cgroup base path for the slurm job """
-        if self.cgroup:
+        if self.cgroup is None:
             return True
         for pid in self.pids:
             try:
-                with open("/proc/%d/cpuset" % pid, "r") as file:
+                with open('/proc/{pid:d}/cpuset', "r") as file:
                     cpuset = file.readline()
-                    m = re.search(r"^/(slurm/uid_\d+/job_\d+)/", cpuset)
+                    m = re.search(r'^/(slurm/uid_\d+/job_\d+)/', cpuset)
                     if m:
                         self.cgroup = m.group(1)
                         return True
             except Exception as e:
-                logger.debug("Failed to fetch cpuset for pid: %d", self.pids[0])
+                logger.debug('Failed to fetch cpuset for pid: {self.pids[0]}', self.pids[0])
                 logger.debug(e)
         return False
 
@@ -97,28 +90,24 @@ class Sampler(sams.base.Sampler):
     def _cpucount(cls, count):
         """ Calculate number of cpus from a "N,N-N"-structure """
         cpu_count = 0
-        for c in count.split(","):
-            m = re.search(r"^(\d+)-(\d+)$", c)
+        for c in count.split(','):
+            m = re.search(r'^(\d+)-(\d+)$', c)
             if m:
                 cpu_count += int(m.group(2)) - int(m.group(1)) + 1
-            m = re.search(r"^(\d+)$", c)
+            m = re.search(r'^(\d+)$', c)
             if m:
                 cpu_count += 1
-        return cpu_count
+            return cpu_count
 
     def read_cgroup(self, type, id):
         try:
-            with open(
-                os.path.join(self.cgroup_base, type, self.cgroup, id), "r"
-            ) as file:
+            with open(os.path.join(self.cgroup_base, type, self.cgroup, id), "r") as file:
                 return file.readline().strip()
         except IOError as err:
-            logger.debug(
-                "Failed to open %s for reading",
-                os.path.join(self.cgroup_base, type, self.cgroup, id),
-            )
+            path = os.path.join(self.cgroup_base, type, self.cgroup, id)
+            logger.debug('Failed to open {path} for reading')
             logger.debug(err)
-            return ""
+            return ''
 
     @classmethod
     def final_data(cls):
