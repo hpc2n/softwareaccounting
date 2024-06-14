@@ -100,7 +100,7 @@ class Sampler(sams.base.Sampler):
         if self.zfsstat is not None:
             sample = self.zfsstat.get_sample()
             self.store(sample)
-            self._most_recent_sample = self.storage_wrapper(sample)
+            self._most_recent_sample = self.storage_wrapping(sample)
 
     @staticmethod
     def final_data() -> Dict:

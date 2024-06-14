@@ -206,7 +206,7 @@ class Sampler(sams.base.Sampler):
             current['system'] = (
                     current['total_system'] - self.previous_sample['total_system']) / time_diff
             self.store(sample)
-            self._most_recent_sample = [self.storage_wrapper(sample)]
+            self._most_recent_sample = [self.storage_wrapping(sample)]
             self.previous_sample = current
             self.previous_sample_time = time.time()
 

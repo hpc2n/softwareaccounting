@@ -74,7 +74,7 @@ class Sampler(sams.base.Sampler):
                       memory_limit=memory_limit,
                       memory_max_usage=memory_max_usage,
                       memory_swap=str(int(memory_usage_and_swap) - int(memory_usage)))
-        self._most_recent_sample = self.storage_wrapper(sample)
+        self._most_recent_sample = self.storage_wrapping(sample)
         self.store(sample)
 
     def _get_cgroup(self) -> bool:
