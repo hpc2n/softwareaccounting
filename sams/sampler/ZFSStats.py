@@ -64,7 +64,7 @@ class ZFSStats:
         used, avail = process.stdout.readline().strip().split()
         return int(used), int(avail)
 
-    def sample(self):
+    def get_sample(self):
         ret = {}
         for v in self.volumes:
             try:
