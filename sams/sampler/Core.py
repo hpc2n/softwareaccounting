@@ -49,7 +49,7 @@ class Sampler(sams.base.Sampler):
         self.core = dict(jobid=self.config.get(['options', 'jobid']),
                          node=self.config.get(['options', 'node']))
         self.store(self.core)
-        self._most_recent_sample = self.storage_wrapper(self.core)
+        self._most_recent_sample = self.storage_wrapping(self.core)
 
     def do_sample(self) -> bool:
         return False

@@ -98,7 +98,7 @@ class Sampler(sams.base.Sampler):
     def sample(self) -> None:
         logger.debug('sample()')
         if self.zfsstat is not None:
-            sample = self.zfstat.get_sample()
+            sample = self.zfsstat.get_sample()
             self.store(sample)
             self._most_recent_sample = self.storage_wrapper(sample)
 

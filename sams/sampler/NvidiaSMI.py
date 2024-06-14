@@ -110,7 +110,7 @@ class SMI(threading.Thread):
             )
             headers = list(headers)
             for line in iter(process.stdout.readline, b""):
-                if self.stopped():
+                if self.stopped:
                     break
                 items = line.decode("ascii").replace("\n", "").split(", ")
                 out = {}

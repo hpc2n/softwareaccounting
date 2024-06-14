@@ -79,7 +79,7 @@ class Sampler(sams.base.Sampler):
 
     def _get_cgroup(self) -> bool:
         """Get the cgroup base path for the slurm job"""
-        if self.cgroup is None:
+        if self.cgroup is not None:
             return True
         for pid in self.pids:
             try:
