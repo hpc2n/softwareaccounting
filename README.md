@@ -9,31 +9,33 @@ python3-yaml
 python3-json
 python3-httplib2
 python3-flask	(for sams-post-receiver.py)
+python3-peewee  (for SoftwareAccuntingPW.py modules)
 
-### Python2
-
-python-yaml
-python-json
-python-httplib2
-python-flask	(for sams-post-receiver.py)
 
 ## CentOS/RedHat
 
-### 6 (Python 2.6)
+### 7
 
 python-simplejson
 PyYAML
 python-flask   (for sams-post-receiver.py, not tested)
 
-### 7
+### 8
+
+python3-simplejson
+python3-pyyaml
+python3-peewee	(for SoftwareAccuntingPW.py modules)
+
 
 # Usage:
 
 See [*docs/overview*](docs/overview.md)
 
+
 # License
 
-Copyright (C) 2018-2021  Swedish National Infrastructure for Computing (SNIC)
+Copyright (C) 2018-2022  Swedish National Infrastructure for Computing (SNIC)
+Copyright (C) 2023-      National Cacademic Infrastructure for Supercomputing in Sweden (NAISS)
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

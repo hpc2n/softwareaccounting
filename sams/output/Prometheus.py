@@ -51,7 +51,7 @@ logger = logging.getLogger(__name__)
 
 
 class Output(sams.base.Output):
-    """ File output Class """
+    """File output Class"""
 
     def __init__(self, id, config):
         super(Output, self).__init__(id, config)
@@ -149,7 +149,7 @@ class Output(sams.base.Output):
             logger.error(e)
             return
 
-        if not value:
+        if value is None:
             logger.warning("%s got no metric", dest)
             return
 

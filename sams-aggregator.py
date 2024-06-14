@@ -100,7 +100,6 @@ class Main:
             logging.basicConfig(format=logformat, level=loglevel_n)
 
     def start(self):
-
         for l in self.config.get([id, "loaders"], []):
             try:
                 Loader = sams.core.ClassLoader.load(l, "Loader")
@@ -130,6 +129,7 @@ class Main:
                     if not data:
                         break
                 except Exception as e:
+                    logger.error(e)
                     l.error()
                     continue
 

@@ -79,7 +79,7 @@ class Sampler(sams.base.Sampler):
         self.jobid = self.config.get(["options", "jobid"], 0)
 
         if not self.mount_points:
-            raise Exception("mount_points not configured")
+            raise sams.base.SamplerException("mount_points not configured")
 
         mps = []
         for mp in self.mount_points:

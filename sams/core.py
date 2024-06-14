@@ -35,7 +35,7 @@ logger = logging.getLogger(__name__)
 
 
 class Config:
-    """ Config class, reads config_file.yaml """
+    """Config class, reads config_file.yaml"""
 
     def __init__(self, config_file, extra=None):
         self._cfg = {}
@@ -46,7 +46,7 @@ class Config:
             self._cfg = self._merge(extra, self._cfg)
 
     def _merge(self, source, destination):
-        """ Merges two dicts """
+        """Merges two dicts"""
         for key, value in source.items():
             if isinstance(value, dict):
                 # get node or create one
@@ -58,7 +58,7 @@ class Config:
         return destination
 
     def _get(self, cfg, items):
-        """ Helper function to do the recursive fetch of values from cfg """
+        """Helper function to do the recursive fetch of values from cfg"""
         item = items[0]
         if item in cfg and cfg[item]:
             if len(items) > 1:
@@ -68,7 +68,7 @@ class Config:
         return None
 
     def get(self, items, default=None):
-        """ get config value """
+        """get config value"""
         value = self._get(self._cfg, items)
         if value is None:
             return default
@@ -76,7 +76,7 @@ class Config:
 
 
 class OneToN(threading.Thread):
-    """ Class that takes one Queue and forwards into N other queues """
+    """Class that takes one Queue and forwards into N other queues"""
 
     def __init__(self, id="OneToN"):
         super(OneToN, self).__init__()
@@ -89,7 +89,7 @@ class OneToN(threading.Thread):
         self.start()
 
     def run(self):
-        """ Thread that forwards data from inQueue to outQueue[] """
+        """Thread that forwards data from inQueue to outQueue[]"""
         while True:
             value = self.inQueue.get()
             logger.debug("%s received: %s", self.id, value)
@@ -108,26 +108,26 @@ class OneToN(threading.Thread):
         logger.debug("%s is done", self.id)
 
     def addQueue(self, queue):
-        """ Add an new output queue """
+        """Add an new output queue"""
         # Lock the outQueue list so that it is consistent
         self._lock.acquire()
         self.outQueue.append(queue)
         self._lock.release()
 
     def put(self, value):
-        """ Put value into the queue """
+        """Put value into the queue"""
         logger.debug("%s put(%s)", self.id, value)
         self.inQueue.put(value)
 
     def exit(self):
-        """ Enters an None value into the queue to exit """
+        """Enters an None value into the queue to exit"""
         logger.debug("%s got exit message", self.id)
         self.inQueue.put(None)
         self.join()
 
 
 class ClassLoader:
-    """ Static class that loads an class by name """
+    """Static class that loads an class by name"""
 
     @staticmethod
     def load(package, class_name):

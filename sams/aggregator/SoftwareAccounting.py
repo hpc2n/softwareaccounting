@@ -30,8 +30,13 @@ sams.backend.SoftwareAccounting:
     # Path to sqlite db files
     db_path: /data/softwareaccounting/CLUSTER/db
 
-    # clustername (used for calculating SGAS recordid)
-    clustername: CLUSTER
+    # cluster (used for calculating SGAS recordid)
+    cluster: CLUSTER
+
+    # sqlite temp_store pragma (DEFAULT, FILE or MEMORY)
+    # DEFAULT is normally FILE but is dependent on compile time
+    # options of the sqlite library.
+    sqlite_temp_store: DEFAULT
 """
 
 import logging
@@ -193,7 +198,7 @@ group by jobid
 
 
 class Aggregator(sams.base.Aggregator):
-    """ SAMS Software accounting aggregator """
+    """SAMS Software accounting aggregator"""
 
     def __init__(self, id, config):
         super(Aggregator, self).__init__(id, config)
@@ -206,14 +211,24 @@ class Aggregator(sams.base.Aggregator):
         self.jobid_hash_size = self.config.get([self.id, "jobid_hash_size"], 0)
         self.inserted = {}
 
+        self.sqlite_temp_store = self.config.get(
+            [self.id, "sqlite_temp_store"], "DEFAULT"
+        )
+
+        if self.sqlite_temp_store not in ["DEFAULT", "FILE", "MEMORY"]:
+            sams.base.AggregatorException(
+                "sqlite_temp_store must be one of DEFAULT, FILE or MEMORY"
+            )
+
     def _open_db(self, jobid_hash):
-        """ Open database object """
+        """Open database object"""
         db = os.path.join(
             self.db_path, self.file_pattern % {"jobid_hash": int(jobid_hash)}
         )
         self.db[jobid_hash] = sqlite3.connect(db)
         self.db[jobid_hash].isolation_level = None
         c = self.db[jobid_hash].cursor()
+        c.execute("PRAGMA temp_store = %s" % self.sqlite_temp_store)
         for sql in TABLES:
             logger.debug(sql)
             c.execute(sql)
@@ -221,7 +236,7 @@ class Aggregator(sams.base.Aggregator):
         return self.db[jobid_hash]
 
     def get_db(self, jobid):
-        """ get db connection based on jobid / jobid_hash_size """
+        """get db connection based on jobid / jobid_hash_size"""
         jobid_hash = 0
         if self.jobid_hash_size > 0:
             jobid_hash = int(jobid / self.jobid_hash_size)
@@ -230,7 +245,7 @@ class Aggregator(sams.base.Aggregator):
         return self._open_db(jobid_hash)
 
     def save_id(self, jobid, table, value, id):
-        """ Only try to insert once / session """
+        """Only try to insert once / session"""
         jobid_hash = 0
         if self.jobid_hash_size > 0:
             jobid_hash = int(jobid / self.jobid_hash_size)
@@ -240,7 +255,7 @@ class Aggregator(sams.base.Aggregator):
         return id
 
     def get_id(self, jobid, table, value):
-        """ Only try to insert once / session """
+        """Only try to insert once / session"""
         jobid_hash = 0
         if self.jobid_hash_size > 0:
             jobid_hash = int(jobid / self.jobid_hash_size)
@@ -255,7 +270,7 @@ class Aggregator(sams.base.Aggregator):
         return self.inserted[jobid_hash][table][value]
 
     def do_insert(self, jobid, table, value):
-        """ Only try to insert once / session """
+        """Only try to insert once / session"""
         jobid_hash = 0
         if self.jobid_hash_size > 0:
             jobid_hash = int(jobid / self.jobid_hash_size)
@@ -268,7 +283,7 @@ class Aggregator(sams.base.Aggregator):
         return False
 
     def aggregate(self, data):
-        """ Information aggregate method """
+        """Information aggregate method"""
 
         jobid = int(data["sams.sampler.Core"]["jobid"])
         node = data["sams.sampler.Core"]["node"]
@@ -280,15 +295,18 @@ class Aggregator(sams.base.Aggregator):
         for module in ["sams.sampler.Software", "sams.sampler.SlurmInfo"]:
             if not module in data:
                 logger.info("Jobid: %d on node %s has no %s", jobid, node, module)
-                raise Exception(
+                raise sams.base.AggregatorException(
                     "Jobid: %d on node %s has no %s" % (jobid, node, module)
                 )
 
         if len(data["sams.sampler.Software"]["execs"]) == 0:
-            raise Exception("Jobid: %d on node %s has no execs" % (jobid, node))
+            raise sams.base.AggregatorException(
+                "Jobid: %d on node %s has no execs" % (jobid, node)
+            )
 
         # Begin transaction
         c.execute("BEGIN TRANSACTION")
+        c.execute("PRAGMA temp_store = %s" % self.sqlite_temp_store)
 
         # If project (account) is defined in data insert into table
         project = None
@@ -400,6 +418,7 @@ class Aggregator(sams.base.Aggregator):
             try:
                 c = db.cursor()
                 c.execute("BEGIN TRANSACTION")
+                c.execute("PRAGMA temp_store = %s" % self.sqlite_temp_store)
                 rows = [row for row in c.execute(FIND_MINMAX_JOBS)]
                 for row in rows:
                     c.execute(

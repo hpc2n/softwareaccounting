@@ -26,6 +26,10 @@ sams.backend.SoftwareAccounting:
     # Path to sqlite db files
     db_path: /data/softwareaccounting/CLUSTER/db
 
+    # sqlite temp_store pragma (DEFAULT, FILE or MEMORY)
+    # DEFAULT is normally FILE but is dependent on compile time
+    # options of the sqlite library.
+    sqlite_temp_store: DEFAULT
 """
 
 import logging
@@ -91,7 +95,7 @@ SELECT path from software where software IS NULL order by path
 
 
 class Backend(sams.base.Backend):
-    """ SAMS Software accounting aggregator """
+    """SAMS Software accounting aggregator"""
 
     def __init__(self, id, config):
         super(Backend, self).__init__(id, config)
@@ -99,12 +103,21 @@ class Backend(sams.base.Backend):
         self.file_pattern = re.compile(
             self.config.get([self.id, "file_pattern"], r"sa-\d+.db")
         )
+        self.sqlite_temp_store = self.config.get(
+            [self.id, "sqlite_temp_store"], "DEFAULT"
+        )
+
+        if self.sqlite_temp_store not in ["DEFAULT", "FILE", "MEMORY"]:
+            sams.base.BackendException(
+                "sqlite_temp_store must be one of DEFAULT, FILE or MEMORY"
+            )
+
         self.dry_run(False)
         self.updated = {}
 
     @classmethod
     def _open_db(cls, db):
-        """ Open database object """
+        """Open database object"""
         dbh = sqlite3.connect(db)
         dbh.isolation_level = None
         return dbh
@@ -119,7 +132,7 @@ class Backend(sams.base.Backend):
         self._dry_run = dry
 
     def update(self, software):
-        """ Information aggregate method """
+        """Information aggregate method"""
 
         # Get databases
         dbs = self.get_databases()
@@ -129,6 +142,7 @@ class Backend(sams.base.Backend):
 
             # Begin transaction
             c.execute("BEGIN TRANSACTION")
+            c.execute("PRAGMA temp_store = %s" % self.sqlite_temp_store)
 
             rows = [row for row in c.execute(FIND_SOFTWARE)]
             for row in rows:
@@ -157,13 +171,14 @@ class Backend(sams.base.Backend):
             dbh.close()
 
     def extract(self):
-        """ Software extract method """
+        """Software extract method"""
 
         jobs = {}
         self.updated = {}
         for db in self.get_databases():
             dbh = self._open_db(db)
             c = dbh.cursor()
+            c.execute("PRAGMA temp_store = %s" % self.sqlite_temp_store)
             updated = [ts for ts in c.execute("SELECT timestamp from last_sent")][0][0]
             rows = [row for row in c.execute(EXTRACT_SOFTWARE, {"updated": updated})]
             dbh.close()
@@ -188,10 +203,11 @@ class Backend(sams.base.Backend):
         return jobs.values()
 
     def commit(self):
-        """ Commits last used timestamp to database. """
+        """Commits last used timestamp to database."""
         for db in self.get_databases():
             dbh = self._open_db(db)
             c = dbh.cursor()
+            c.execute("PRAGMA temp_store = %s" % self.sqlite_temp_store)
             c.execute(
                 "UPDATE last_sent set timestamp = :timestamp",
                 {"timestamp": self.updated[db]},
@@ -224,6 +240,7 @@ class Backend(sams.base.Backend):
         for db in self.get_databases():
             dbh = self._open_db(db)
             c = dbh.cursor()
+            c.execute("PRAGMA temp_store = %s" % self.sqlite_temp_store)
             for s in c.execute(SHOW_SOFTWARE, dict(software=software, path=path)):
                 self._print_software(s)
             dbh.close()
@@ -232,6 +249,7 @@ class Backend(sams.base.Backend):
         for db in self.get_databases():
             dbh = self._open_db(db)
             c = dbh.cursor()
+            c.execute("PRAGMA temp_store = %s" % self.sqlite_temp_store)
             for software in c.execute(SHOW_UNDETERMINED_SOFTWARE):
                 print(software[0])
             dbh.close()
@@ -242,6 +260,7 @@ class Backend(sams.base.Backend):
             for db in self.get_databases():
                 dbh = self._open_db(db)
                 c = dbh.cursor()
+                c.execute("PRAGMA temp_store = %s" % self.sqlite_temp_store)
                 c.execute(RESET_PATH, {"path": path})
                 dbh.commit()
                 dbh.close()
@@ -252,6 +271,7 @@ class Backend(sams.base.Backend):
             for db in self.get_databases():
                 dbh = self._open_db(db)
                 c = dbh.cursor()
+                c.execute("PRAGMA temp_store = %s" % self.sqlite_temp_store)
                 c.execute(RESET_SOFTWARE, {"software": software})
                 dbh.commit()
                 dbh.close()

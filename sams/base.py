@@ -33,7 +33,7 @@ logger = logging.getLogger(__name__)
 
 
 class PIDFinder:
-    """ PIDFinder base class """
+    """PIDFinder base class"""
 
     # TODO: avoid using reserved keyword id
     def __init__(self, id, jobid, config):
@@ -43,11 +43,14 @@ class PIDFinder:
 
     def find(self):
         raise NotImplementedError
-        # return []
+
+
+class SamplerException(Exception):
+    pass
 
 
 class Sampler(threading.Thread):
-    """ Sampler base class """
+    """Sampler base class"""
 
     def __init__(self, id, outQueue, config):
         super(Sampler, self).__init__()
@@ -122,9 +125,12 @@ class Sampler(threading.Thread):
         self.pidQueue.put(None)
 
 
+class AggregatorException(Exception):
+    pass
+
 
 class Aggregator:
-    """ Aggregator base class """
+    """Aggregator base class"""
 
     def __init__(self, id, config):
         self.id = id
@@ -135,7 +141,7 @@ class Aggregator:
 
 
 class Loader:
-    """ Loader base class """
+    """Loader base class"""
 
     def __init__(self, id, config):
         self.id = id
@@ -151,8 +157,12 @@ class Loader:
         raise NotImplementedError
 
 
+class BackendException(Exception):
+    pass
+
+
 class Backend:
-    """ Backend base class """
+    """Backend base class"""
 
     def __init__(self, id, config):
         self.id = id
@@ -166,7 +176,7 @@ class Backend:
 
 
 class Software:
-    """ Software base class """
+    """Software base class"""
 
     def __init__(self, id, config):
         self.id = id
@@ -177,7 +187,7 @@ class Software:
 
 
 class Output(threading.Thread):
-    """ Output base class """
+    """Output base class"""
 
     def __init__(self, id, config):
         super(Output, self).__init__()
@@ -226,7 +236,7 @@ class Output(threading.Thread):
 
 
 class XMLWriter:
-    """ XMLWriter base class """
+    """XMLWriter base class"""
 
     def __init__(self, id, config):
         self.id = id

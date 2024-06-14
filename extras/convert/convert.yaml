@@ -1,0 +1,7 @@
+---
+sams.backend.SoftwareAccountingPW:
+  database: postgresql
+  database_options:
+    database: sa
+    user: sa
+  create_tables: "yes"

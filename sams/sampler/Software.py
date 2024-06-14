@@ -86,7 +86,7 @@ class Process:
             return
 
     def _parse_stat(self, stat):
-        """ Parse the relevant content from /proc/***/stat """
+        """Parse the relevant content from /proc/***/stat"""
 
         m = re.search(r"^\d+ \(.*\) [RSDZTyEXxKWPI] (.*)", stat)
         stats = m.group(1).split(r" ")
@@ -94,7 +94,7 @@ class Process:
                     system=float(stats[15 - 4]) / self.clock_tics)  # System CPU time in s.
 
     def update(self, uptime):
-        """ Update information about pids """
+        """Update information about pids"""
         if self.done:
             logger.debug("Pid: %d is done", self.pid)
             return
@@ -124,7 +124,7 @@ class Process:
         self.updated = time.time()
 
     def aggregate(self):
-        """ Return the aggregated information for all tasks """
+        """Return the aggregated information for all tasks"""
         return dict(starttime=self.starttime,
                     exe=self.exe,
                     user=sum(t["user"] for t in self.tasks.values()),

@@ -1,3 +1,49 @@
+# Version 1.8 - 2023-12-07
+
+- New database backend that uses PeeWee ORM.
+  See: docs/backend/SoftwareAccountingPW.md, 
+       docs/aggregator/SoftwareAccountingPW.md 
+       and extras/convert/
+- Fixes in sgas-sa-registrant for python 3.6
+- Improved SlurmInfoFallback
+  Pull Request from Pär Lindfors <par.lindfors@uppmax.uu.se>
+
+## Upgrading
+
+Upgrading from v1.7 does not require any changes to configurations files.
+
+# Version 1.7 - 2023-09-06
+
+- Updated sgas-sa-registrant.
+  Same as sgas-bart bart-registrant that uses python3 and does not use twisted.
+
+## Upgrading
+
+Upgrading to 1.7 requires using python3 and compatible requests library
+for the the sgas-sa-registrant and config file need to be updated.
+See example etc/sgas-sa-registrant.conf.
+
+# Version 1.6 - 2023-03-29
+
+- New sams.sampler.Pressure. Fetches pressure metrics from cgroup.
+  See: docs/sampler/Pressure.md
+- New sams.loader.FileSlurmInfoFallback. Fetches information from sacct
+  if Slurm is not responding or does not want to ask slurmctld from nodes.
+  See: docs/loader/FileSlurmInfoFallback.md
+- Possible to set Sqlite temp\_store pragma to allow use of memory instead
+  of /var/tmp or $TMPDIR to store temporary information during queries.
+  See: docs/backend/SoftwareAccounting.md and
+  docs/aggregator/SoftwareAccounting.md
+- Exception cleanup
+- Fix in sams.output.Prometheus for None values.
+- Fix in sams.output.Carbon and Collectd to check if var is dict.
+- Fix in sams.loader.File for moving files to different filesystem.
+- Continue code cleanup using isort, black, pylint.
+
+## Upgrading
+
+Upgrading from v1.5 does not require any changes to configurations files.
+
 # Version 1.5 - 2022-02-04
 
 - Cleanup of code using isort, black and pylint.

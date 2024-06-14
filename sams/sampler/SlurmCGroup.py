@@ -70,7 +70,7 @@ class Sampler(sams.base.Sampler):
                         memory_swap=str(int(memory_usage_and_swap) - int(memory_usage))))
 
     def _get_cgroup(self):
-        """ Get the cgroup base path for the slurm job """
+        """Get the cgroup base path for the slurm job"""
         if self.cgroup is None:
             return True
         for pid in self.pids:
@@ -88,7 +88,7 @@ class Sampler(sams.base.Sampler):
 
     @classmethod
     def _cpucount(cls, count):
-        """ Calculate number of cpus from a "N,N-N"-structure """
+        """Calculate number of cpus from a "N,N-N"-structure"""
         cpu_count = 0
         for c in count.split(','):
             m = re.search(r'^(\d+)-(\d+)$', c)
@@ -105,7 +105,7 @@ class Sampler(sams.base.Sampler):
                 return file.readline().strip()
         except IOError as err:
             path = os.path.join(self.cgroup_base, type, self.cgroup, id)
-            logger.debug('Failed to open {path} for reading')
+            logger.debug(f'Failed to open {path} for reading')
             logger.debug(err)
             return ''
 
