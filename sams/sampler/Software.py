@@ -96,15 +96,15 @@ class Process:
     def update(self, uptime):
         """Update information about pids"""
         if self.done:
-            logger.debug("Pid: %d is done", self.pid)
+            logger.debug(f'Pid: {self.pid:d} is done')
             return
-        logger.debug("Update pid: %d", self.pid)
+        logger.debug(f'Update pid: {self.pid:d}')
         self.uptime = uptime
 
         try:
-            tasks = [int(f) for f in os.listdir(f'/proc/{self.pid}/task') if re.match(r"^\d+$", f)]
+            tasks = [int(f) for f in os.listdir(f'/proc/{self.pid:d}/task') if re.match(r"^\d+$", f)]
         except Exception:
-            logger.debug(f'Failed to read /proc/{self.pid}/task, most likely due to process ending')
+            logger.debug(f'Failed to read /proc/{self.pid:d}/task, most likely due to process ending')
             self.done = True
             return
 
@@ -136,7 +136,7 @@ class Sampler(sams.base.Sampler):
         super(Sampler, self).__init__(id, outQueue, config)
         self.processes = {}
         self.create_time = time.time()
-        self.previous_sample = None
+        self.previous_total = None
         self.previous_sample_time = None
         self.software_mapper = None
 
@@ -152,6 +152,7 @@ class Sampler(sams.base.Sampler):
 
     def map_software(self,
                      aggr: Dict) -> Dict:
+        """Map usage to softwares"""
         output = dict()
         if not self.software_mapper:
             logger.debug('No software_mapper loaded...')
@@ -169,64 +170,41 @@ class Sampler(sams.base.Sampler):
                 logger.debug(e)
         return output
 
-    def collect_sample(self):
-        logger.debug('collect_sample()')
-
+    def _collect_sample(self) -> Tuple[Dict, Dict]:
+        logger.debug('_collect_sample()')
         with open('/proc/uptime', 'r') as f:
             uptime = float(f.readline().split()[0])
-
         for pid in self.pids:
             logger.debug(f'evaluate pid: {pid}')
             if pid not in self.processes.keys():
                 logger.debug(f'Create new instance of Process for pid: {pid}')
                 self.processes[pid] = Process(pid, self.jobid)
             self.processes[pid].update(uptime)
-
         # Send information about current usage
-        aggr, total = self._aggregate()
-        sample = dict(current=dict(
-            software=self.map_software(aggr),
-            total_user=total['user'],
-            total_system=total['system']))
-        return sample
+        return self._aggregate
 
     def sample(self):
         logger.debug('sample()')
-
-        with open('/proc/uptime', 'r') as f:
-            uptime = float(f.readline().split()[0])
-
-        for pid in self.pids:
-            logger.debug(f'evaluate pid: {pid}')
-            if pid not in self.processes.keys():
-                logger.debug(f'Create new instance of Process for pid: {pid}')
-                self.processes[pid] = Process(pid, self.jobid)
-            self.processes[pid].update(uptime)
-
-        # Send information about current usage
-        aggr, total = self._aggregate()
-        if self.previous_sample_time is not None:
-            time_diff = time.time() - self.previous_sample_time
-            if time_diff > self.sampler_interval / 2:
-                sample = {
-                        "current": {
-                            "software": self.map_software(aggr),
-                            "total_user": total["user"],
-                            "total_system": total["system"],
-                            "user": (total["user"] - self.previous_total["user"])
-                            / time_diff,
-                            "system": (total["system"] - self.previous_total["system"])
-                            / time_diff,
-                        }
-                    }
-
-                self.store(sample)
-                self.previous_total = total
-                self.previous_sample_time = time.time()
-                self._most_recent_sample = self.storage_wrapping(sample)
-        else:
+        aggr, total = self._collect_sample()
+        # Initial call
+        if self.previous_sample_time is None:
             self.previous_total = total
             self.previous_sample_time = time.time()
+            return
+        time_diff = time.time() - self.previous_sample_time
+        previous_user = self.previous_sample['total']['user']
+        previous_system = self.previous_sample['total']['system']
+        if time_diff > self.sampler_interval / 2:
+            sample = dict(current=dict(
+                software=self.map_software(aggr),
+                total_user=total["user"],
+                total_system=total["system"],
+                user=(total["user"] - previous_user) / time_diff,
+                system=(total["system"] - previous_system) / time_diff))
+            self.store(sample)
+            self.previous_total = total
+            self.previous_sample_time = time.time()
+            self._most_recent_sample = self.storage_wrapping(sample)
 
     @property
     def valid_procs(self):
