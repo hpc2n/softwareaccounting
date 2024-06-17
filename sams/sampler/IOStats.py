@@ -57,6 +57,8 @@ import os
 import subprocess
 import threading
 
+from typing import Dict
+
 import sams.base
 
 try:
@@ -66,7 +68,7 @@ except ImportError:
 
 logger = logging.getLogger(__name__)
 
-COMMAND = """%(iostat_command)s -xy -p %(devices)s %(interval)s"""
+COMMAND = '{} -xy -p {} {}'
 
 
 class IOStats(threading.Thread):
@@ -80,35 +82,31 @@ class IOStats(threading.Thread):
         self.stop_event = threading.Event()
 
     def run(self):
-        command = COMMAND % dict(
-            iostat_command=self.command, devices=self.devices, interval=self.t
-        )
+        command = COMMAND.format(self.command, self.devices, self.t)
         try:
-            process = subprocess.Popen(command.split(" "), stdout=subprocess.PIPE)
+            process = subprocess.Popen(command.split(' '), stdout=subprocess.PIPE)
             headers = []
-            for line in iter(process.stdout.readline, b""):
+            for line in iter(process.stdout.readline, b''):
                 if self.stopped():
                     break
-                items = line.decode("ascii").replace("\n", "").split()
+                items = line.decode('ascii').replace('\n', '').split()
                 if not items:
                     continue
-
-                if items[0] == "Device:":
-                    headers = [x.replace("%", "").replace("/", "_") for x in items[1:]]
-
-                if items[0].startswith("dm-"):
+                if items[0] == 'Device:':
+                    headers = [x.replace('%', '').replace('/', '_') for x in items[1:]]
+                if items[0].startswith('dm-'):
                     device = items.pop(0)
-                    if ("/dev/%s" % device) in self.device_map:
-                        device = self.device_map["/dev/%s" % device]
-                    data = {}
+                    if f'/dev/{device:s}' in self.device_map:
+                        device = self.device_map[f'/dev/{device:s}']
+                    data = dict()
                     for h in headers:
                         data[h] = items.pop(0)
                     self.queue.put({device: data})
-
         except Exception as e:
             logger.exception(e)
+
         process.kill()
-        logger.debug("Exiting...")
+        logger.debug('Exiting...')
 
     def stop(self):
         self.stop_event.set()
@@ -121,15 +119,14 @@ class Sampler(sams.base.Sampler):
     def __init__(self, id, outQueue, config):
         super(Sampler, self).__init__(id, outQueue, config)
         self.processes = {}
-        self.sampler_interval = self.config.get([self.id, "sampler_interval"], 60)
-        self.iostat_command = self.config.get(
-            [self.id, "iostat_command"], "/usr/bin/iostat"
-        )
-        self.iostat_devs = self.config.get([self.id, "iostat_devs"])
-        self.jobid = self.config.get(["options", "jobid"], 0)
+        self.sampler_interval = self.config.get([self.id, 'sampler_interval'], 60)
+        self.iostat_command = self.config.get([self.id, 'iostat_command'],
+                                              '/usr/bin/iostat')
+        self.iostat_devs = self.config.get([self.id, 'iostat_devs'])
+        self.jobid = self.config.get(['options', 'jobid'], 0)
 
         if not self.iostat_devs:
-            raise sams.base.SamplerException("iostat_devs not configured")
+            raise sams.base.SamplerException('iostat_devs not configured')
 
         self.job_iostat = None
         devices = []
@@ -141,25 +138,24 @@ class Sampler(sams.base.Sampler):
             device_map[rp] = dev
         if devices:
             self.job_iostat = IOStats(
-                devices=",".join(devices),
+                devices=','.join(devices),
                 t=self.sampler_interval,
                 command=self.iostat_command,
-                device_map=device_map,
-            )
+                device_map=device_map)
             self.job_iostat.start()
 
-    def do_sample(self):
+    def do_sample(self) -> bool:
         return self.job_iostat and not self.job_iostat.queue.empty()
 
-    def sample(self):
-        logger.debug("sample()")
+    def sample(self) -> None:
+        logger.debug('sample()')
         while not self.job_iostat.queue.empty():
             data = self.job_iostat.queue.get()
             logger.debug(data)
             self.store(data)
 
-    def final_data(self):
+    def final_data(self) -> Dict:
         if self.job_iostat:
             self.job_iostat.stop()
             self.job_iostat.join()
-        return {}
+        return dict()

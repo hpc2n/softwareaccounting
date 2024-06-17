@@ -20,6 +20,7 @@ along with this program; If not, see <http://www.gnu.org/licenses/>.
 
 import threading
 import time
+from typing import Dict, Iterable
 
 try:
     import queue
@@ -34,15 +35,14 @@ logger = logging.getLogger(__name__)
 class PIDFinder:
     """PIDFinder base class"""
 
+    # TODO: avoid using reserved keyword id
     def __init__(self, id, jobid, config):
         self.id = id
         self.jobid = jobid
         self.config = config
 
-    # pylint: disable=no-self-use
     def find(self):
-        raise NotImplementedError("Not implemented")
-        # return []
+        raise NotImplementedError
 
 
 class SamplerException(Exception):
@@ -61,8 +61,8 @@ class Sampler(threading.Thread):
         self.pidQueue = queue.Queue()
         self.pids = []
         self.sampler_interval = self.config.get([self.id, "sampler_interval"], 60)
+        self._most_recent_sample = None
 
-    def init(self):  # pylint: disable=no-self-use
         pass
 
     def run(self):
@@ -93,18 +93,29 @@ class Sampler(threading.Thread):
             logger.exception("Failed to do self.final_data in %s", self.id)
         self.outQueue.join()
 
-    def store(self, data, type="now"):
-        self.outQueue.put({"id": self.id, "data": data, "type": type})
+    # TODO: avoid using reserved keywords type and id.
+    def store(self, data, type="now") -> None:
+        self.outQueue.put(self.storage_wrapping(data, type))
+
+    def storage_wrapping(self, data, type="now") -> Dict:
+        """ Convenience method for creating storage dictionary.
+        """
+        return dict(id=self.id, data=data, type=type)
+
+    @property
+    def most_recent_sample(self) -> Iterable[Dict]:
+        return self._most_recent_sample
 
     # this should be implemented in the real Sampler..
-    # pylint: disable=no-self-use
     def sample(self):
-        raise NotImplementedError("Not implemented")
+        raise NotImplementedError
+
+    def collect_sample(self) -> dict:
+        raise NotImplementedError
 
     # this should be implemented in the real Sampler..
-    # pylint: disable=no-self-use
     def final_data(self):
-        raise NotImplementedError("Not implemented")
+        raise NotImplementedError
 
     def do_sample(self):
         return len(self.pids) > 0
@@ -125,9 +136,8 @@ class Aggregator:
         self.id = id
         self.config = config
 
-    # pylint: disable=no-self-use
     def aggregate(self, data):
-        raise NotImplementedError("Not implemented")
+        raise NotImplementedError
 
 
 class Loader:
@@ -137,17 +147,14 @@ class Loader:
         self.id = id
         self.config = config
 
-    # pylint: disable=no-self-use
     def load(self):
-        raise NotImplementedError("Not implemented")
+        raise NotImplementedError
 
-    # pylint: disable=no-self-use
     def next(self):
-        raise NotImplementedError("Not implemented")
+        raise NotImplementedError
 
-    # pylint: disable=no-self-use
     def commit(self):
-        raise NotImplementedError("Not implemented")
+        raise NotImplementedError
 
 
 class BackendException(Exception):
@@ -161,13 +168,11 @@ class Backend:
         self.id = id
         self.config = config
 
-    # pylint: disable=no-self-use
     def update(self, software):
-        raise NotImplementedError("Not implemented")
+        raise NotImplementedError
 
-    # pylint: disable=no-self-use
     def extract(self):
-        raise NotImplementedError("Not implemented")
+        raise NotImplementedError
 
 
 class Software:
@@ -177,9 +182,8 @@ class Software:
         self.id = id
         self.config = config
 
-    # pylint: disable=no-self-use
     def update(self):
-        raise NotImplementedError("Not implemented")
+        raise NotImplementedError
 
 
 class Output(threading.Thread):
@@ -218,16 +222,14 @@ class Output(threading.Thread):
                 logger.exception("Failed to do self.write in %s", self.id)
             time.sleep(int(self.config.get([self.id, "retry_sleep"], 3)))
 
-    # pylint: disable=no-self-use
     def store(self, data):
-        raise NotImplementedError("Not implemented")
+        raise NotImplementedError
 
     def final(self, data):
         self.store(data)
 
-    # pylint: disable=no-self-use
     def write(self):
-        raise NotImplementedError("Not implemented")
+        raise NotImplementedError
 
     def exit(self):
         self.dataQueue.put(None)
@@ -240,6 +242,5 @@ class XMLWriter:
         self.id = id
         self.config = config
 
-    # pylint: disable=no-self-use
     def write(self, data):
-        raise NotImplementedError("Not implemented")
+        raise NotImplementedError

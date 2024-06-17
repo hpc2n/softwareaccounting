@@ -56,6 +56,7 @@ import logging
 import os
 import re
 import time
+from typing import Dict, Iterable, Tuple
 
 import sams.base
 import sams.core
@@ -64,10 +65,21 @@ logger = logging.getLogger(__name__)
 
 
 class Process:
-    def __init__(self, pid, jobid):
+    """ Object representing a single process with a single PID.
+
+    Parameters
+    ----------
+    pid : int
+        Process ID.
+    jobid : int
+        Slurm job ID.
+    """
+    def __init__(self,
+                 pid: int,
+                 jobid: int):
         self.pid = pid
-        self.tasks = {}
-        self.clock_tics = os.sysconf(os.sysconf_names["SC_CLK_TCK"])
+        self.tasks = dict()
+        self.clock_tics = os.sysconf(os.sysconf_names['SC_CLK_TCK'])
         self.starttime = time.time()
         self.ignore = False
         self.done = False
@@ -75,79 +87,56 @@ class Process:
         self.updated = None
 
         try:
-            self.exe = os.readlink("/proc/%d/exe" % self.pid)
-            logger.debug("Pid: %d (JobId: %d) has exe: %s", pid, jobid, self.exe)
+            self.exe = os.readlink(f'/proc/{self.pid:d}/exe')
+            logger.debug(f'Pid: {pid} (JobId: {jobid}) has exe: {self.exe}')
         except Exception:
-            logger.debug(
-                "Pid: %d (JobId: %d) has no exe or pid has disapeard", pid, jobid
-            )
+            logger.debug(f'Pid: {pid} (JobId: {jobid}) has no exe or pid has disapeared')
             self.ignore = True
-            return
 
-    def _parse_stat(self, stat):
+    def _get_parsed_stats(self, stat) -> dict:
         """Parse the relevant content from /proc/***/stat"""
 
-        m = re.search(r"^\d+ \(.*\) [RSDZTyEXxKWPI] (.*)", stat)
-        stats = m.group(1).split(r" ")
-        return {
-            "user": float(stats[14 - 4]) / self.clock_tics,  # User CPU time in s.
-            "system": float(stats[15 - 4]) / self.clock_tics,  # System CPU time in s.
-        }
+        m = re.search(r'^\d+ \(.*\) [RSDZTyEXxKWPI] (.*)', stat)
+        stats = m.group(1).split(r' ')
+        return dict(user=float(stats[14 - 4]) / self.clock_tics,  # User CPU time in s.
+                    system=float(stats[15 - 4]) / self.clock_tics)  # System CPU time in s.
 
-    def update(self, uptime):
+    def update(self, uptime) -> None:
         """Update information about pids"""
-
         if self.done:
-            logger.debug("Pid: %d is done", self.pid)
+            logger.debug(f'Pid: {self.pid:d} is done')
             return
-
-        logger.debug("Update pid: %d", self.pid)
-
+        logger.debug(f'Update pid: {self.pid:d}')
         self.uptime = uptime
 
         try:
-            tasks = filter(
-                lambda f: re.match(r"^\d+$", f), os.listdir("/proc/%d/task" % self.pid)
-            )
-            tasks = map(int, tasks)
+            tasks = [int(f) for f in os.listdir(f'/proc/{self.pid:d}/task') if re.match(r"^\d+$", f)]
         except Exception:
-            logger.debug(
-                "Failed to read /proc/%d/task, most likely due to process ending",
-                self.pid,
-            )
+            logger.debug(f'Failed to read /proc/{self.pid:d}/task, most likely due to process ending')
             self.done = True
             return
 
         for task in tasks:
             try:
-                with open("/proc/%d/task/%d/stat" % (self.pid, task)) as f:
+                with open(f'/proc/{self.pid:d}/task/{task:d}/stat') as f:
                     stat = f.read()
-                    stats = self._parse_stat(stat)
-                    self.tasks[task] = {
-                        "user": stats["user"],
-                        "system": stats["system"],
-                    }
-                    logger.debug(
-                        "Task usage for pid: %d, task: %d, user: %f, system: %f",
-                        self.pid,
-                        task,
-                        stats["user"],
-                        stats["system"],
-                    )
-
+                    stats = self._get_parsed_stats(stat)
+                    self.tasks[task] = dict(
+                        user=stats["user"],
+                        system=stats["system"])
+                    logger.debug(f'Task usage for pid: {self.pid}, task: {task},'
+                                 f' user: {stats["user"]}, system: {stats["system"]}')
             except Exception:
-                logger.debug("Ignore missing task for pid: %d", self.pid)
+                logger.debug(f'Ignore missing task for pid: {self.pid}')
 
         self.updated = time.time()
 
-    def aggregate(self):
+    def get_aggregated_task_info(self) -> Dict:
         """Return the aggregated information for all tasks"""
-        return {
-            "starttime": self.starttime,
-            "exe": self.exe,
-            "user": sum(t["user"] for t in self.tasks.values()),
-            "system": sum(t["system"] for t in self.tasks.values()),
-        }
+        return dict(starttime=self.starttime,
+                    exe=self.exe,
+                    user=sum(t["user"] for t in self.tasks.values()),
+                    system=sum(t["system"] for t in self.tasks.values()))
 
 
 class Sampler(sams.base.Sampler):
@@ -155,114 +144,115 @@ class Sampler(sams.base.Sampler):
         super(Sampler, self).__init__(id, outQueue, config)
         self.processes = {}
         self.create_time = time.time()
-        self.last_sample_time = None
-        self.last_total = None
+        self.previous_total = None
+        self.previous_sample_time = None
         self.software_mapper = None
 
-        software_mapper = self.config.get([id, "software_mapper"], None)
+        software_mapper = self.config.get([id, 'software_mapper'], None)
         if software_mapper is not None:
-            logger.debug("Loading software_mapper: %s", software_mapper)
+            logger.debug(f'Loading software_mapper: {software_mapper}')
             try:
-                Software = sams.core.ClassLoader.load(software_mapper, "Software")
+                Software = sams.core.ClassLoader.load(software_mapper, 'Software')
                 self.software_mapper = Software(software_mapper, config)
             except Exception as e:
-                logger.error("Failed to initialize: %s", software_mapper)
+                logger.error(f'Failed to initialize: {software_mapper}')
                 logger.exception(e)
 
-    def map_software(self, aggr):
-        output = {}
+    def map_software(self,
+                     aggr: Dict) -> Dict:
+        """Map usage to softwares"""
+        output = dict()
         if not self.software_mapper:
-            logger.debug("No software_mapper loaded...")
+            logger.debug('No software_mapper loaded...')
             return output
         for exe, data in aggr.items():
             try:
                 sw = self.software_mapper.get(exe)
-                if sw["ignore"]:
+                if sw['ignore']:
                     continue
-                if sw["software"] not in output:
-                    output[sw["software"]] = {"user": 0, "system": 0}
-                output[sw["software"]]["user"] += data["user"]
-                output[sw["software"]]["system"] += data["system"]
+                if sw['software'] not in output:
+                    output[sw['software']] = dict(user=0, system=0)
+                output[sw['software']]['user'] += data['user']
+                output[sw['software']]['system'] += data['system']
             except Exception as e:
                 logger.debug(e)
         return output
 
-    def sample(self):
-        logger.debug("sample()")
-
-        with open("/proc/uptime", "r") as f:
+    def _collect_sample(self) -> Tuple[Dict, Dict]:
+        logger.debug('_collect_sample()')
+        with open('/proc/uptime', 'r') as f:
             uptime = float(f.readline().split()[0])
-
         for pid in self.pids:
-            logger.debug("evaluate pid: %d", pid)
-            if not pid in self.processes.keys():
-                logger.debug("Create new instance of Process for pid: %d", pid)
+            logger.debug(f'evaluate pid: {pid}')
+            if pid not in self.processes.keys():
+                logger.debug(f'Create new instance of Process for pid: {pid}')
                 self.processes[pid] = Process(pid, self.jobid)
             self.processes[pid].update(uptime)
-
         # Send information about current usage
-        aggr, total = self._aggregate()
-        if self.last_sample_time:
-            time_diff = time.time() - self.last_sample_time
-            if time_diff > self.sampler_interval / 2:
-                self.store(
-                    {
-                        "current": {
-                            "software": self.map_software(aggr),
-                            "total_user": total["user"],
-                            "total_system": total["system"],
-                            "user": (total["user"] - self.last_total["user"])
-                            / time_diff,
-                            "system": (total["system"] - self.last_total["system"])
-                            / time_diff,
-                        }
-                    }
-                )
-                self.last_total = total
-                self.last_sample_time = time.time()
-        else:
-            self.last_total = total
-            self.last_sample_time = time.time()
+        return self._get_aggregated_processes()
 
-    def last_updated(self):
-        procs = list(filter(lambda p: not p.ignore, self.processes.values()))
-        if not procs:
+    def sample(self) -> None:
+        logger.debug('sample()')
+        aggr, total = self._collect_sample()
+        # Initial call
+        if self.previous_sample_time is None:
+            self.previous_total = total
+            self.previous_sample_time = time.time()
+            return
+        time_diff = time.time() - self.previous_sample_time
+        previous_user = self.previous_total['user']
+        previous_system = self.previous_total['system']
+        if time_diff > self.sampler_interval / 2:
+            sample = dict(current=dict(
+                software=self.map_software(aggr),
+                total_user=total["user"],
+                total_system=total["system"],
+                user=(total["user"] - previous_user) / time_diff,
+                system=(total["system"] - previous_system) / time_diff))
+            self.store(sample)
+            self.previous_total = total
+            self.previous_sample_time = time.time()
+            self._most_recent_sample = self.storage_wrapping(sample)
+
+    @property
+    def valid_procs(self) -> Iterable:
+        """ List of procs for which p.ignore is False """
+        logger.debug(f'procs: {[p for p in self.processes.values()]}')
+        logger.debug(f'valid_procs: {[p for p in self.processes.values() if not p.ignore]}')
+        return [p for p in self.processes.values() if not p.ignore]
+
+    def get_update_time(self) -> int:
+        procs = self.valid_procs
+        if len(procs) == 0:
             return self.create_time
         return int(max(p.updated for p in procs))
 
-    def start_time(self):
-        procs = list(filter(lambda p: not p.ignore, self.processes.values()))
+    def get_start_time(self) -> int:
+        procs = self.valid_procs
         if not procs:
             return 0
         return int(min(p.starttime for p in procs))
 
-    def _aggregate(self):
-        aggr = {}
-        total = {"user": 0.0, "system": 0.0}
-        for a in [
-            p.aggregate()
-            for p in filter(lambda p: not p.ignore, self.processes.values())
-        ]:
-            logger.debug(
-                "_aggregate: exe: %s, user: %f, system: %f",
-                a["exe"],
-                a["user"],
-                a["system"],
-            )
-            exe = a["exe"]
-            if not exe in aggr:
-                aggr[exe] = {"user": 0.0, "system": 0.0}
-            aggr[exe]["user"] += a["user"]
-            aggr[exe]["system"] += a["system"]
-            total["user"] += a["user"]
-            total["system"] += a["system"]
+    def _get_aggregated_processes(self) -> Tuple[Dict, Dict]:
+        aggr = dict()
+        total = dict(user=0.0,
+                     system=0.0)
+        aggregated_procs = [p.get_aggregated_task_info() for p in self.valid_procs]
+        for a in aggregated_procs:
+            logger.debug(f'_get_aggregated_processes: exe: {a["exe"]}, '
+                         f'user: {a["user"]}, system: {a["system"]}')
+            exe = a['exe']
+            if exe not in aggr:
+                aggr[exe] = dict(user=0.0, system=0.0)
+            aggr[exe]['user'] += a['user']
+            aggr[exe]['system'] += a['system']
+            total['user'] += a['user']
+            total['system'] += a['system']
         return aggr, total
 
-    def final_data(self):
-        logger.debug("%s final_data", self.id)
-        aggr, _ = self._aggregate()
-        return {
-            "execs": aggr,
-            "start_time": self.start_time(),
-            "end_time": self.last_updated(),
-        }
+    def final_data(self) -> Dict:
+        logger.debug('{self.id} final_data')
+        aggr, _ = self._get_aggregated_processes()
+        return dict(execs=aggr,
+                    start_time=self.get_start_time(),
+                    end_time=self.get_update_time())

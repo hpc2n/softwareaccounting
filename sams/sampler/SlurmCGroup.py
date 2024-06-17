@@ -39,6 +39,9 @@ Output:
 import logging
 import os
 import re
+from typing import Dict
+
+from queue import Queue
 
 import sams.base
 
@@ -46,80 +49,74 @@ logger = logging.getLogger(__name__)
 
 
 class Sampler(sams.base.Sampler):
-    def __init__(self, id, outQueue, config):
+    def __init__(self,
+                 id: int,
+                 outQueue: Queue,
+                 config):
         super(Sampler, self).__init__(id, outQueue, config)
-        self.processes = {}
+        self.processes = dict()
         self.cgroup = None
-        self.cgroup_base = self.config.get([self.id, "cgroup_base"], "/cgroup")
+        self.cgroup_base = self.config.get([self.id, 'cgroup_base'], '/cgroup')
 
-    def do_sample(self):
+    def do_sample(self) -> bool:
         return self._get_cgroup()
 
-    def sample(self):
-        logger.debug("sample()")
+    def sample(self) -> None:
+        logger.debug('sample()')
 
-        cpus = self._cpucount(self.read_cgroup("cpuset", "cpuset.cpus"))
-        memory_usage = self.read_cgroup("memory", "memory.usage_in_bytes")
-        memory_limit = self.read_cgroup("memory", "memory.limit_in_bytes")
-        memory_max_usage = self.read_cgroup("memory", "memory.max_usage_in_bytes")
-        memory_usage_and_swap = self.read_cgroup(
-            "memory", "memory.memsw.usage_in_bytes"
-        )
+        cpus = self._cpucount(self.read_cgroup('cpuset', 'cpuset.cpus'))
+        memory_usage = self.read_cgroup('memory', 'memory.usage_in_bytes')
+        memory_limit = self.read_cgroup('memory', 'memory.limit_in_bytes')
+        memory_max_usage = self.read_cgroup('memory', 'memory.max_usage_in_bytes')
+        memory_usage_and_swap = self.read_cgroup('memory', 'memory.memsw.usage_in_bytes')
 
-        self.store(
-            {
-                "cpus": cpus,
-                "memory_usage": memory_usage,
-                "memory_limit": memory_limit,
-                "memory_max_usage": memory_max_usage,
-                "memory_swap": str(int(memory_usage_and_swap) - int(memory_usage)),
-            }
-        )
+        sample = dict(cpus=cpus, memory_usage=memory_usage,
+                      memory_limit=memory_limit,
+                      memory_max_usage=memory_max_usage,
+                      memory_swap=str(int(memory_usage_and_swap) - int(memory_usage)))
+        self._most_recent_sample = self.storage_wrapping(sample)
+        self.store(sample)
 
-    def _get_cgroup(self):
+    def _get_cgroup(self) -> bool:
         """Get the cgroup base path for the slurm job"""
-        if self.cgroup:
+        if self.cgroup is not None:
             return True
         for pid in self.pids:
             try:
-                with open("/proc/%d/cpuset" % pid, "r") as file:
+                with open(f'/proc/{pid:d}/cpuset', 'r') as file:
                     cpuset = file.readline()
-                    m = re.search(r"^/(slurm/uid_\d+/job_\d+)/", cpuset)
+                    m = re.search(r'^/(slurm/uid_\d+/job_\d+)/', cpuset)
                     if m:
                         self.cgroup = m.group(1)
                         return True
             except Exception as e:
-                logger.debug("Failed to fetch cpuset for pid: %d", self.pids[0])
+                logger.debug(f'Failed to fetch cpuset for pid: {self.pids[0]}')
                 logger.debug(e)
         return False
 
-    @classmethod
-    def _cpucount(cls, count):
+    @staticmethod
+    def _cpucount(count) -> int:
         """Calculate number of cpus from a "N,N-N"-structure"""
         cpu_count = 0
-        for c in count.split(","):
-            m = re.search(r"^(\d+)-(\d+)$", c)
+        for c in count.split(','):
+            m = re.search(r'^(\d+)-(\d+)$', c)
             if m:
                 cpu_count += int(m.group(2)) - int(m.group(1)) + 1
-            m = re.search(r"^(\d+)$", c)
+            m = re.search(r'^(\d+)$', c)
             if m:
                 cpu_count += 1
-        return cpu_count
+            return cpu_count
 
-    def read_cgroup(self, type, id):
+    def read_cgroup(self, type, id) -> str:
         try:
-            with open(
-                os.path.join(self.cgroup_base, type, self.cgroup, id), "r"
-            ) as file:
+            with open(os.path.join(self.cgroup_base, type, self.cgroup, id), 'r') as file:
                 return file.readline().strip()
         except IOError as err:
-            logger.debug(
-                "Failed to open %s for reading",
-                os.path.join(self.cgroup_base, type, self.cgroup, id),
-            )
+            path = os.path.join(self.cgroup_base, type, self.cgroup, id)
+            logger.debug(f'Failed to open {path} for reading')
             logger.debug(err)
-            return ""
+            return ''
 
-    @classmethod
-    def final_data(cls):
-        return {}
+    @staticmethod
+    def final_data() -> Dict:
+        return dict()

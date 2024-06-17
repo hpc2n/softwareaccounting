@@ -45,22 +45,21 @@ import logging
 import os
 import re
 import subprocess
+from typing import Dict
 
 import sams.base
 
 logger = logging.getLogger(__name__)
 
-COMMAND = "%s show job %d -o"
+COMMAND = '{:s} show job {:d} -o'
 
 
 class Sampler(sams.base.Sampler):
-    data = {}
+    data = dict()
+    keys = ['account', 'cpus', 'nodes', 'starttime', 'username', 'uid']
 
     def do_sample(self):
-        if all(
-            k in self.data
-            for k in ["account", "cpus", "nodes", "starttime", "username", "uid"]
-        ):
+        if all(k in self.data for k in self.keys):
             return False
         return True
 
@@ -68,62 +67,69 @@ class Sampler(sams.base.Sampler):
         self.sample()
 
     def sample(self):
-        logger.debug("sample()")
+        logger.debug('sample()')
 
-        scontrol = self.config.get([self.id, "scontrol"], "/usr/bin/scontrol")
-        jobid = self.config.get(["options", "jobid"], 0)
+        scontrol = self.config.get([self.id, 'scontrol'], '/usr/bin/scontrol')
+        jobid = self.config.get(['options', 'jobid'], 0)
 
-        command = COMMAND % (scontrol, jobid)
+        command = COMMAND.format(scontrol, jobid)
 
         try:
             local_env = os.environ.copy()
-            for env, value in self.config.get([self.id, "environment"], {}).items():
+            environment = self.config.get([self.id, 'environment'], dict())
+            for env, value in environment.items():
                 local_env[env] = value
-            process = subprocess.Popen(
-                command, env=local_env, shell=True, stdout=subprocess.PIPE
-            ).stdout
+            process = subprocess.Popen(command, env=local_env, shell=True, stdout=subprocess.PIPE).stdout
             data = process.readlines()
         except Exception as e:
             logger.exception(e)
-            logger.debug("Fail to run: %s, will try again in a while", command)
-            # Try again next time :-)
+            logger.debug('Fail to run: {command}, will try again in a while')
+            # Try again next time
             return
 
         data = data[0].decode().strip()
 
         # Find account in string
-        account = re.search(r"Account=([^ ]+)", data)
-        if account:
-            self.data["account"] = account.group(1)
+        account = re.search(r'Account=([^ ]+)', data)
+        if account is not None:
+            self.data['account'] = account.group(1)
 
         # Find username/uid in string\((\d+)\)
-        userid = re.search(r"UserId=([^\(]+)\((\d+)\)", data)
-        if userid:
-            self.data["username"] = userid.group(1)
-            self.data["uid"] = userid.group(2)
+        userid = re.search(r'UserId=([^\(]+)\((\d+)\)', data)
+        if userid is not None:
+            self.data['username'] = userid.group(1)
+            self.data['uid'] = userid.group(2)
 
         # Find username/uid in string
-        nodes = re.search(r"NumNodes=(\d+)", data)
-        if nodes:
-            self.data["nodes"] = nodes.group(1)
+        nodes = re.search(r'NumNodes=(\d+)', data)
+        if nodes is not None:
+            self.data['nodes'] = nodes.group(1)
 
         # Find NumCPUs in string
-        cpus = re.search(r"NumCPUs=(\d+)", data)
-        if cpus:
-            self.data["cpus"] = cpus.group(1)
+        cpus = re.search(r'NumCPUs=(\d+)', data)
+        if cpus is not None:
+            self.data['cpus'] = cpus.group(1)
 
         # Find partition in string
-        partition = re.search(r"Partition=(\S+) ", data)
-        if partition:
-            self.data["partition"] = partition.group(1)
+        partition = re.search(r'Partition=(\S+) ', data)
+        if partition is not None:
+            self.data['partition'] = partition.group(1)
 
         # Find StartTime
-        starttime = re.search(r"StartTime=(\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\d)", data)
-        if starttime:
-            self.data["starttime"] = starttime.group(1)
+        starttime = re.search(r'StartTime=(\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\d)', data)
+        if starttime is not None:
+            self.data['starttime'] = starttime.group(1)
+
+        # Find JobName
+        jobname = re.search(r'JobName=([^ ]+)', data)
+        if jobname is not None:
+            self.data['jobname'] = jobname.group(1)
 
         if not self.do_sample():
             self.store(self.data)
 
-    def final_data(self):
+    def most_recent_sample(self) -> Dict:
+        return self.data
+
+    def final_data(self) -> Dict:
         return self.data
