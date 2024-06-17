@@ -142,12 +142,12 @@ class Sampler(sams.base.Sampler):
 
         software_mapper = self.config.get([id, 'software_mapper'], None)
         if software_mapper is not None:
-            logger.debug('Loading software_mapper: {software_mapper}')
+            logger.debug(f'Loading software_mapper: {software_mapper}')
             try:
                 Software = sams.core.ClassLoader.load(software_mapper, 'Software')
                 self.software_mapper = Software(software_mapper, config)
             except Exception as e:
-                logger.error('Failed to initialize: {software_mapper}')
+                logger.error(f'Failed to initialize: {software_mapper}')
                 logger.exception(e)
 
     def map_software(self,
@@ -208,8 +208,7 @@ class Sampler(sams.base.Sampler):
         if self.previous_sample_time is not None:
             time_diff = time.time() - self.previous_sample_time
             if time_diff > self.sampler_interval / 2:
-                self.store(
-                    {
+                sample = {
                         "current": {
                             "software": self.map_software(aggr),
                             "total_user": total["user"],
@@ -220,9 +219,11 @@ class Sampler(sams.base.Sampler):
                             / time_diff,
                         }
                     }
-                )
+
+                self.store(sample)
                 self.previous_total = total
                 self.previous_sample_time = time.time()
+                self._most_recent_sample = self.storage_wrapping(sample)
         else:
             self.previous_total = total
             self.previous_sample_time = time.time()
@@ -230,6 +231,8 @@ class Sampler(sams.base.Sampler):
     @property
     def valid_procs(self):
         """ List of procs for which p.ignore is False """
+        logger.debug(f'procs: {[p for p in self.processes.values()]}')
+        logger.debug(f'valid_procs: {[p for p in self.processes.values if not p.ignore]}')
         return [p for p in self.processes.values() if not p.ignore]
 
     def last_updated(self):
