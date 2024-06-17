@@ -232,7 +232,7 @@ class Sampler(sams.base.Sampler):
     def valid_procs(self):
         """ List of procs for which p.ignore is False """
         logger.debug(f'procs: {[p for p in self.processes.values()]}')
-        logger.debug(f'valid_procs: {[p for p in self.processes.values if not p.ignore]}')
+        logger.debug(f'valid_procs: {[p for p in self.processes.values() if not p.ignore]}')
         return [p for p in self.processes.values() if not p.ignore]
 
     def last_updated(self):
