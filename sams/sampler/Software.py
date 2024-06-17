@@ -200,8 +200,8 @@ class Sampler(sams.base.Sampler):
             self.previous_sample_time = time.time()
             return
         time_diff = time.time() - self.previous_sample_time
-        previous_user = self.previous_sample['total']['user']
-        previous_system = self.previous_sample['total']['system']
+        previous_user = self.previous_total['user']
+        previous_system = self.previous_total['system']
         if time_diff > self.sampler_interval / 2:
             sample = dict(current=dict(
                 software=self.map_software(aggr),
