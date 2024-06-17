@@ -78,7 +78,7 @@ class Process:
         self.updated = None
 
         try:
-            self.exe = os.readlink('/proc/{self.pid}/exe')
+            self.exe = os.readlink(f'/proc/{self.pid:d}/exe')
             logger.debug(f'Pid: {pid} (JobId: {jobid}) has exe: {self.exe}')
         except Exception:
             logger.debug(f'Pid: {pid} (JobId: {jobid}) has no exe or pid has disapeard')
