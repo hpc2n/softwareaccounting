@@ -56,7 +56,7 @@ import logging
 import os
 import re
 import time
-from typing import Dict, Tuple
+from typing import Dict, Iterable, Tuple
 
 import sams.base
 import sams.core
@@ -65,6 +65,15 @@ logger = logging.getLogger(__name__)
 
 
 class Process:
+    """ Object representing a single process with a single PID.
+
+    Parameters
+    ----------
+    pid : int
+        Process ID.
+    jobid : int
+        Slurm job ID.
+    """
     def __init__(self,
                  pid: int,
                  jobid: int):
@@ -81,11 +90,10 @@ class Process:
             self.exe = os.readlink(f'/proc/{self.pid:d}/exe')
             logger.debug(f'Pid: {pid} (JobId: {jobid}) has exe: {self.exe}')
         except Exception:
-            logger.debug(f'Pid: {pid} (JobId: {jobid}) has no exe or pid has disapeard')
+            logger.debug(f'Pid: {pid} (JobId: {jobid}) has no exe or pid has disapeared')
             self.ignore = True
-            return
 
-    def _parse_stat(self, stat):
+    def _get_parsed_stats(self, stat) -> dict:
         """Parse the relevant content from /proc/***/stat"""
 
         m = re.search(r'^\d+ \(.*\) [RSDZTyEXxKWPI] (.*)', stat)
@@ -93,7 +101,7 @@ class Process:
         return dict(user=float(stats[14 - 4]) / self.clock_tics,  # User CPU time in s.
                     system=float(stats[15 - 4]) / self.clock_tics)  # System CPU time in s.
 
-    def update(self, uptime):
+    def update(self, uptime) -> None:
         """Update information about pids"""
         if self.done:
             logger.debug(f'Pid: {self.pid:d} is done')
@@ -112,7 +120,7 @@ class Process:
             try:
                 with open(f'/proc/{self.pid:d}/task/{task:d}/stat') as f:
                     stat = f.read()
-                    stats = self._parse_stat(stat)
+                    stats = self._get_parsed_stats(stat)
                     self.tasks[task] = dict(
                         user=stats["user"],
                         system=stats["system"])
@@ -123,7 +131,7 @@ class Process:
 
         self.updated = time.time()
 
-    def aggregate(self):
+    def get_aggregated_task_info(self) -> Dict:
         """Return the aggregated information for all tasks"""
         return dict(starttime=self.starttime,
                     exe=self.exe,
@@ -181,9 +189,9 @@ class Sampler(sams.base.Sampler):
                 self.processes[pid] = Process(pid, self.jobid)
             self.processes[pid].update(uptime)
         # Send information about current usage
-        return self._aggregate
+        return self._get_aggregated_processes()
 
-    def sample(self):
+    def sample(self) -> None:
         logger.debug('sample()')
         aggr, total = self._collect_sample()
         # Initial call
@@ -207,31 +215,32 @@ class Sampler(sams.base.Sampler):
             self._most_recent_sample = self.storage_wrapping(sample)
 
     @property
-    def valid_procs(self):
+    def valid_procs(self) -> Iterable:
         """ List of procs for which p.ignore is False """
         logger.debug(f'procs: {[p for p in self.processes.values()]}')
         logger.debug(f'valid_procs: {[p for p in self.processes.values() if not p.ignore]}')
         return [p for p in self.processes.values() if not p.ignore]
 
-    def last_updated(self):
+    def get_update_time(self) -> int:
         procs = self.valid_procs
         if len(procs) == 0:
             return self.create_time
         return int(max(p.updated for p in procs))
 
-    def start_time(self):
+    def get_start_time(self) -> int:
         procs = self.valid_procs
         if not procs:
             return 0
         return int(min(p.starttime for p in procs))
 
-    def _aggregate(self) -> Tuple[Dict, Dict]:
+    def _get_aggregated_processes(self) -> Tuple[Dict, Dict]:
         aggr = dict()
         total = dict(user=0.0,
                      system=0.0)
-        aggregated_procs = [p.aggregate() for p in self.valid_procs]
+        aggregated_procs = [p.get_aggregated_task_info() for p in self.valid_procs]
         for a in aggregated_procs:
-            logger.debug(f'_aggregate: exe: {a["exe"]}, user: {a["user"]}, system: {a["system"]}')
+            logger.debug(f'_get_aggregated_processes: exe: {a["exe"]}, '
+                         f'user: {a["user"]}, system: {a["system"]}')
             exe = a['exe']
             if exe not in aggr:
                 aggr[exe] = dict(user=0.0, system=0.0)
@@ -243,7 +252,7 @@ class Sampler(sams.base.Sampler):
 
     def final_data(self) -> Dict:
         logger.debug('{self.id} final_data')
-        aggr, _ = self._aggregate()
+        aggr, _ = self._get_aggregated_processes()
         return dict(execs=aggr,
-                    start_time=self.start_time(),
-                    end_time=self.last_updated())
+                    start_time=self.get_start_time(),
+                    end_time=self.get_update_time())
