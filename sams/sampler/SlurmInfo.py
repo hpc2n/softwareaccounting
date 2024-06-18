@@ -83,7 +83,7 @@ class Sampler(sams.base.Sampler):
             data = process.readlines()
         except Exception as e:
             logger.exception(e)
-            logger.debug('Fail to run: {command}, will try again in a while')
+            logger.debug(f'Fail to run: {command}, will try again in a while')
             # Try again next time
             return
 
