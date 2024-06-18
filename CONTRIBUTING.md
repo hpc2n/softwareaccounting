@@ -18,6 +18,27 @@
 
 * Avoid using reserved keywords like `id` in variable names.
 
+* Prefer inline format strings for readability whenever possible.
+
+### Prefer NOT to do this:
+
+```python
+theword = 'out'
+fstring_a = 'Who let %d dogs %s?' % (100, theword)
+fstring_b = 'Who let {:d} dogs {:s}?' % (100, theword)
+```
+
+### Prefer the inline style:
+
+```python
+theword = 'out'
+fstring_a = f'Who let {100:d} dogs {theword:s}?'
+# Sometimes, this style is necessary:
+base_string = f'Who let {:d} dogs {:s}?'
+...
+parsed_string = base_string.format(100, theword)
+```
+
 * Don't use `map` or `filter`, use list comprehension for readability and clarity:
 
 ### DO NOT DO THIS:
