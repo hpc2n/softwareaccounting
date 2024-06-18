@@ -105,7 +105,7 @@ class Sampler(sams.base.Sampler):
             m = re.search(r'^(\d+)$', c)
             if m:
                 cpu_count += 1
-            return cpu_count
+        return cpu_count
 
     def read_cgroup(self, type, id) -> str:
         try:
