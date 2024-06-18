@@ -14,7 +14,19 @@
 
 * Use [expressive function and variable names](https://xkcd.com/910/), e.g.,
   * Good: `get_value` (function or method returning something), `value` (property), `compute_value` (subroutine-like behavior that does *not* return a result but changes existing data structures)
-  * Avoid: `get_res`, `r`, `res`, `calc_arr` or similar
+  * Avoid: `get_val`, `v`, `val`, `calc_val` or similar
+
+* Consider carefully which methods and attributes of an object are to be exposed to other objects. As is usual in Python, prepend attributes not to be exposed with an underscore `_`. If you want an attrbiute to be exposed but not directly modifiable, make it a property:
+
+```python
+class Dog:
+    def __init__(self, age: int = 5):
+        self._age = age
+
+    @property
+    def age(self) -> int:
+        return self._age
+```
 
 * Avoid using reserved keywords like `id` in variable names.
 
@@ -41,7 +53,7 @@ parsed_string = base_string.format(100, theword)
 
 * Don't use `map` or `filter`, use list comprehension for readability and clarity:
 
-### DO NOT DO THIS:
+### Do NOT do this:
 
 ```python
 a = list(map(hash, ['a', 'b', 'c']))
