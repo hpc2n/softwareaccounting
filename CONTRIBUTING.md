@@ -181,8 +181,8 @@ Prefer `Iterable` to `List`. For class object instances, just use the class name
 
 Class Dog:
     def __init__(self,
-             name: str,
-             has_bone: bool):
+                 name: str,
+                 has_bone: bool):
         self.name = name
         self.has_bone = has_bone
 
@@ -193,7 +193,7 @@ Class Dog:
         print('Grrr!')
 
 
-def get_dog_farm(alpha_male: Dog,
+def get_dog_farm(sire: Dog,
                  names_of_dogs: Iterable[str],
                  number_of_dogs: int = 5,
                  number_of_bones: int = 3) -> Dict:
@@ -206,7 +206,7 @@ def get_dog_farm(alpha_male: Dog,
         ...
         number_of_dogs -= 1
     ...
-    alpha_male.bark()
+    sire.bark()
     assert number_of_dogs == 0
     assert number_of_bones == 0
     return dog_farm
