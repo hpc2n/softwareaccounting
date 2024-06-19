@@ -67,8 +67,8 @@ a = [hash(s) for s in ['a', 'b', 'c']]
 b = [i for i in [1, 27, 3.1] if i < 10]
 ```
 
-* Use the `@property` decorator when applicable to create functions that behaves like constants or variables,
-but allows more control over getting and setting.
+* Use the `@property` decorator when applicable to create methods that behave like constants or variables,
+but allow more control over getting and setting behavior.
 
 ```python
 Class Dog:
