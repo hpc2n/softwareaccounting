@@ -62,14 +62,13 @@ class Sampler(sams.base.Sampler):
         cpu_pressure = self.read_pressure("cpu.pressure")
         io_pressure = self.read_pressure("io.pressure")
         memory_pressure = self.read_pressure("memory.pressure")
-
-        self.store(
-            {
-                "cpu": cpu_pressure,
-                "io": io_pressure,
-                "memory": memory_pressure,
-            }
-        )
+        entry = {
+            "cpu": cpu_pressure,
+            "io": io_pressure,
+            "memory": memory_pressure,
+        }
+        self._most_recent_sample = [self._storage_wrapping(entry)]
+        self.store(entry)
 
     def _get_cgroup(self):
         """Get the cgroup base path for the slurm job"""
