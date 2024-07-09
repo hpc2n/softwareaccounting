@@ -18,8 +18,14 @@ You should have received a copy of the GNU General Public License
 along with this program; If not, see <http://www.gnu.org/licenses/>.
 """
 
+import os
+import select
+import socket
 import threading
 import time
+from abc import ABC, abstractmethod
+from typing import List
+from sams.core import Config
 
 try:
     import queue
@@ -257,3 +263,61 @@ class XMLWriter:
     # pylint: disable=no-self-use
     def write(self, data):
         raise NotImplementedError("Not implemented")
+
+
+class Listener(ABC):
+    """ Base class for listening to sockets and sending encoded data. """
+    def __init__(self, id: str, config: Config, samplers: List):
+        self.id = id
+        self.config = config
+        self.samplers = samplers
+        socket_directory = self.config.get([self.id, 'socketdir'], '/tmp/softwareaccounting')
+        self.job_id = self.config.get(['options', 'jobid'], 0)
+        self.server_socket = socket.socket(socket.AF_UNIX)
+        self.is_finished = False
+        if not os.path.isdir(socket_directory):
+            os.mkdir(socket_directory)
+        self.socket_path = f'{socket_directory}/{self.id}_{self.job_id:d}.socket'
+        logger.debug(f'Socket path: {self.socket_path}')
+        if os.path.exists(self.socket_path):
+            os.unlink(self.socket_path)
+        self.server_socket.bind(self.socket_path)
+        self.thread = threading.Thread(target=self._listen)
+
+    def start(self):
+        """ Starts listening on thread. """
+        self.thread.start()
+        logger.debug('Launching listening thread...')
+
+    def exit(self):
+        """ Sets finished flag to True to kill thread, joins and cleans up. """
+        if not self.is_finished:
+            self.is_finished = True
+            if self.thread.is_alive:
+                self.thread.join(1)
+            self.server_socket.close()
+            os.unlink(self.socket_path)
+
+    def _listen(self):
+        """Listens to the socket for connections."""
+        self.server_socket.listen(5)
+        while not self.is_finished:
+            logger.debug('Waiting for connections...')
+            readable, _, _ = select.select([self.server_socket], [], [], 1)
+            if len(readable) > 0:
+                try:
+                    connection, address = self.server_socket.accept()
+                    logger.debug(f'Connected to {address}')
+                except Exception as e:
+                    logger.debug(f'Sending data failed due to {e}!')
+                with connection:
+                    try:
+                        connection.sendall(self.encoded_data)
+                    except Exception as e:
+                        logger.debug(f'Sending data to {address} failed due to {e}!')
+
+    @property
+    @abstractmethod
+    def encoded_data(self) -> str:
+        """ Encoded data to be sent to client. """
+        raise NotImplementedError

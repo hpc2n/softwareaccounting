@@ -2,25 +2,21 @@ import logging
 import re
 from typing import Iterable, Dict, List
 from sams.core import Config
-from .base_listener import Listener as BaseListener
+
+import sams.base
 
 logger = logging.getLogger(__name__)
 
 
-class Listener(BaseListener):
+class Listener(sams.base.Listener):
     """
     Listener for Prometheus output.
     """
-    def __init__(self,
-                 class_path: str,
-                 config: Config,
-                 samplers: List):
-        super().__init__(class_path,
-                         config,
-                         samplers)
-        self.static_map = self.config.get([self.class_path, "static_map"], {})
-        self.map = self.config.get([self.class_path, "map"], {})
-        self.metrics = self.config.get([self.class_path, "metrics"], {})
+    def __init__(self, id: str, config: Config, samplers: List):
+        super().__init__(id, config, samplers)
+        self.static_map = self.config.get([self.id, "static_map"], {})
+        self.map = self.config.get([self.id, "map"], {})
+        self.metrics = self.config.get([self.id, "metrics"], {})
 
     @staticmethod
     def _nested_getitem(dct: Dict, keys: Iterable) -> Dict:
@@ -111,7 +107,7 @@ class Listener(BaseListener):
                 formatted_data.append(f'# TYPE {match.group(1):s} gauge')
             v = compiled_data[m]
             formatted_data.append(f'{m} {str(v)}')
-        data_bytestring = '\n'.join(formatted_data).encode('utf-8')
+        data_bytestring = ('\n'.join(formatted_data) + '\n').encode('utf-8')
         return data_bytestring
 
     def _compile_data(self,

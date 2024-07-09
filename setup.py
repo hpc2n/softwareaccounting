@@ -83,7 +83,7 @@ setup(
         "sams.backend",
         "sams.software",
         "sams.xmlwriter",
-        "sams.listeners",
+        "sams.listener",
     ],
     scripts=[
         "sams-aggregator.py",

@@ -253,15 +253,15 @@ class Main:
                 self.cleanup()
                 sys.exit(1)
 
-        for s in self.config.get([id, "listeners"], []):
-            logger.info("Load: %s", s)
+        for l in self.config.get([id, "listeners"], []):
+            logger.info("Load: %s", l)
             try:
-                Listener = sams.core.ClassLoader.load(s, "Listener")
-                listener = Listener(s, self.config, self.samplers)
+                Listener = sams.core.ClassLoader.load(l, "Listener")
+                listener = Listener(l, self.config, self.samplers)
                 self.listeners.append(listener)
                 listener.start()
             except Exception as e:
-                logger.error("Failed to initialize listener: %s", s)
+                logger.error("Failed to initialize listener: %s", l)
                 logger.exception(e)
                 self.cleanup()
                 sys.exit(1)
