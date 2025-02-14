@@ -44,7 +44,7 @@ class Sampler(BaseCGroupSampler):
             "memory_limit": memory_limit,
             "memory_max_usage": memory_max_usage,
             "memory_swap": str(int(memory_usage_and_swap) - int(memory_usage))}
-
+        self.compute_sample_averages(entry)
         self._most_recent_sample = [self._storage_wrapping(entry)]
         self.store(entry)
 
