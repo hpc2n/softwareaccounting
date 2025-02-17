@@ -44,7 +44,7 @@ sams.output.Http:
 import json
 import logging
 
-import httplib2
+import requests
 
 import sams.base
 
@@ -79,27 +79,27 @@ class Output(sams.base.Output):
         jobid_hash = int(jobid / jobid_hash_size)
         uri = in_uri % {"jobid": jobid, "node": node, "jobid_hash": jobid_hash}
 
-        http = httplib2.Http()
+        requests_kwargs = {}
 
         if username and password:
             logger.debug("Sending data as user: %s with password: ********", username)
             # send username & password
-            http.add_credentials(username, password)
+            requests_kwargs["auth"] = (username, password)
 
         if key_file and cert_file:
             logger.debug("Sending data with cert: %s and key: %s ", cert_file, key_file)
             # send client certificate
-            http.add_certificate(key_file, cert_file, "")
+            requests_kwargs["cert"] = (cert_file, key_file)
 
         headers = {"Content-Type": "application/json"}
         body = json.dumps(self.data, sort_keys=True, separators=(",", ":"))
 
         logger.debug("Sending data to: %s", uri)
-        resp, content = http.request(uri, "POST", body=body, headers=headers)
+        response = requests.post(uri, data=body, headers=headers, **requests_kwargs)
 
-        if resp["status"] == "200":
+        if response.status_code == 200:
             return True
         logger.error("Failed to send data to: %s", uri)
-        logger.debug(resp)
-        logger.debug(content)
+        logger.debug(response)
+        logger.debug(response.content)
         return False
