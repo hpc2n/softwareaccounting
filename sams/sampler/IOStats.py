@@ -55,15 +55,11 @@ Output:
 import glob
 import logging
 import os
+import queue
 import subprocess
 import threading
 
 import sams.base
-
-try:
-    import queue
-except ImportError:
-    import Queue as queue
 
 logger = logging.getLogger(__name__)
 

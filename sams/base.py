@@ -18,7 +18,9 @@ You should have received a copy of the GNU General Public License
 along with this program; If not, see <http://www.gnu.org/licenses/>.
 """
 
+import logging
 import os
+import queue
 import select
 import socket
 import threading
@@ -27,13 +29,6 @@ from abc import ABC, abstractmethod
 from typing import List
 
 from sams.core import Config
-
-try:
-    import queue
-except ImportError:
-    import Queue as queue
-
-import logging
 
 logger = logging.getLogger(__name__)
 

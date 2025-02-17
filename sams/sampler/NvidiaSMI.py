@@ -60,6 +60,7 @@ Output:
 
 import logging
 import os
+import queue
 import re
 import subprocess
 import threading
@@ -68,11 +69,6 @@ import time
 import sams.base
 
 logger = logging.getLogger(__name__)
-
-try:
-    import queue
-except ImportError:
-    import Queue as queue
 
 COMMAND = """%s --query-gpu=index,%s --format=csv,nounits -l %d -i %s"""
 

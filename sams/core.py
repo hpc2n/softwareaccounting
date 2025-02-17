@@ -20,17 +20,12 @@ along with this program; If not, see <http://www.gnu.org/licenses/>.
 
 import logging
 import os
+import queue
 import resource  # Resource usage information.
 import sys
 import threading
 
 import yaml
-
-try:
-    import queue
-except ImportError:
-    import Queue as queue
-
 
 logger = logging.getLogger(__name__)
 
