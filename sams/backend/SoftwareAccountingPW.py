@@ -474,8 +474,7 @@ class Backend(sams.base.Backend):
                 Software.versionstr,
                 Software.user_provided,
             )
-            .prefetch(User)
-            .prefetch(Project)
+            .prefetch(User, Project)
         )
 
         jobs = {}
