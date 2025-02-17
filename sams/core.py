@@ -17,6 +17,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program; If not, see <http://www.gnu.org/licenses/>.
 """
+
 import logging
 import os
 import resource  # Resource usage information.
@@ -237,9 +238,7 @@ class JobSoftware:
         t = sum([x.cpu for x in self._softwares])
         if t == 0.0 or remove_less_then == 0.0:
             return t
-        return sum(
-            [x.cpu for x in self._softwares if 100 * x.cpu / t >= remove_less_then]
-        )
+        return sum([x.cpu for x in self._softwares if 100 * x.cpu / t >= remove_less_then])
 
     def __str__(self):
         return "JobSoftware: %s (%s) - %s = %f" % (

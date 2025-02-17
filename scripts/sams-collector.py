@@ -64,9 +64,7 @@ class Main:
             default="/etc/sams/sams-collector.yaml",
             help="Config file [%default]",
         )
-        parser.add_option(
-            "--logfile", type="string", action="store", dest="logfile", help="Log file"
-        )
+        parser.add_option("--logfile", type="string", action="store", dest="logfile", help="Log file")
         parser.add_option(
             "--loglevel",
             type="string",
@@ -74,9 +72,7 @@ class Main:
             dest="loglevel",
             help="Loglevel",
         )
-        parser.add_option(
-            "--jobid", type="int", action="store", dest="jobid", help="Slurm JobID"
-        )
+        parser.add_option("--jobid", type="int", action="store", dest="jobid", help="Slurm JobID")
         parser.add_option(
             "--node",
             type="string",
@@ -92,9 +88,7 @@ class Main:
             default=False,
             help="Send to background as daemon",
         )
-        parser.add_option(
-            "--pidfile", type="string", action="store", dest="pidfile", help="Pidfile"
-        )
+        parser.add_option("--pidfile", type="string", action="store", dest="pidfile", help="Pidfile")
         parser.add_option(
             "--test-output",
             type="string",
@@ -128,9 +122,7 @@ class Main:
         # stdout/stderr will be closed.
         if self.options.daemon:
             try:
-                sams.core.createDaemon(
-                    umask=int(self.config.get([id, "umask"], "077"), 8)
-                )
+                sams.core.createDaemon(umask=int(self.config.get([id, "umask"], "077"), 8))
             except Exception as e:
                 logger.exception(e)
                 sys.exit(1)
@@ -151,13 +143,9 @@ class Main:
             logfile = self.config.get(["common", "logfile"])
         if logfile:
             logfile = logfile % {"jobid": self.options.jobid, "node": self.options.node}
-        logformat = self.config.get(
-            [id, "logformat"], "%(asctime)s %(name)s:%(levelname)s %(message)s"
-        )
+        logformat = self.config.get([id, "logformat"], "%(asctime)s %(name)s:%(levelname)s %(message)s")
         if logfile:
-            logging.basicConfig(
-                filename=logfile, filemode="a", format=logformat, level=loglevel_n
-            )
+            logging.basicConfig(filename=logfile, filemode="a", format=logformat, level=loglevel_n)
         else:
             logging.basicConfig(format=logformat, level=loglevel_n)
 
@@ -253,31 +241,25 @@ class Main:
                 self.cleanup()
                 sys.exit(1)
 
-        for l in self.config.get([id, "listeners"], []):
-            logger.info("Load: %s", l)
+        for loader_config in self.config.get([id, "listeners"], []):
+            logger.info("Load: %s", loader_config)
             try:
-                Listener = sams.core.ClassLoader.load(l, "Listener")
-                listener = Listener(l, self.config, self.samplers)
+                Listener = sams.core.ClassLoader.load(loader_config, "Listener")
+                listener = Listener(loader_config, self.config, self.samplers)
                 self.listeners.append(listener)
                 listener.start()
             except Exception as e:
-                logger.error("Failed to initialize listener: %s", l)
+                logger.error("Failed to initialize listener: %s", loader_config)
                 logger.exception(e)
                 self.cleanup()
                 sys.exit(1)
 
         # load PIDFinder class
-        PidFinder = sams.core.ClassLoader.load(
-            self.config.get([id, "pid_finder"]), "PIDFinder"
-        )
+        PidFinder = sams.core.ClassLoader.load(self.config.get([id, "pid_finder"]), "PIDFinder")
         try:
-            pid_finder = PidFinder(
-                self.config.get([id, "pid_finder"]), self.options.jobid, self.config
-            )
+            pid_finder = PidFinder(self.config.get([id, "pid_finder"]), self.options.jobid, self.config)
         except Exception as e:
-            logger.error(
-                "Failed to initialize: %s", self.config.get([id, "pid_finder"])
-            )
+            logger.error("Failed to initialize: %s", self.config.get([id, "pid_finder"]))
             logger.error(e)
             self.cleanup()
             sys.exit(1)

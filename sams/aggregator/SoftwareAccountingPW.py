@@ -26,9 +26,6 @@ sams.aggregator.SoftwareAccountingPW:
 """
 
 import logging
-import os
-import re
-import sqlite3
 
 import sams.base
 from sams.backend.SoftwareAccountingPW import Backend

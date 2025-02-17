@@ -57,9 +57,7 @@ class Main:
             default="/etc/sams/sams-software-updater.yaml",
             help="Config file [%default]",
         )
-        parser.add_option(
-            "--logfile", type="string", action="store", dest="logfile", help="Log file"
-        )
+        parser.add_option("--logfile", type="string", action="store", dest="logfile", help="Log file")
         parser.add_option(
             "--loglevel",
             type="string",
@@ -146,13 +144,9 @@ class Main:
             logfile = self.config.get([id, "logfile"])
         if not logfile:
             logfile = self.config.get(["common", "logfile"])
-        logformat = self.config.get(
-            [id, "logformat"], "%(asctime)s %(name)s:%(levelname)s %(message)s"
-        )
+        logformat = self.config.get([id, "logformat"], "%(asctime)s %(name)s:%(levelname)s %(message)s")
         if logfile:
-            logging.basicConfig(
-                filename=logfile, filemode="a", format=logformat, level=loglevel_n
-            )
+            logging.basicConfig(filename=logfile, filemode="a", format=logformat, level=loglevel_n)
         else:
             logging.basicConfig(format=logformat, level=loglevel_n)
 
@@ -188,9 +182,7 @@ class Main:
                 print("\tUser Provided: %s" % result["user_provided"])
                 print("\tIgnore       : %s" % result["ignore"])
         elif self.options.show_software or self.options.show_path:
-            self.backend.show_software(
-                software=self.options.show_software, path=self.options.show_path
-            )
+            self.backend.show_software(software=self.options.show_software, path=self.options.show_path)
         elif self.options.show_paths:
             self.backend.show_software()
         elif self.options.show_undetermined:

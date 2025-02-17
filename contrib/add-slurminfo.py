@@ -48,9 +48,7 @@ class Main:
         )
         parser.add_argument("--loglevel", default="ERROR")
         # dest= to avoid using keyword "in":
-        parser.add_argument(
-            "--in", help="Input directory", required=True, dest="in_dir"
-        )
+        parser.add_argument("--in", help="Input directory", required=True, dest="in_dir")
         parser.add_argument("--out", help="Output directory", required=True)
         parser.add_argument("--error", help="Error directory", required=True)
         args = parser.parse_args()
@@ -76,12 +74,12 @@ class Main:
         )
 
         # Initialize loader
-        l = self.config.get([id, "loader"], None)
+        loader_package = self.config.get([id, "loader"], None)
         try:
-            Loader = sams.core.ClassLoader.load(l, "Loader")
-            self.loader = Loader(l, self.config)
+            Loader = sams.core.ClassLoader.load(loader_package, "Loader")
+            self.loader = Loader(loader_package, self.config)
         except Exception as e:
-            logger.error("Failed to initialize: %s", l)
+            logger.error("Failed to initialize: %s", loader_package)
             logger.exception(e)
             sys.exit(1)
 

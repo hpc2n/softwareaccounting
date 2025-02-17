@@ -41,6 +41,7 @@ sams.software.Regexp:
 
 
 """
+
 import logging
 import re
 
@@ -56,20 +57,18 @@ class Software(sams.base.Software):
         super(Software, self).__init__(id, config)
         self.rules = self.config.get([self.id, "rules"], [])
         self.rewrite = self.config.get([self.id, "rewrite"], [])
-        self.stop_on_rewrite_match = self.config.get(
-            [self.id, "stop_on_rewrite_match"], False
-        )
+        self.stop_on_rewrite_match = self.config.get([self.id, "stop_on_rewrite_match"], False)
 
     @classmethod
     def _handle_rewrite(cls, software, rw):
         """Handle rewrite transformation"""
         input = dict(software)
 
-        if not "match" in rw:
+        if "match" not in rw:
             logging.error("rewrite rule has no 'match' entry ignoring")
             return (software, False)
 
-        if not "update" in rw:
+        if "update" not in rw:
             logging.error("rewrite rule has no 'update' entry ignoring")
             return (software, False)
 

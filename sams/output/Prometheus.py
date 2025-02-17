@@ -58,9 +58,7 @@ class Output(sams.base.Output):
         self.static_map = self.config.get([self.id, "static_map"], {})
         self.map = self.config.get([self.id, "map"], {})
         self.metrics = self.config.get([self.id, "metrics"], {})
-        self.path = self.config.get(
-            [self.id, "path"], "/var/lib/prometheus/node-exporter/slurm_%(jobid)s.prom"
-        )
+        self.path = self.config.get([self.id, "path"], "/var/lib/prometheus/node-exporter/slurm_%(jobid)s.prom")
         self.jobid = self.config.get(["options", "jobid"], 0)
 
         self.output_file = self.path % dict(jobid=self.jobid)

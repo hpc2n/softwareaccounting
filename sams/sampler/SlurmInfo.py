@@ -41,6 +41,7 @@ Output:
     uid: 65535,
 }
 """
+
 import datetime
 import logging
 import os
@@ -58,10 +59,7 @@ class Sampler(sams.base.Sampler):
     data = {}
 
     def do_sample(self):
-        if all(
-            k in self.data
-            for k in ["account", "cpus", "nodes", "starttime", "username", "uid"]
-        ):
+        if all(k in self.data for k in ["account", "cpus", "nodes", "starttime", "username", "uid"]):
             return False
         return True
 
@@ -80,9 +78,7 @@ class Sampler(sams.base.Sampler):
             local_env = os.environ.copy()
             for env, value in self.config.get([self.id, "environment"], {}).items():
                 local_env[env] = value
-            process = subprocess.Popen(
-                command, env=local_env, shell=True, stdout=subprocess.PIPE
-            ).stdout
+            process = subprocess.Popen(command, env=local_env, shell=True, stdout=subprocess.PIPE).stdout
             data = process.readlines()
         except Exception as e:
             logger.exception(e)
@@ -122,8 +118,7 @@ class Sampler(sams.base.Sampler):
         starttime = re.search(r"StartTime=(\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\d)", data)
         if starttime:
             self.data["starttime"] = starttime.group(1)
-            starttimestamp = datetime.datetime(
-                    *[int(i) for i in re.findall(r'\d+', starttime.group(1))]).timestamp()
+            starttimestamp = datetime.datetime(*[int(i) for i in re.findall(r"\d+", starttime.group(1))]).timestamp()
             self.data["starttimestamp"] = starttimestamp
 
         # Find JobName

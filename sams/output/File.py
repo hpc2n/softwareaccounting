@@ -34,6 +34,7 @@ sams.output.File:
   # Skip the list of modules.
   exclude: ['sams.sampler.ModuleName']
 """
+
 import json
 import logging
 import os
@@ -48,9 +49,7 @@ class Output(sams.base.Output):
 
     def __init__(self, id, config):
         super(Output, self).__init__(id, config)
-        self.exclude = dict(
-            (e, True) for e in self.config.get([self.id, "exclude"], [])
-        )
+        self.exclude = dict((e, True) for e in self.config.get([self.id, "exclude"], []))
         self.data = {}
 
     def store(self, data):
@@ -61,9 +60,7 @@ class Output(sams.base.Output):
 
     def write(self):
         base_path = self.config.get([self.id, "base_path"], "/tmp")
-        file_pattern = self.config.get(
-            [self.id, "file_pattern"], "%(jobid)s.%(node)s.json"
-        )
+        file_pattern = self.config.get([self.id, "file_pattern"], "%(jobid)s.%(node)s.json")
         jobid = self.config.get(["options", "jobid"], 0)
         node = self.config.get(["options", "node"], 0)
         jobid_hash_size = self.config.get([self.id, "jobid_hash_size"])
@@ -85,9 +82,7 @@ class Output(sams.base.Output):
         try:
             with open(os.path.join(base_path, tfilename), "w") as file:
                 file.write(json.dumps(self.data, sort_keys=True, separators=(",", ":")))
-            os.rename(
-                os.path.join(base_path, tfilename), os.path.join(base_path, filename)
-            )
+            os.rename(os.path.join(base_path, tfilename), os.path.join(base_path, filename))
         except Exception:
             logger.debug("Failed to write file")
             try:

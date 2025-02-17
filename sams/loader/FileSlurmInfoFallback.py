@@ -92,7 +92,7 @@ class Loader(File):
         data = super(Loader, self).next()
         if data is None:
             return None
-        if not "sams.sampler.SlurmInfo" in data:
+        if "sams.sampler.SlurmInfo" not in data:
             jobid = int(data["sams.sampler.Core"]["jobid"])
             data["sams.sampler.SlurmInfo"] = self.sacct.run(jobid)
             self.updated_data = deepcopy(data)
@@ -103,9 +103,7 @@ class Loader(File):
             # Write new json file, including the SlurmInfo
             in_file = self.current_file
             temp_dir = mkdtemp()
-            with open(
-                os.path.join(temp_dir, self.current_file["file"]), mode="w"
-            ) as new_file:
+            with open(os.path.join(temp_dir, self.current_file["file"]), mode="w") as new_file:
                 new_file.write(json.dumps(self.updated_data))
             in_path_save = self.in_path
             self.in_path = temp_dir

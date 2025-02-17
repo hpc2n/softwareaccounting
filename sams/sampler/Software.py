@@ -52,6 +52,7 @@ summary:
     end_time: 1,
 }
 """
+
 import logging
 import os
 import re
@@ -78,9 +79,7 @@ class Process:
             self.exe = os.readlink("/proc/%d/exe" % self.pid)
             logger.debug("Pid: %d (JobId: %d) has exe: %s", pid, jobid, self.exe)
         except Exception:
-            logger.debug(
-                "Pid: %d (JobId: %d) has no exe or pid has disapeard", pid, jobid
-            )
+            logger.debug("Pid: %d (JobId: %d) has no exe or pid has disapeard", pid, jobid)
             self.ignore = True
             return
 
@@ -106,9 +105,7 @@ class Process:
         self.uptime = uptime
 
         try:
-            tasks = filter(
-                lambda f: re.match(r"^\d+$", f), os.listdir("/proc/%d/task" % self.pid)
-            )
+            tasks = filter(lambda f: re.match(r"^\d+$", f), os.listdir("/proc/%d/task" % self.pid))
             tasks = map(int, tasks)
         except Exception:
             logger.debug(
@@ -158,9 +155,7 @@ class Sampler(sams.base.Sampler):
         self.last_sample_time = None
         self.last_total = None
         self.software_mapper = None
-        self.metrics_to_average = self.config.get(
-            [self.id, "metrics_to_average"],
-            ["system", "user"])
+        self.metrics_to_average = self.config.get([self.id, "metrics_to_average"], ["system", "user"])
         self._average_values = {k: 0 for k in self.metrics_to_average}
         self._last_averaged_values = {k: 0 for k in self.metrics_to_average}
 
@@ -220,12 +215,10 @@ class Sampler(sams.base.Sampler):
                     "software": self.map_software(aggr),
                     "total_user": total["user"],
                     "total_system": total["system"],
-                    "user": (total["user"] - self.last_total["user"])
-                    / time_diff,
-                    "system": (total["system"] - self.last_total["system"])
-                    / time_diff,
-                    }
+                    "user": (total["user"] - self.last_total["user"]) / time_diff,
+                    "system": (total["system"] - self.last_total["system"]) / time_diff,
                 }
+            }
             self.compute_sample_averages(entry["current"])
             self._most_recent_sample = [self._storage_wrapping(entry)]
             self.store(entry)
@@ -233,7 +226,7 @@ class Sampler(sams.base.Sampler):
             self.last_sample_time = time.time()
 
     def compute_sample_averages(self, data):
-        """ Computes averages of selected measurements by
+        """Computes averages of selected measurements by
         means of trapezoidal quadrature, approximating
         that the time this function is called is the actual
         time of sampling. This is not completely correct but simplifies
@@ -245,16 +238,15 @@ class Sampler(sams.base.Sampler):
         for key, item in data.items():
             if key in self.metrics_to_average:
                 # Trapezoidal quadrature
-                weighted_item = (
-                        0.5 * (float(item) + float(self._last_averaged_values[key])) * elapsed_time)
+                weighted_item = 0.5 * (float(item) + float(self._last_averaged_values[key])) * elapsed_time
                 self._last_averaged_values[key] = item
                 previous_integral = self._average_values[key] * (total_elapsed_time - elapsed_time)
                 new_integral = previous_integral + weighted_item
                 self._average_values[key] = new_integral / total_elapsed_time
 
         for key, item in self._average_values.items():
-            data[key + '_average'] = item
-        data['elapsed_time'] = total_elapsed_time
+            data[key + "_average"] = item
+        data["elapsed_time"] = total_elapsed_time
 
     def last_updated(self):
         procs = list(filter(lambda p: not p.ignore, self.processes.values()))
@@ -271,10 +263,7 @@ class Sampler(sams.base.Sampler):
     def _aggregate(self):
         aggr = {}
         total = {"user": 0.0, "system": 0.0}
-        for a in [
-            p.aggregate()
-            for p in filter(lambda p: not p.ignore, self.processes.values())
-        ]:
+        for a in [p.aggregate() for p in filter(lambda p: not p.ignore, self.processes.values())]:
             logger.debug(
                 "_aggregate: exe: %s, user: %f, system: %f",
                 a["exe"],

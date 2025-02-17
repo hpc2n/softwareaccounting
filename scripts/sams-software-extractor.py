@@ -56,9 +56,7 @@ class Main:
             default="/etc/sams/sams-software-extractor.yaml",
             help="Config file [%default]",
         )
-        parser.add_option(
-            "--logfile", type="string", action="store", dest="logfile", help="Log file"
-        )
+        parser.add_option("--logfile", type="string", action="store", dest="logfile", help="Log file")
         parser.add_option(
             "--loglevel",
             type="string",
@@ -89,13 +87,9 @@ class Main:
             logfile = self.config.get([id, "logfile"])
         if not logfile:
             logfile = self.config.get(["common", "logfile"])
-        logformat = self.config.get(
-            [id, "logformat"], "%(asctime)s %(name)s:%(levelname)s %(message)s"
-        )
+        logformat = self.config.get([id, "logformat"], "%(asctime)s %(name)s:%(levelname)s %(message)s")
         if logfile:
-            logging.basicConfig(
-                filename=logfile, filemode="a", format=logformat, level=loglevel_n
-            )
+            logging.basicConfig(filename=logfile, filemode="a", format=logformat, level=loglevel_n)
         else:
             logging.basicConfig(format=logformat, level=loglevel_n)
 

@@ -35,9 +35,7 @@ class Loader(sams.base.Loader):
         self.in_path = self.config.get([self.id, "in_path"])
         self.archive_path = self.config.get([self.id, "archive_path"])
         self.error_path = self.config.get([self.id, "error_path"])
-        self.file_pattern = re.compile(
-            self.config.get([self.id, "file_pattern"], "^.*$")
-        )
+        self.file_pattern = re.compile(self.config.get([self.id, "file_pattern"], "^.*$"))
         self.files = []
         self.current_file = None
 
@@ -48,9 +46,7 @@ class Loader(sams.base.Loader):
                 logger.debug("Found file: %s", file)
                 if self.file_pattern.match(file):
                     logger.debug("Add %s to files[]", os.path.join(root, file))
-                    self.files.append(
-                        {"file": file, "path": os.path.relpath(root, self.in_path)}
-                    )
+                    self.files.append({"file": file, "path": os.path.relpath(root, self.in_path)})
 
     def next(self):
         if len(self.files) == 0:
@@ -58,9 +54,7 @@ class Loader(sams.base.Loader):
         self.current_file = self.files[0]
         self.files = self.files[1:]
         logger.debug(self.current_file)
-        filename = os.path.join(
-            self.in_path, self.current_file["path"], self.current_file["file"]
-        )
+        filename = os.path.join(self.in_path, self.current_file["path"], self.current_file["file"])
         try:
             with open(filename, "r") as file:
                 return json.load(file)
@@ -86,9 +80,7 @@ class Loader(sams.base.Loader):
 
         # Rename file to error directory
         shutil.move(
-            os.path.join(
-                self.in_path, self.current_file["path"], self.current_file["file"]
-            ),
+            os.path.join(self.in_path, self.current_file["path"], self.current_file["file"]),
             os.path.join(out_path, self.current_file["file"]),
         )
 
@@ -112,9 +104,7 @@ class Loader(sams.base.Loader):
 
         # Rename file to archive directory
         shutil.move(
-            os.path.join(
-                self.in_path, self.current_file["path"], self.current_file["file"]
-            ),
+            os.path.join(self.in_path, self.current_file["path"], self.current_file["file"]),
             os.path.join(out_path, self.current_file["file"]),
         )
 

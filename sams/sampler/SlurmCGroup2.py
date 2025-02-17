@@ -22,6 +22,7 @@ Output:
 
 import logging
 import os
+
 from .SlurmCGroup import Sampler as BaseCGroupSampler
 
 logger = logging.getLogger(__name__)
@@ -35,15 +36,15 @@ class Sampler(BaseCGroupSampler):
         memory_usage = self.read_cgroup("memory.current")
         memory_limit = self.read_cgroup("memory.high")
         memory_max_usage = self.read_cgroup("memory.max")
-        memory_usage_and_swap = self.read_cgroup(
-            "memory.swap.current")
+        memory_usage_and_swap = self.read_cgroup("memory.swap.current")
 
         entry = {
             "cpus": cpus,
             "memory_usage": memory_usage,
             "memory_limit": memory_limit,
             "memory_max_usage": memory_max_usage,
-            "memory_swap": str(int(memory_usage_and_swap) - int(memory_usage))}
+            "memory_swap": str(int(memory_usage_and_swap) - int(memory_usage)),
+        }
         self.compute_sample_averages(entry)
         self._most_recent_sample = [self._storage_wrapping(entry)]
         self.store(entry)
@@ -58,5 +59,4 @@ class Sampler(BaseCGroupSampler):
         of arguments passed by read_cgroup is correct to trigger
         any errors early.
         """
-        return os.path.join(self.cgroup_base,
-                            self.cgroup, value)
+        return os.path.join(self.cgroup_base, self.cgroup, value)

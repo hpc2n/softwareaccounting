@@ -31,6 +31,7 @@ sams.xmlwriter.File:
     jobs_per_file: 1000
 
 """
+
 import logging
 import os
 import time
@@ -72,9 +73,7 @@ class XMLWriter(sams.base.XMLWriter):
             return
 
         # Create output
-        output_path = self.config.get(
-            [self.id, "output_path"], "/var/spool/softwareaccounting/records"
-        )
+        output_path = self.config.get([self.id, "output_path"], "/var/spool/softwareaccounting/records")
         n = 0
         while data:
             output_file = os.path.join(output_path, "%s.%d.xml") % (

@@ -104,7 +104,7 @@ class StateFile:
         return ele in self.urls
 
     def add(self, ele):
-        if not ele in self.urls:
+        if ele not in self.urls:
             self.urls.add(ele)
         return self  # makes it possible to do one-liners
 
@@ -288,9 +288,7 @@ def createEPRegistrationMapping(endpoints, config):
             reg_url = url[0] + "://" + url[1] + location
             return reg_url
 
-        raise ValueError(
-            f"Invalid registration point returned by {endpoint} (got: {location})"
-        )
+        raise ValueError(f"Invalid registration point returned by {endpoint} (got: {location})")
 
     def gotReply(result, endpoint):
         tree = ET.fromstring(result)
@@ -310,16 +308,12 @@ def createEPRegistrationMapping(endpoints, config):
     regmap = {}
     for ep in endpoints:
         try:
-            content = httpRequest(
-                ep, ctxFactory=config.context_factory, timeout=config.timeout
-            )
+            content = httpRequest(ep, ctxFactory=config.context_factory, timeout=config.timeout)
             logging.debug(content)
             registration_url = gotReply(content, ep)
             logging.debug(registration_url)
             if registration_url is None:
-                logging.error(
-                    "Endpoint %s does not appear to have a registration service.", ep
-                )
+                logging.error("Endpoint %s does not appear to have a registration service.", ep)
             else:
                 regmap[ep] = registration_url
         except Exception as e:
@@ -345,9 +339,7 @@ def registerBatch(ep, url, logdir, filenames, config):
     service.
     """
 
-    ur_data = joinRecordFiles(
-        logdir, filenames, config.records, config.records_directory
-    )
+    ur_data = joinRecordFiles(logdir, filenames, config.records, config.records_directory)
     logging.debug(ur_data)
     try:
         httpRequest(
@@ -422,10 +414,7 @@ def performURRegistration(regmap, urmap, logdir, config):
     # build up registraion batches (list of (ep, filenames) tuples)
     registrations = []
     for ep, filenames in batch_sets.items():
-        registrations += [
-            (ep, filenames[i : i + config.batch_size])
-            for i in range(0, len(filenames), config.batch_size)
-        ]
+        registrations += [(ep, filenames[i : i + config.batch_size]) for i in range(0, len(filenames), config.batch_size)]
 
     error_endpoints = {}
 
@@ -434,9 +423,7 @@ def performURRegistration(regmap, urmap, logdir, config):
             continue
 
         try:
-            registerBatch(
-                service_endpoint, regmap[service_endpoint], logdir, filenames, config
-            )
+            registerBatch(service_endpoint, regmap[service_endpoint], logdir, filenames, config)
         except Exception as e:
             logging.error("Error registration records to %s", service_endpoint)
             logging.error("Skipping all registrations to this endpoint for now")
@@ -453,7 +440,7 @@ def archiveUsageRecords(logdir, urmap, config):
     for filename, endpoints in urmap.items():
         state = StateFile(logdir, filename, config.state_directory)
         for ep in endpoints:
-            if not ep in state:
+            if ep not in state:
                 break
         else:
             urfilepath = os.path.join(logdir, config.records_directory, filename)
@@ -492,9 +479,7 @@ def deleteOldUsageRecords(log_dir, ttl_seconds, archive_directory):
 def getOptions():
     """Handle command line arguments"""
     parser = ArgumentParser()
-    parser.add_argument(
-        "-l", "--log-file", dest="logfile", help="Log file (overwrites config option)."
-    )
+    parser.add_argument("-l", "--log-file", dest="logfile", help="Log file (overwrites config option).")
     parser.add_argument(
         "-d",
         "--debug",
@@ -511,9 +496,7 @@ def getOptions():
         default=DEFAULT_CONFIG_FILE,
         metavar="FILE",
     )
-    parser.add_argument(
-        "-s", "--stdout", action="store_true", default=False, help="Log to stdout"
-    )
+    parser.add_argument("-s", "--stdout", action="store_true", default=False, help="Log to stdout")
     return parser.parse_args()
 
 
@@ -522,23 +505,23 @@ def setupLogging(options, cfg):
     if options.debug:
         loglevel = logging.DEBUG
     else:
-        loglevel = getConfigOption(
-            cfg, CONFIG_SECTION_LOGGER, CONFIG_LOGLEVEL, DEFAULT_LOGLEVEL
-        )
+        loglevel = getConfigOption(cfg, CONFIG_SECTION_LOGGER, CONFIG_LOGLEVEL, DEFAULT_LOGLEVEL)
 
     # open logfile
     if options.stdout:
         logging.basicConfig(
-            stream=sys.stdout, format=LOG_FORMAT, level=loglevel,
+            stream=sys.stdout,
+            format=LOG_FORMAT,
+            level=loglevel,
         )
     else:
         logfile = options.logfile
         if logfile is None:
-            logfile = getConfigOption(
-                cfg, CONFIG_SECTION_LOGGER, CONFIG_LOGFILE, DEFAULT_LOGFILE
-            )
+            logfile = getConfigOption(cfg, CONFIG_SECTION_LOGGER, CONFIG_LOGFILE, DEFAULT_LOGFILE)
         logging.basicConfig(
-            filename=logfile, format=LOG_FORMAT, level=loglevel,
+            filename=logfile,
+            format=LOG_FORMAT,
+            level=loglevel,
         )
 
 
@@ -590,9 +573,7 @@ def doMain():
 
     cfg_file = options.config
     if (not os.path.exists(cfg_file)) or (not os.path.isfile(cfg_file)):
-        raise ConfigException(
-            f"The config file '{cfg_file}' does not exist or is not a file"
-        )
+        raise ConfigException(f"The config file '{cfg_file}' does not exist or is not a file")
 
     # read config
     cfg = ConfigParser.ConfigParser()
@@ -602,15 +583,9 @@ def doMain():
     setupLogging(options, cfg)
 
     # Certificates
-    host_key = getConfigOption(
-        cfg, CONFIG_SECTION_COMMON, CONFIG_HOSTKEY, DEFAULT_HOSTKEY
-    )
-    host_cert = getConfigOption(
-        cfg, CONFIG_SECTION_COMMON, CONFIG_HOSTCERT, DEFAULT_HOSTCERT
-    )
-    cert_dir = getConfigOption(
-        cfg, CONFIG_SECTION_COMMON, CONFIG_CERTDIR, DEFAULT_CERTDIR
-    )
+    host_key = getConfigOption(cfg, CONFIG_SECTION_COMMON, CONFIG_HOSTKEY, DEFAULT_HOSTKEY)
+    host_cert = getConfigOption(cfg, CONFIG_SECTION_COMMON, CONFIG_HOSTCERT, DEFAULT_HOSTCERT)
+    cert_dir = getConfigOption(cfg, CONFIG_SECTION_COMMON, CONFIG_CERTDIR, DEFAULT_CERTDIR)
 
     # Where are records stored?
     log_dir = getConfigOption(
@@ -623,42 +598,24 @@ def doMain():
     # Logger options
     las = getConfigOption(cfg, CONFIG_SECTION_LOGGER, CONFIG_LOG_ALL)
     lvo = getConfigOption(cfg, CONFIG_SECTION_LOGGER, CONFIG_LOG_VO)
-    rlt = getConfigOption(
-        cfg, CONFIG_SECTION_LOGGER, CONFIG_RECORD_LIFETIME, DEFAULT_UR_LIFETIME
-    )
+    rlt = getConfigOption(cfg, CONFIG_SECTION_LOGGER, CONFIG_RECORD_LIFETIME, DEFAULT_UR_LIFETIME)
     log_all = parseLogAll(las)
     log_vo = parseLogVO(lvo)
     record_lifetime = parseRecordLifeTime(rlt)
 
-    timeout = getConfigOption(
-        cfg, CONFIG_SECTION_LOGGER, CONFIG_TIMEOUT, DEFAULT_TIMEOUT
-    )
-    batch_size = getConfigOption(
-        cfg, CONFIG_SECTION_LOGGER, CONFIG_BATCH_SIZE, DEFAULT_BATCH_SIZE
-    )
+    timeout = getConfigOption(cfg, CONFIG_SECTION_LOGGER, CONFIG_TIMEOUT, DEFAULT_TIMEOUT)
+    batch_size = getConfigOption(cfg, CONFIG_SECTION_LOGGER, CONFIG_BATCH_SIZE, DEFAULT_BATCH_SIZE)
 
     # XML Tags and Namespaces
-    registration_tag = getConfigOption(
-        cfg, CONFIG_SECTION_LOGGER, CONFIG_REGISTRATION_TAG, DEFAULT_REGISTRATION_TAG
-    )
-    records_tag = getConfigOption(
-        cfg, CONFIG_SECTION_LOGGER, CONFIG_RECORDS_TAG, DEFAULT_RECORDS_TAG
-    )
-    namespace = getConfigOption(
-        cfg, CONFIG_SECTION_LOGGER, CONFIG_NAMESPACE, DEFAULT_NAMESPACE
-    )
+    registration_tag = getConfigOption(cfg, CONFIG_SECTION_LOGGER, CONFIG_REGISTRATION_TAG, DEFAULT_REGISTRATION_TAG)
+    records_tag = getConfigOption(cfg, CONFIG_SECTION_LOGGER, CONFIG_RECORDS_TAG, DEFAULT_RECORDS_TAG)
+    namespace = getConfigOption(cfg, CONFIG_SECTION_LOGGER, CONFIG_NAMESPACE, DEFAULT_NAMESPACE)
 
-    records_directory = getConfigOption(
-        cfg, CONFIG_SECTION_LOGGER, CONFIG_RECORDS_DIRECTORY, DEFAULT_RECORDS_DIRECTORY
-    )
+    records_directory = getConfigOption(cfg, CONFIG_SECTION_LOGGER, CONFIG_RECORDS_DIRECTORY, DEFAULT_RECORDS_DIRECTORY)
 
-    state_directory = getConfigOption(
-        cfg, CONFIG_SECTION_LOGGER, CONFIG_STATE_DIRECTORY, DEFAULT_STATE_DIRECTORY
-    )
+    state_directory = getConfigOption(cfg, CONFIG_SECTION_LOGGER, CONFIG_STATE_DIRECTORY, DEFAULT_STATE_DIRECTORY)
 
-    archive_directory = getConfigOption(
-        cfg, CONFIG_SECTION_LOGGER, CONFIG_ARCHIVE_DIRECTORY, DEFAULT_ARCHIVE_DIRECTORY
-    )
+    archive_directory = getConfigOption(cfg, CONFIG_SECTION_LOGGER, CONFIG_ARCHIVE_DIRECTORY, DEFAULT_ARCHIVE_DIRECTORY)
 
     config = Config(
         context_factory=ContextFactory(host_key, host_cert, cert_dir),

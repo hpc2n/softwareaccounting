@@ -57,13 +57,10 @@ class FSStats:
             try:
                 statvfs = os.statvfs(mp)
                 ret[mp] = dict(
-                    size=statvfs.f_frsize
-                    * statvfs.f_blocks,  # Size of filesystem in bytes
-                    free=statvfs.f_frsize
-                    * statvfs.f_bavail,  # Number of free bytes that ordinary users
+                    size=statvfs.f_frsize * statvfs.f_blocks,  # Size of filesystem in bytes
+                    free=statvfs.f_frsize * statvfs.f_bavail,  # Number of free bytes that ordinary users
                     # are allowed to use (excl. reserved space)
-                    used=statvfs.f_frsize * statvfs.f_blocks
-                    - statvfs.f_frsize * statvfs.f_bavail,
+                    used=statvfs.f_frsize * statvfs.f_blocks - statvfs.f_frsize * statvfs.f_bavail,
                 )
             except Exception as e:
                 logger.error(e)

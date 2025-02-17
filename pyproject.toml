@@ -41,3 +41,9 @@ script-files = [
 
 [tool.setuptools.dynamic]
 version = {attr = "sams.__version__"}
+
+[tool.ruff]
+line-length = 140
+
+[tool.ruff.lint]
+extend-select = ["E", "I"]

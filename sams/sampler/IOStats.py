@@ -51,6 +51,7 @@ Output:
 }
 
 """
+
 import glob
 import logging
 import os
@@ -80,9 +81,7 @@ class IOStats(threading.Thread):
         self.stop_event = threading.Event()
 
     def run(self):
-        command = COMMAND % dict(
-            iostat_command=self.command, devices=self.devices, interval=self.t
-        )
+        command = COMMAND % dict(iostat_command=self.command, devices=self.devices, interval=self.t)
         try:
             process = subprocess.Popen(command.split(" "), stdout=subprocess.PIPE)
             headers = []
@@ -122,9 +121,7 @@ class Sampler(sams.base.Sampler):
         super(Sampler, self).__init__(id, outQueue, config)
         self.processes = {}
         self.sampler_interval = self.config.get([self.id, "sampler_interval"], 60)
-        self.iostat_command = self.config.get(
-            [self.id, "iostat_command"], "/usr/bin/iostat"
-        )
+        self.iostat_command = self.config.get([self.id, "iostat_command"], "/usr/bin/iostat")
         self.iostat_devs = self.config.get([self.id, "iostat_devs"])
         self.jobid = self.config.get(["options", "jobid"], 0)
 

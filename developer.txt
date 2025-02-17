@@ -3,5 +3,8 @@
 # Run the following commands in a virtual environment to set up:
 #   python -m pip install -r developer.txt
 #   python -m pip install -e .
+#   pre-commit install
 #
 build
+pre-commit
+ruff

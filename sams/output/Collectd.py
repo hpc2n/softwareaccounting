@@ -39,6 +39,7 @@ sams.output.Collectd:
         '^sams.sampler.SlurmCGroup/(?P<metric>.*)$' : '%(cluster)s/%(jobid)s/%(node)s/%(metric)s'
 
 """
+
 import logging
 import re
 import socket
@@ -124,7 +125,7 @@ class Output(sams.base.Output):
             reply = sock.recv(1024)
             logger.debug("Reply from collectd: %s", reply)
             sock.close()
-        except socket.error as e:
+        except socket.error:
             logger.error("Failed to send: %s to %s", message, self.socket)
 
     def write(self):

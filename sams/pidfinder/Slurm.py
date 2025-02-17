@@ -25,6 +25,7 @@ sams.pidfinder.Slurm:
     grace_period: 600
 
 """
+
 import logging
 import os
 import re
@@ -74,7 +75,7 @@ class PIDFinder(sams.base.PIDFinder):
         new_pids = []
 
         for pid in pids:
-            if not pid in self.processes.keys():
+            if pid not in self.processes.keys():
                 self.processes[pid] = Pids(pid, self.jobid)
                 if self.processes[pid].injob:
                     new_pids.append(pid)
@@ -85,9 +86,5 @@ class PIDFinder(sams.base.PIDFinder):
     def done(self):
         procs = list(filter(lambda p: p.injob, self.processes.values()))
         if not procs:
-            return self.create_time < time.time() - self.config.get(
-                [self.id, "grace_period"], 600
-            )
-        return max(p.last_seen for p in procs) < time.time() - self.config.get(
-            [self.id, "grace_period"], 600
-        )
+            return self.create_time < time.time() - self.config.get([self.id, "grace_period"], 600)
+        return max(p.last_seen for p in procs) < time.time() - self.config.get([self.id, "grace_period"], 600)

@@ -56,9 +56,7 @@ class Main:
             default="/etc/sams/sams-aggregator.yaml",
             help="Config file [%default]",
         )
-        parser.add_option(
-            "--logfile", type="string", action="store", dest="logfile", help="Log file"
-        )
+        parser.add_option("--logfile", type="string", action="store", dest="logfile", help="Log file")
         parser.add_option(
             "--loglevel",
             type="string",
@@ -89,24 +87,20 @@ class Main:
             logfile = self.config.get([id, "logfile"])
         if not logfile:
             logfile = self.config.get(["common", "logfile"])
-        logformat = self.config.get(
-            [id, "logformat"], "%(asctime)s %(name)s:%(levelname)s %(message)s"
-        )
+        logformat = self.config.get([id, "logformat"], "%(asctime)s %(name)s:%(levelname)s %(message)s")
         if logfile:
-            logging.basicConfig(
-                filename=logfile, filemode="a", format=logformat, level=loglevel_n
-            )
+            logging.basicConfig(filename=logfile, filemode="a", format=logformat, level=loglevel_n)
         else:
             logging.basicConfig(format=logformat, level=loglevel_n)
 
     def start(self):
-        for l in self.config.get([id, "loaders"], []):
+        for loader_config in self.config.get([id, "loaders"], []):
             try:
-                Loader = sams.core.ClassLoader.load(l, "Loader")
-                loader = Loader(l, self.config)
+                Loader = sams.core.ClassLoader.load(loader_config, "Loader")
+                loader = Loader(loader_config, self.config)
                 self.loaders.append(loader)
             except Exception as e:
-                logger.error("Failed to initialize: %s", l)
+                logger.error("Failed to initialize: %s", loader_config)
                 logger.exception(e)
                 sys.exit(1)
 
@@ -121,23 +115,23 @@ class Main:
                 sys.exit(1)
 
         logger.debug("Start loading %s", self.loaders)
-        for l in self.loaders:
-            l.load()
+        for loader_config in self.loaders:
+            loader_config.load()
             while True:
                 try:
-                    data = l.next()
+                    data = loader_config.next()
                     if not data:
                         break
                 except Exception as e:
                     logger.error(e)
-                    l.error()
+                    loader_config.error()
                     continue
 
                 try:
                     logger.debug("Data: %s", data)
                     for a in self.aggregators:
                         a.aggregate(data)
-                    l.commit()
+                    loader_config.commit()
                 except Exception as e:
                     logger.error("Failed to do aggregation")
                     logger.exception(e)
@@ -145,7 +139,7 @@ class Main:
                     # Cleanup of the aggregators.
                     for a in self.aggregators:
                         a.cleanup()
-                    l.error()
+                    loader_config.error()
 
         # Close down the aggregagors.
         for a in self.aggregators:

@@ -1,9 +1,9 @@
 import logging
 import re
-from typing import Iterable, Dict, List
-from sams.core import Config
+from typing import Dict, Iterable, List
 
 import sams.base
+from sams.core import Config
 
 logger = logging.getLogger(__name__)
 
@@ -12,6 +12,7 @@ class Listener(sams.base.Listener):
     """
     Listener for Prometheus output.
     """
+
     def __init__(self, id: str, config: Config, samplers: List):
         super().__init__(id, config, samplers)
         self.static_map = self.config.get([self.id, "static_map"], {})
@@ -20,7 +21,7 @@ class Listener(sams.base.Listener):
 
     @staticmethod
     def _nested_getitem(dct: Dict, keys: Iterable) -> Dict:
-        """ Fetches an item from nested dictionaries.
+        """Fetches an item from nested dictionaries.
         If any of the keys in `keys` is missing, this method
         returns `None`."""
         for key in keys:
@@ -30,8 +31,8 @@ class Listener(sams.base.Listener):
                 return None
         return dct
 
-    def _flatten_dict(self, dct, base='') -> List:
-        """ Recursively flattens a dictionary into a list-of-dictionaries,
+    def _flatten_dict(self, dct, base="") -> List:
+        """Recursively flattens a dictionary into a list-of-dictionaries,
         with each dictionary in the list possessing the entries `'match'`
         and `'value'`."""
         out = []
@@ -45,20 +46,18 @@ class Listener(sams.base.Listener):
 
     @property
     def encoded_data(self) -> bytes:
-        """ The most recent data from attached samplers,
-        formatted, compiled and encoded to UTF-8 format. """
+        """The most recent data from attached samplers,
+        formatted, compiled and encoded to UTF-8 format."""
         data = self._get_all_samples()
         # Then match config with entries and create flattened, compiled data
         compiled_data = dict()
         for match_set in self._get_matching_entries(data):
-            self._compile_data(data,
-                               compiled_data,
-                               *match_set)
+            self._compile_data(data, compiled_data, *match_set)
         # Parse & encode compiled data into bytestring.
         return self._get_bytestring(compiled_data)
 
     def _get_all_samples(self) -> Dict:
-        """ Returns compilation of all most recent samples
+        """Returns compilation of all most recent samples
         as a dictionary ``{sample['id']: sample[v'alue']}``
         Skips ``None`` entries.
         """
@@ -67,66 +66,58 @@ class Listener(sams.base.Listener):
             if sampler.most_recent_sample is not None:
                 for s in sampler.most_recent_sample:
                     # if id repeated, update data dictionary
-                    if s['id'] in data:
-                        data[s['id']].update(s['data'])
+                    if s["id"] in data:
+                        data[s["id"]].update(s["data"])
                     else:
-                        data.update({s['id']: s['data']})
+                        data.update({s["id"]: s["data"]})
         return data
 
-    def _get_matching_entries(self,
-                              data: Dict) -> Iterable:
+    def _get_matching_entries(self, data: Dict) -> Iterable:
         flat_dictionary = self._flatten_dict(data)
-        logger.debug(f'Flat dictionary: {flat_dictionary}')
+        logger.debug(f"Flat dictionary: {flat_dictionary}")
         for d in flat_dictionary:
             for metric, destination in self.metrics.items():
                 reg = re.compile(metric)
-                m = reg.match(d['match'])
-                logger.debug(f'Metric matches: {m}')
+                m = reg.match(d["match"])
+                logger.debug(f"Metric matches: {m}")
                 if m is not None:
-                    yield (str(d['value']),
-                           destination,
-                           m.groupdict())
+                    yield (str(d["value"]), destination, m.groupdict())
 
     @staticmethod
     def _get_bytestring(compiled_data: Dict) -> bytes:
-        """ Takes the compiled data, parses entry names, and
+        """Takes the compiled data, parses entry names, and
         turns it into a Prometheus-formatted bytestring,
-        ready to be sent over socket. """
+        ready to be sent over socket."""
         helped = dict()
-        metric_re = re.compile(r'^(\S+){')
+        metric_re = re.compile(r"^(\S+){")
         formatted_data = []
         for m in sorted(compiled_data.keys()):
-            logger.debug(f'Data key: {m}')
+            logger.debug(f"Data key: {m}")
             match = metric_re.match(m)
             # Check if key is in config
             if match is None:
                 continue
             if match.group(1) not in helped:
                 helped[match.group(1)] = True
-                formatted_data.append(f'# HELP {match.group(1):s} Job Usage Metrics')
-                formatted_data.append(f'# TYPE {match.group(1):s} gauge')
+                formatted_data.append(f"# HELP {match.group(1):s} Job Usage Metrics")
+                formatted_data.append(f"# TYPE {match.group(1):s} gauge")
             v = compiled_data[m]
-            formatted_data.append(f'{m} {str(v)}')
-        data_bytestring = ('\n'.join(formatted_data) + '\n').encode('utf-8')
+            formatted_data.append(f"{m} {str(v)}")
+        data_bytestring = ("\n".join(formatted_data) + "\n").encode("utf-8")
         return data_bytestring
 
-    def _compile_data(self,
-                      in_data: Dict,
-                      out_data: Dict,
-                      value,
-                      destination: str,
-                      extra_mappings: Dict) -> None:
-        """ Subroutine method that updates `out_data`
+    def _compile_data(self, in_data: Dict, out_data: Dict, value, destination: str, extra_mappings: Dict) -> None:
+        """Subroutine method that updates `out_data`
         with entries from `in_data` based on the provided
-        mappings. """
+        mappings."""
         # static_map is per-node, constant metadata
         d = self.static_map.copy()
         d.update(extra_mappings)
         # Get per-job metadata
         for k, v in self.map.items():
-            m = self._nested_getitem(in_data, v.split('/'))
+            m = self._nested_getitem(in_data, v.split("/"))
             if m is None:
-                logger.warning(f'map: {k}: {v} is missing')
+                logger.warning(f"map: {k}: {v} is missing")
                 return
             d[k] = m
         try:
@@ -136,7 +127,7 @@ class Listener(sams.base.Listener):
             logger.error(e)
             return
         if len(value) == 0:
-            logger.warning(f'{dest} got no metric')
+            logger.warning(f"{dest} got no metric")
         # Store output string as key and data as value
         out_data[dest] = value
-        logger.debug(f'Storing {dest} = {str(value)}')
+        logger.debug(f"Storing {dest} = {str(value)}")

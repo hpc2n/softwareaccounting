@@ -205,26 +205,18 @@ class Aggregator(sams.base.Aggregator):
         self.db = {}
         self.db_path = self.config.get([self.id, "db_path"])
         self.cluster = self.config.get([self.id, "cluster"])
-        self.file_pattern = self.config.get(
-            [self.id, "file_pattern"], "sa-%(jobid_hash)d.db"
-        )
+        self.file_pattern = self.config.get([self.id, "file_pattern"], "sa-%(jobid_hash)d.db")
         self.jobid_hash_size = self.config.get([self.id, "jobid_hash_size"], 0)
         self.inserted = {}
 
-        self.sqlite_temp_store = self.config.get(
-            [self.id, "sqlite_temp_store"], "DEFAULT"
-        )
+        self.sqlite_temp_store = self.config.get([self.id, "sqlite_temp_store"], "DEFAULT")
 
         if self.sqlite_temp_store not in ["DEFAULT", "FILE", "MEMORY"]:
-            sams.base.AggregatorException(
-                "sqlite_temp_store must be one of DEFAULT, FILE or MEMORY"
-            )
+            sams.base.AggregatorException("sqlite_temp_store must be one of DEFAULT, FILE or MEMORY")
 
     def _open_db(self, jobid_hash):
         """Open database object"""
-        db = os.path.join(
-            self.db_path, self.file_pattern % {"jobid_hash": int(jobid_hash)}
-        )
+        db = os.path.join(self.db_path, self.file_pattern % {"jobid_hash": int(jobid_hash)})
         self.db[jobid_hash] = sqlite3.connect(db)
         self.db[jobid_hash].isolation_level = None
         c = self.db[jobid_hash].cursor()
@@ -293,16 +285,12 @@ class Aggregator(sams.base.Aggregator):
         c = db.cursor()
 
         for module in ["sams.sampler.Software", "sams.sampler.SlurmInfo"]:
-            if not module in data:
+            if module not in data:
                 logger.info("Jobid: %d on node %s has no %s", jobid, node, module)
-                raise sams.base.AggregatorException(
-                    "Jobid: %d on node %s has no %s" % (jobid, node, module)
-                )
+                raise sams.base.AggregatorException("Jobid: %d on node %s has no %s" % (jobid, node, module))
 
         if len(data["sams.sampler.Software"]["execs"]) == 0:
-            raise sams.base.AggregatorException(
-                "Jobid: %d on node %s has no execs" % (jobid, node)
-            )
+            raise sams.base.AggregatorException("Jobid: %d on node %s has no execs" % (jobid, node))
 
         # Begin transaction
         c.execute("BEGIN TRANSACTION")
@@ -316,9 +304,7 @@ class Aggregator(sams.base.Aggregator):
             if self.do_insert(jobid, "projects", project):
                 c.execute(INSERT_PROJECT, {"project": project})
                 project_id = self.save_id(jobid, "projects", project, c.lastrowid)
-                logger.debug(
-                    "Inserted project: %s as %d (%d)", project, c.lastrowid, project_id
-                )
+                logger.debug("Inserted project: %s as %d (%d)", project, c.lastrowid, project_id)
             else:
                 project_id = self.get_id(jobid, "projects", project)
                 logger.debug("Fetched project: %s as %d", project, project_id)
@@ -374,15 +360,11 @@ class Aggregator(sams.base.Aggregator):
             # Insert software
             sw_id = None
             if self.do_insert(jobid, "softwares", sw):
-                sw_id_row = [
-                    ts for ts in c.execute(FETCH_SOFTWARE_ID, {"software": sw})
-                ]
+                sw_id_row = [ts for ts in c.execute(FETCH_SOFTWARE_ID, {"software": sw})]
 
                 if sw_id_row:
                     sw_id = self.save_id(jobid, "softwares", sw, sw_id_row[0][0])
-                    logger.debug(
-                        "Fetched sw: %s as %d (%d)", sw, sw_id_row[0][0], sw_id
-                    )
+                    logger.debug("Fetched sw: %s as %d (%d)", sw, sw_id_row[0][0], sw_id)
                 else:
                     c.execute(INSERT_SOFTWARE, {"software": sw})
                     sw_id = self.save_id(jobid, "softwares", sw, c.lastrowid)

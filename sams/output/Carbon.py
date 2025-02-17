@@ -43,6 +43,7 @@ sams.output.Carbon:
         '^sams.sampler.SlurmCGroup/(?P<metric>.*)$' : 'sa/%(cluster)s/%(jobid)s/%(node)s/%(metric)s'
 
 """
+
 import logging
 import re
 import socket

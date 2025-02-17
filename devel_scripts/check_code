@@ -1,7 +1,0 @@
-#!/bin/bash
-
-black --check sams sams-*.py
-
-PYTHONUNBUFFERED=yes \
-      pylint sams-*.py sams/*.py sams/*/*.py | tee pylint-report.txt
-

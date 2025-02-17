@@ -46,9 +46,7 @@ class Sampler(sams.base.Sampler):
         super(Sampler, self).__init__(id, outQueue, config)
         self.processes = {}
         self.cgroups = {}
-        self.cgroup_base = self.config.get(
-            [self.id, "cgroup_base"], "/sys/fs/cgroup/unified"
-        )
+        self.cgroup_base = self.config.get([self.id, "cgroup_base"], "/sys/fs/cgroup/unified")
         self.extract_pressure = re.compile(
             r"^(?P<type>some|full)\s+avg10=(?P<avg10>[\d\.]+)\s+avg60=(?P<avg60>[\d\.]+)\s+avg300=(?P<avg300>[\d\.]+)\s+total=(?P<total>[\d]+)\s*$"
         )
@@ -97,12 +95,12 @@ class Sampler(sams.base.Sampler):
                     output[cgroup] = {}
                     for line in file.readlines():
                         logger.debug(line)
-                        m = self.extract_pressure.search(line)
-                        if m:
-                            l = m.groupdict()
-                            type = l["type"]
-                            del l["type"]
-                            output[cgroup][type] = l
+                        match = self.extract_pressure.search(line)
+                        if match:
+                            group = match.groupdict()
+                            type = group["type"]
+                            del group["type"]
+                            output[cgroup][type] = group
                             types.add(type)
             except IOError as err:
                 logger.debug(

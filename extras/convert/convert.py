@@ -1,15 +1,14 @@
-import os
-import sqlite3
 import datetime
+import sqlite3
 import sys
 
 import sams.core
-from sams.backend.SoftwareAccountingPW import db, User, Project, Job, Software, Command, Node, LastSent
 from sams.backend.SoftwareAccountingPW import Backend as Backend
+from sams.backend.SoftwareAccountingPW import Command, Job, LastSent, Node, Project, Software, User
 
 config = sams.core.Config("convert.yaml", {})
 
-b = Backend('sams.backend.SoftwareAccountingPW', config)
+b = Backend("sams.backend.SoftwareAccountingPW", config)
 
 db = b.db
 
@@ -26,18 +25,18 @@ except LastSent.DoesNotExist:
     ls = LastSent(timestamp=datetime.fromtimestamp(0))
 
 for ts in c.execute("SELECT * FROM last_sent"):
-    timestamp=datetime.datetime.fromtimestamp(ts[0])
+    timestamp = datetime.datetime.fromtimestamp(ts[0])
     if timestamp > ls.timestamp:
         print("Timestamp updated")
         ls.timestamp = timestamp
         ls.save()
 
 
-all_softwares = { x.path : x for x in Software.select() }
+all_softwares = {x.path: x for x in Software.select()}
 c = sc.cursor()
 n = 0
 with db.atomic() as txn:
-    cnt = [x for x in c.execute('select count(*) from software')][0][0]
+    cnt = [x for x in c.execute("select count(*) from software")][0][0]
     print(f"Software count: {cnt}")
     for ts in c.execute("""
     SELECT s.path, s.software, s.version, s.versionstr,
@@ -47,37 +46,38 @@ with db.atomic() as txn:
         -- WHERE s.ignore
         -- limit 10000
     """):
-        n+=1
-        if n % int(cnt/10) == 0:
-            print(f"Software @ {n} {100*n/cnt:.1f}%")
-        (path, software, version, versionstr,
-        user_provided, ignore, last_updated) = ts
+        n += 1
+        if n % int(cnt / 10) == 0:
+            print(f"Software @ {n} {100 * n / cnt:.1f}%")
+        (path, software, version, versionstr, user_provided, ignore, last_updated) = ts
 
         # we only need one :-)
         if path in all_softwares:
             continue
 
         if last_updated is not None:
-            last_updated=datetime.datetime.fromtimestamp(last_updated)
+            last_updated = datetime.datetime.fromtimestamp(last_updated)
 
-        software = Software(path=path,
-                software=software,
-                version=version,
-                versionstr=versionstr,
-                user_provided=user_provided,
-                ignore=ignore,
-                last_updated=last_updated)
+        software = Software(
+            path=path,
+            software=software,
+            version=version,
+            versionstr=versionstr,
+            user_provided=user_provided,
+            ignore=ignore,
+            last_updated=last_updated,
+        )
         software.save()
         all_softwares[software.path] = software
 
 print("Software Done!")
 
-all_users = { x.name : x for x in User.select() }
-all_projects = { x.name : x for x in Project.select() }
-all_jobs = { }
+all_users = {x.name: x for x in User.select()}
+all_projects = {x.name: x for x in Project.select()}
+all_jobs = {}
 n = 0
 with db.atomic() as txn:
-    cnt = [x for x in c.execute('select count(*) from jobs')][0][0]
+    cnt = [x for x in c.execute("select count(*) from jobs")][0][0]
     print(f"Job count: {cnt}")
     for ts in c.execute("""
     SELECT j.id, j.jobid,j.recordid,u.user,p.project,j.ncpus,
@@ -90,10 +90,10 @@ with db.atomic() as txn:
 
         -- limit 100000
     """):
-        (id,jobid,recordid,user_name,project_name,ncpus,start_time,end_time,user_time,system_time) = ts
-        n+=1
-        if n % int(cnt/100) == 0:
-            print(f"Jobs @ {n} {100*n/cnt:.1f}%")
+        (id, jobid, recordid, user_name, project_name, ncpus, start_time, end_time, user_time, system_time) = ts
+        n += 1
+        if n % int(cnt / 100) == 0:
+            print(f"Jobs @ {n} {100 * n / cnt:.1f}%")
 
         if recordid in all_jobs:
             continue
@@ -117,17 +117,23 @@ with db.atomic() as txn:
                 all_users[user_name] = user
 
         if start_time is not None:
-            start_time=datetime.datetime.fromtimestamp(start_time)
+            start_time = datetime.datetime.fromtimestamp(start_time)
 
         if end_time is not None:
-            end_time=datetime.datetime.fromtimestamp(end_time)       
+            end_time = datetime.datetime.fromtimestamp(end_time)
 
-        job = Job(jobid=jobid, recordid=recordid,
-                user=user, project=project, ncpus=ncpus,
-                start_time=start_time, end_time=end_time,
-                user_time=user_time, system_time=system_time        
-            )
-                
+        job = Job(
+            jobid=jobid,
+            recordid=recordid,
+            user=user,
+            project=project,
+            ncpus=ncpus,
+            start_time=start_time,
+            end_time=end_time,
+            user_time=user_time,
+            system_time=system_time,
+        )
+
         job.save()
         if id in all_jobs:
             print("Dup ID in jobs...???")
@@ -136,9 +142,9 @@ with db.atomic() as txn:
 print("Jobs Done!")
 
 n = 0
-all_nodes = { x.name : x for x in Node.select() }
+all_nodes = {x.name: x for x in Node.select()}
 with db.atomic() as txn:
-    cnt = [x for x in c.execute('select count(*) from command')][0][0]
+    cnt = [x for x in c.execute("select count(*) from command")][0][0]
     print(f"Command count: {cnt}")
     for ts in c.execute("""
     SELECT c.id, c.jobid,n.node,s.path,
@@ -152,10 +158,10 @@ with db.atomic() as txn:
         order by c.jobid desc
         -- limit 10000
     """):
-        (id,jobid,node_name,path,start_time,end_time,user_time,system_time,last_updated,ignore) = ts
-        n+=1
-        if n % int(cnt/100) == 0:
-            print(f"Command @ {n} {100*n/cnt:.1f}%")
+        (id, jobid, node_name, path, start_time, end_time, user_time, system_time, last_updated, ignore) = ts
+        n += 1
+        if n % int(cnt / 100) == 0:
+            print(f"Command @ {n} {100 * n / cnt:.1f}%")
 
         if jobid not in all_jobs:
             continue
@@ -174,18 +180,22 @@ with db.atomic() as txn:
 
         job = all_jobs[jobid]
 
-        last_updated=datetime.datetime.fromtimestamp(last_updated)
-        start_time=datetime.datetime.fromtimestamp(start_time)
-        end_time=datetime.datetime.fromtimestamp(end_time)
+        last_updated = datetime.datetime.fromtimestamp(last_updated)
+        start_time = datetime.datetime.fromtimestamp(start_time)
+        end_time = datetime.datetime.fromtimestamp(end_time)
 
         software = all_softwares[path]
 
-        command = Command(job=job, node=node,
-                software=software,
-                start_time=start_time, end_time=end_time,
-                user_time=user_time, system_time=system_time,
-                last_updated=last_updated
-            )
+        command = Command(
+            job=job,
+            node=node,
+            software=software,
+            start_time=start_time,
+            end_time=end_time,
+            user_time=user_time,
+            system_time=system_time,
+            last_updated=last_updated,
+        )
         command.save()
 
 print("Command Done!")

@@ -48,14 +48,12 @@ class Receiver(MethodView):
         base_path = self.base_path
 
         if self.jobid_hash_size is not None:
-            base_path = os.path.join(
-                base_path, str(int(int(jobid) / int(self.jobid_hash_size)))
-            )
+            base_path = os.path.join(base_path, str(int(int(jobid) / int(self.jobid_hash_size))))
 
             if not os.path.isdir(base_path):
                 try:
                     os.makedirs(base_path)
-                except Exception as err:
+                except Exception:
                     # Handle possible raise from other process
                     if not os.path.isdir(base_path):
                         assert False, "Failed to makedirs '%s' " % base_path
@@ -64,9 +62,7 @@ class Receiver(MethodView):
         try:
             with open(os.path.join(base_path, tfilename), "wb") as file:
                 file.write(request.data)
-            os.rename(
-                os.path.join(base_path, tfilename), os.path.join(base_path, filename)
-            )
+            os.rename(os.path.join(base_path, tfilename), os.path.join(base_path, filename))
         except Exception as err:
             logger.debug("Failed to write file")
             try:
@@ -97,9 +93,7 @@ class Main:
             default="/etc/sams/sams-post-receiver.yaml",
             help="Config file [%default]",
         )
-        parser.add_option(
-            "--logfile", type="string", action="store", dest="logfile", help="Log file"
-        )
+        parser.add_option("--logfile", type="string", action="store", dest="logfile", help="Log file")
         parser.add_option(
             "--loglevel",
             type="string",
@@ -130,13 +124,9 @@ class Main:
             logfile = self.config.get([id, "logfile"])
         if not logfile:
             logfile = self.config.get(["common", "logfile"])
-        logformat = self.config.get(
-            [id, "logformat"], "%(asctime)s %(name)s:%(levelname)s %(message)s"
-        )
+        logformat = self.config.get([id, "logformat"], "%(asctime)s %(name)s:%(levelname)s %(message)s")
         if logfile:
-            logging.basicConfig(
-                filename=logfile, filemode="a", format=logformat, level=loglevel_n
-            )
+            logging.basicConfig(filename=logfile, filemode="a", format=logformat, level=loglevel_n)
         else:
             logging.basicConfig(format=logformat, level=loglevel_n)
 

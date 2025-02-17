@@ -100,17 +100,11 @@ class Backend(sams.base.Backend):
     def __init__(self, id, config):
         super(Backend, self).__init__(id, config)
         self.db_path = self.config.get([self.id, "db_path"])
-        self.file_pattern = re.compile(
-            self.config.get([self.id, "file_pattern"], r"sa-\d+.db")
-        )
-        self.sqlite_temp_store = self.config.get(
-            [self.id, "sqlite_temp_store"], "DEFAULT"
-        )
+        self.file_pattern = re.compile(self.config.get([self.id, "file_pattern"], r"sa-\d+.db"))
+        self.sqlite_temp_store = self.config.get([self.id, "sqlite_temp_store"], "DEFAULT")
 
         if self.sqlite_temp_store not in ["DEFAULT", "FILE", "MEMORY"]:
-            sams.base.BackendException(
-                "sqlite_temp_store must be one of DEFAULT, FILE or MEMORY"
-            )
+            sams.base.BackendException("sqlite_temp_store must be one of DEFAULT, FILE or MEMORY")
 
         self.dry_run(False)
         self.updated = {}
@@ -184,16 +178,14 @@ class Backend(sams.base.Backend):
             dbh.close()
 
             for row in rows:
-                if not row[3] in jobs:
+                if row[3] not in jobs:
                     jobs[row[3]] = JobSoftware(row[3], row[4])
 
                 software = row[0] % dict(user=row[8], project=row[9])
                 version = row[1] % dict(user=row[8], project=row[9])
                 versionstr = row[2] % dict(user=row[8], project=row[9])
 
-                jobs[row[3]].addSoftware(
-                    Software(software, version, versionstr, row[7], row[5])
-                )
+                jobs[row[3]].addSoftware(Software(software, version, versionstr, row[7], row[5]))
 
                 if updated < row[6]:
                     updated = row[6]
@@ -224,10 +216,7 @@ class Backend(sams.base.Backend):
             print("\tLocal Version: %s" % software[3])
             print("\tUser Provided: %s" % software[4])
             print("\tIgnore       : %s" % software[5])
-            print(
-                "\tCore Hours   : %.1f"
-                % (software[7] / 3600.0 if software[7] is not None else 0.0)
-            )
+            print("\tCore Hours   : %.1f" % (software[7] / 3600.0 if software[7] is not None else 0.0))
             print("\tJob Count    : %d" % software[8])
         else:
             print("\tSoftware is not determined")
