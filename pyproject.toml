@@ -6,14 +6,15 @@ build-backend = "setuptools.build_meta"
 name = "softwareaccounting"
 requires-python = ">=3.6"
 dependencies = [
-    "Flask",
     "httplib2",
     "peewee",
     "PyYAML",
     "requests",
-    "Twisted",
 ]
 dynamic = ["version"]
+
+[project.optional-dependencies]
+post-receiver = ["Flask"]
 
 [tool.setuptools]
 packages = [
