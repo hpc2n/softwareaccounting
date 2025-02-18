@@ -417,7 +417,7 @@ class Backend(sams.base.Backend):
             .join(Software, on=(Command.software == Software.id), attr="software")
             .join(User, on=(Job.user == User.id))
             .join(Project, on=(Job.project == Project.id))
-            .where((Command.software.ignore is False) & (Command.job.in_(updated_jobs)))
+            .where((Command.software.ignore == False) & (Command.job.in_(updated_jobs)))  # noqa: E712
             .group_by(
                 Job,
                 User,
