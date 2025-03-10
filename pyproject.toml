@@ -16,19 +16,6 @@ dynamic = ["version"]
 post-receiver = ["Flask"]
 
 [tool.setuptools]
-packages = [
-    "sams",
-    "sams.aggregator",
-    "sams.loader",
-    "sams.output",
-    "sams.pidfinder",
-    "sams.sampler",
-    "sams.backend",
-    "sams.software",
-    "sams.xmlwriter",
-    "sams.listener",
-]
-
 script-files = [
     "scripts/sams-aggregator.py",
     "scripts/sams-collector.py",
@@ -37,6 +24,9 @@ script-files = [
     "scripts/sams-software-updater.py",
     "extras/sgas-sa-registrant/bin/sgas-sa-registrant",
 ]
+
+[tool.setuptools.packages.find]
+where = ["src"]
 
 [tool.setuptools.dynamic]
 version = {attr = "sams.__version__"}
