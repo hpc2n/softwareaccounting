@@ -5,12 +5,18 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "softwareaccounting"
 requires-python = ">=3.6"
+readme = "README.md"
 dependencies = [
     "peewee",
     "PyYAML",
     "requests",
 ]
 dynamic = ["version"]
+
+[project.urls]
+Documentation = "https://hpc2n.github.io/softwareaccounting/"
+Source = "https://github.com/hpc2n/softwareaccounting"
+Tracker = "https://github.com/hpc2n/softwareaccounting/issues"
 
 [project.optional-dependencies]
 post-receiver = ["Flask"]
