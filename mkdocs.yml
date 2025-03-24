@@ -1,0 +1,45 @@
+site_name: Software Accounting
+site_url: https://hpc2n.github.io/softwareaccounting/
+
+repo_name: hpc2n/softwareaccounting
+repo_url: https://github.com/hpc2n/softwareaccounting/
+
+theme:
+  name: material
+
+nav:
+  - Home: index.md
+  - Overview: overview.md
+  - Installation: installation.md
+  - Configuration: configuration.md
+  - Logging: logging.md
+  - Programs:
+    - Aggregator: sams-aggregator.md
+    - Collector: sams-collector.md
+    - POST Receiver: sams-post-receiver.md
+    - Software Extractor: sams-software-extractor.md
+    - Software Updater: sams-software-updater.md
+  - Modules:
+    - sams.aggregator:
+      - SoftwareAccounting: aggregator/SoftwareAccounting.md
+      - SoftwareAccountingPW: aggregator/SoftwareAccountingPW.md
+    - sams.backend:
+      - SoftwareAccounting: backend/SoftwareAccounting.md
+      - SoftwareAccountingPW: backend/SoftwareAccountingPW.md
+    - sams.loader:
+      - File: loader/File.md
+      - FileSlurmInfoFallback: loader/FileSlurmInfoFallback.md
+    - sams.output:
+      - File: output/File.md
+      - Http: output/Http.md
+    - sams.pidfinder:
+      - Slurm: pidfinder/Slurm.md
+    - sams.sampler:
+      - Core: sampler/Core.md
+      - Pressure: sampler/Pressure.md
+      - SlurmInfo: sampler/SlurmInfo.md
+      - Software: sampler/Software.md
+    - sams.software:
+      - Regexp: software/Regexp.md
+  - Versions: sams-software.md
+  - FAQ: sams-faq.md
