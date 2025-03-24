@@ -1,97 +1,25 @@
+# Collector
 
-# SAMS collector
+The *sams-collector* is run on the compute-node and collects information about the running jobs. The collector uses three types of modules, a *pidfinder*, *sampler* and the *outputs*.
 
-The *sams-collector* is run on the compute-node and collects information about the running jobs.
+The pidfinder module finds process ids (PID) of a job.
 
-# Parts
+The sampler modules gets the PIDs from pidfinder and collects metrics about the processes.
 
-The collector contains of three parts. The *pidfinder*, the *sampler* and the *outputs*.
+The output modules outputs the result of the samplers.
 
-## pidfinder
+The collector needs to know which Slurm job it is collecting information about, provide it with the *--jobid* command line option. In slurm this must be the *JobIDRaw*''* and not the jobid with job array extension (NNNNNN_A)
 
-This plugin finds process ids (PID) of a job.
+## Configuration
 
-## sampler
+| Key | Description |
+| - | - |
+| pid_finder_update_interval | The number of seconds to wait before trying to find new pids. |
+| pid_finder | Name of the plugin that finds PIDs. |
+| samplers | A list of plugins that sample metrics about the PIDs. |
+| outputs | A list of plugins that stores the metrics from the samplers. |
 
-This plugins gets the PIDs from pidfinder and collects metrics about the processes.
-
-## output
-
-This plugins output the result of the samplers info different kinds of ways.
-
-# Command line arguments
-
-## --help
-
-Usage information
-
-## --jobid=
-
-Jobid to collect information about. 
-
-Note: In slurm this must be the ''JobIDRaw'' and not the jobid with job array extension (NNNNNN_A)
-
-## --config=<file>
-
-Path to configuration file.
-
-Default: /etc/sams/sams-collector.yaml
-
-## --node=
-
-Name of the current node. 
-
-Default: ''hostname'' of the machine.
-
-## --logfile=<filename>
-
-[See logging](logging.md)
-
-## --loglevel=
-
-[See logging](logging.md)
-
-## --daemon
-
-Send collector into background.
-
-## --pidfile=<path>
-
-Create pid file at <path>.
-
-## --test-output=<json_file>
-
-Test output module with data from <json_file>.
-
-# Configuration
-
-Core options of SAMS collector.
-
-## pid_finder_update_interval
-
-The number of seconds to wait before trying to find new pids.
-
-## pid_finder
-
-Name of the plugin that finds PIDs.
-
-## samplers
-
-A list of plugins that sample metrics about the PIDs.
-
-## outputs
-
-A list of plugins that stores the metrics from the samplers.
-
-## logfile
-
-[See logging](logging.md)
-
-## loglevel
-
-[See logging](logging.md)
-
-# Configuration Example
+Here is an example configuration file.
 
 ```
 ---
@@ -124,39 +52,40 @@ sams.output.File:
   jobid_hash_size: 1000
 ```
 
-# Example usage
+## Invoking from Slurm
 
 In Slurm prolog start
 
-	sams-collector.py --config=/path/config.yaml --jobid=$SLURM_JOB_ID --daemon --pidfile=/var/run/sams-collector.$SLURM_JOB_ID
+    sams-collector.py --config=/path/config.yaml --jobid=$SLURM_JOB_ID --daemon \
+      --pidfile=/var/run/sams-collector.$SLURM_JOB_ID
 
 The sams-collector needs to run as root. 
 
-In Slurm epilog kill -HUP.
+In Slurm epilog use kill -HUP. If HUP i missing the collector will exit after 10 minutes without active processes.
 
-If HUP i missing the collector will exit after 10 minutes without active processes.
+### Using Systemd
 
-See below for example usage with systemd.
+Starting and stopping the collector with systemd is easy.
 
-## Systemd startup example
+Create the file: /etc/systemd/system/softwareaccounting@.service with the following content:
 
-Starting and stopping the software accounting with systemd is easy
-
-create the file: /etc/systemd/system/softwareaccounting@.service
-with the following content:
-
-'''
+```
 [Unit]
-Description=SAMS Software Accounting (%i)
+Description=Software Accounting (%i)
 
 [Service]
-Environment=PYTHONPATH=/lap/softwareaccounting/lib/python3.5/site-packages
-PIDFile=/var/run/software-accounting.%i.pid
-ExecStart=/lap/softwareaccounting/bin/sams-collector.py --jobid=%i --config=/etc/slurm/softwareaccounting.yaml
+PIDFile=/var/run/softwareaccounting.%i.pid
+ExecStart=/opt/softwareaccounting/bin/sams-collector.py --jobid=%i --config=/etc/slurm/softwareaccounting.yaml
 KillSignal=SIGHUP
 KillMode=process
-'''
+```
 
-To start the accounting process just run: systemctl start softwareaccounting@${SLURM_JOB_ID}.service
-in the slurm prolog and put: systemctl stop softwareaccounting@${SLURM_JOB_ID}.service
+To start the accounting process just run
+
+    systemctl start softwareaccounting@${SLURM_JOB_ID}.service
+
+in the slurm prolog and
+
+    systemctl stop softwareaccounting@${SLURM_JOB_ID}.service
+
 in the slurm epilog.

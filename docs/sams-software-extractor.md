@@ -1,63 +1,20 @@
 
-# SAMS software extractor
+# Software Extractor
 
-The *sams-software-extractor* is run on the collecting machine and extracts the
-software information into xml files used to send to SAMS.
+The *sams-software-extractor* is run on the collecting machine and extracts the software information into XML files used to send to SAMS. The *software extractor* uses two types of modules, the *backend* and the *xmlwriter*.
 
-# Parts
+The backend module loads software information from the backend.
 
-The *software extractor* contains of two parts. The *backend* and the *xmlwriter*.
+The xmlwriter modules takes the data loaded from the *backend* module and writes it as XML files.
 
-## backend
+## Configuration
 
-This plugin loads software information from the backend.
+| Key | Description |
+| - | - |
+| backend | Name of the plugin that loads software information. |
+| xmlwriter | Name of the plugin that writes XML data for SAMS. |
 
-## xmlwriter
-
-This plugin takes the data loaded from the *backend* module and writes with the
-xmlwriter plugin.
-
-# Command line arguments
-
-## --help
-
-Usage information
-
-## --config=<file>
-
-Path to configuration file.
-
-Default: /etc/sams/sams-software-extractor.yaml
-
-## --logfile=<filename>
-
-[See logging](logging.md)
-
-## --loglevel=
-
-[See logging](logging.md)
-
-# Configuration
-
-Core options of SAMS collector.
-
-## backend
-
-Name of the plugin that loads software information.
-
-## xmlwriter
-
-Name of the plugin that writes XML data for SAMS.
-
-## logfile
-
-[See logging](logging.md)
-
-## loglevel
-
-[See logging](logging.md)
-
-# Configuration Example
+Here is an example configuration file.
 
 ```
 ---
@@ -69,8 +26,8 @@ sams.software-extractor:
 
 sams.backend.SoftwareAccounting:
   file_pattern: 'sa-\d+.db'
-  db_path: /data/softwareaccounting/CLUSTER/db
+  db_path: /data/softwareaccounting/cluster/db
 
 sams.xmlwriter.File:
-  output_path: /var/spool/software_accounting/records
+  output_path: /var/spool/softwareaccounting/records
 ```

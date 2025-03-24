@@ -1,24 +1,12 @@
-
 # Configuration
 
-Configuration uses the YAML file format.
+Configuration uses the YAML file format. By default each program uses its own configuration file but it is also possible to reuse the same configuration file between all programs.
 
-All modules the module name (include namespace) as base for 
-all configuration.
+To configure Software Accounting, each program and each module should have their own section. For modules, the section should be named after the module. For programs, the section should be named *sams.program*.
 
-All parts of the process uses an config file. Defaults to /etc/sams/$program_name.yaml
+Refer to the documentation of each program or module for specific configuration options.
 
-All configuration files has an *common* part that is shared with all modules.
-Currently *loglevel* and *logfile* are the only things that uses the common options.
-
-Each part has an configuration block named *sams.$program_name*, for example [*sams-collector*](sams-collector.md),
-with configurations about the specific part.
-
-All parts can use the same configuration file as all options are in different namespace.
-
-More information about the specific configuration needed for each part in the parts documentation.
-
-# Example config file
+## Example config file
 
 ```
 ---

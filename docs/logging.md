@@ -1,60 +1,29 @@
 
 # Logging
 
-Logging can be specified on three(3) different places and are picked up in this order (first match).
+Logging can be specified on three different places and are picked up in this order using the first match.
 
-* Command line
-* part specific block in config file.
-* *common* block in config file.
+1. Command line options.
+2. Program block in the configuration file.
+3. *common* block in the configuration file.
 
-# Command line
+## Logfile
 
-## --logfile=<filename>
-
-If set a logfile will be created at <filename>.
+Set this to the name of the file where logs should be written.
 
 The logfile have substitions ''%(jobid)s'' and ''%(node)s'' to create more unique names (only on sams-collector).
 
-Logfile can also be set via the configuration file. If provided on command line the command line option will be used.
+## Loglevel
 
-## --loglevel=
-
-Sets the loglevel for the logfile.
-
-Loglevel can also be set via the configuration file. If provided on command line the command line option will be used.
+Set this to the level of logging that should be written to the log file.
 
 Available options: CRITICAL, ERROR, WARNING, INFO, DEBUG 
 
 Default: ERROR
 
-# Part specifik part in configuration
+## Example
 
-## logfile
-
-If set a logfile will be created.
-
-The logfile have substitions ''%(jobid)s'' and ''%(node)s'' to create more unique names.
-
-Logfile can also be set via the command line. If provided on command line the command line option will be used.
-
-## loglevel
-
-Sets the loglevel for the logfile.
-
-Loglevel can also be set via the command line. If provided on command line the command line option will be used.
-
-Available options: CRITICAL, ERROR, WARNING, INFO, DEBUG 
-
-Default: ERROR
-
-# common part in configuration
-
-Same as the part specifik part.
-
-# Configuration Example
-
-In this example the sams-collector will use the sams-collector.NNNN.NODE.log file on loglevel ERROR
-and all other will use the sams-common.log file on loglevel INFO if they use the same config file.
+In this example the sams-collector will use the sams-collector.NNNN.NODE.log file on loglevel ERROR and all other will use the sams-common.log file on loglevel INFO if they use the same config file.
 
 ```
 ---

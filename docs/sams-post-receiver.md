@@ -1,71 +1,20 @@
 
-# SAMS POST receiver
+# POST Receiver
 
-The POST receiver is run on the main node to collect information from the SAMS collector sent via the [*sams.output.Http*](output/Http.md) plugin.
+The POST receiver is run on the main node to collect information from the collector sent via the [*sams.output.Http*](output/Http.md) module.
 
-The POST reciver does not have any kind of security. Use for example nginx to add security via for example IP, basic-auth and/or certificate.
+The POST receiver does not have any kind of security. Use for example nginx to add security via for example IP limitation, HTTP authentication, or client certificates.
 
-Example nginx configuration provided at the bottom of this page.
+## Configuration
 
-# Command line arguments
+| Key | Description |
+| - | - |
+| port | TCP port to listen to. |
+| base_path | Path to save incomming data to. |
+| jobid_hash_size | The number of files to put in any directory. |
 
-## --help
+Here is an example configuration file.
 
-Usage information
-
-## --config=<file>
-
-Path to configuration file.
-
-Default: /etc/sams/sams-post-receiver.yaml
-
-## --logfile=<filename>
-
-[See logging](logging.md)
-
-## --loglevel=
-
-[See logging](logging.md)
-
-## --daemon
-
-Send collector into background.
-
-Daemon can also be set via the configuration file. If provided on command line the command line option will be used.
-
-## --pidfile=<path>
-
-Create pid file at <path>.
-
-Pidfile can also be set via the configuration file. If provided on command line the command line option will be used.
-
-# Configuration
-
-Core options of SAMS POST receiver.
-
-## port
-
-TCP port to listen to.
-
-Default: 8080
-
-## base_path
-
-Path to save incomming data to.
-
-## jobid_hash_size
-
-The number of files to put in any directory.
-
-## logfile
-
-[See logging](logging.md)
-
-## loglevel
-
-[See logging](logging.md)
-
-# Configuration Example
 
 ```
 ---
@@ -77,31 +26,13 @@ sams.post-receiver:
   loglevel: ERROR
 ```
 
-# Example nginx configuration
+## Using with Nginx
 
-This configuration uses basic auth to secure the POST receiver
+This is an example snippet of an nginx configuration file, passing on requests to the POST receiver.
 
 ```
-#
-# SAMS POST receiver nginx configuration
-#
-
 server {
-    listen       [::]:8443;
-    listen       *:8443;
-    server_name  server.example.com;
-
-    access_log   /var/log/nginx/sams-post-receiver.access.log;
-    error_log   /var/log/nginx/sams-post-receiver.error.log info; 
-
-    ssl on;
-    ssl_certificate      /etc/certificates/server.cert.pem;
-    ssl_certificate_key  /etc/certificates/server.key.pem;
-
-    # Makes hardy FF fail to load these pages
-    ssl_protocols  TLSv1 TLSv1.1 TLSv1.2;
-
-    client_max_body_size 512m;
+    ...
 
     location /cluster {
         rewrite /cluster/(.*) /$1  break;
@@ -113,10 +44,7 @@ server {
         proxy_redirect     off;
         proxy_read_timeout 900;
     }
+
+    ...
 }
-```
-
-# systemd service example
-
-```
 ```

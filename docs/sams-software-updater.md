@@ -1,95 +1,22 @@
 
-# SAMS software updater
+# Software Updater
 
-The *sams-software-updater* is run on the collecting machine and updates the
-software information in the database.
+The *sams-software-updater* is run on the collecting machine and updates the software information in the database. The *software updater* uses two types of modules, the *updater* and the *backend*.
 
-If not options are provided to the software updater the database will be updated based
-on the updater module rules.
+The updater module converts the path used in for the software into software information.
 
-# Parts
+The backend module shows and updates software information from the backend.
 
-The *software updater* contains of two parts. The *updater* and the *backend*.
+If no options are provided to the software updater the database will be updated based on the updater module rules.
 
-## updater
+## Configuration
 
-This module converts the path used in for the software into software information.
+| Key | Description |
+| - | - |
+| backend | Name of the plugin that shows and updates software information. |
+| updater | Name of the plugin that converts paths into software. |
 
-## backend
-
-This plugin shows and updates software information from the backend.
-
-# Command line arguments
-
-## --help
-
-Usage information
-
-## --config=<file>
-
-Path to configuration file.
-
-Default: /etc/sams/sams-software-extractor.yaml
-
-## --logfile=<filename>
-
-[See logging](logging.md)
-
-## --loglevel=
-
-[See logging](logging.md)
-
-## --dry-run
-
-Do a dry run
-
-## --reset-path=<path>
-
-Reset the path of <path> to be able to update the path.
-
-<path> uses GLOB to update multiple paths.
-
-## --show-path=<path>
-
-Show software information about the <path>.
-
-<path> uses GLOB to show multiple paths.
-
-## --show-paths
-
-Show all the paths.
-
-Same as --show-path=%
-
-## --show-undetermined
-
-Show paths that are undetermined.
-
-## --test-path=<path>
-
-Testing the path against the backend without updating anything.
-
-# Configuration
-
-Core options of SAMS software updater.
-
-## backend
-
-Name of the plugin that shows and updates software information.
-
-## updater
-
-Name of the plugin that converts paths into software.
-
-## logfile
-
-[See logging](logging.md)
-
-## loglevel
-
-[See logging](logging.md)
-
-# Configuration Example
+Here is an example configuration file.
 
 ```
 ---

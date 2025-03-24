@@ -1,63 +1,20 @@
-
-# SAMS aggregator
+# Aggregator
 
 The *sams-aggregator* is run on the collecting machine and aggregates the information from
-*sams-collector* with the *sams.aggregator* plugins. The current version uses a SQL-lite database.
+*sams-collector*. The aggregator uses two types of modules, *loaders* and the *aggregators*.
 
-# Parts
+The loader modules loads data from the json files created by the collector program.
 
-The collector contains of two parts. The *loader* and the *aggregator*.
+The aggregator modules takes the data loaded from the loaders and aggregates them into one place.
 
-## loader
+## Configuration
 
-This plugin loads data from the json files created with the *sams-collector*.
+| Key | Description |
+| - | - |
+| loaders | A list of modules that loads *collector* data. |
+| aggregators | A list of modules that aggregates the data. |
 
-## aggregator
-
-This plugin takes the data loaded from the *loader* module to get all data from
-the different nodes into one place.
-
-# Command line arguments
-
-## --help
-
-Usage information
-
-## --config=<file>
-
-Path to configuration file.
-
-Default: /etc/sams/sams-aggregator.yaml
-
-## --logfile=<filename>
-
-[See logging](logging.md)
-
-## --loglevel=
-
-[See logging](logging.md)
-
-# Configuration
-
-Core options of SAMS collector.
-
-## loaders
-
-A list of plugins that loads *collector* data.
-
-## aggregators
-
-A list of plugins that aggregates the data.
-
-## logfile
-
-[See logging](logging.md)
-
-## loglevel
-
-[See logging](logging.md)
-
-# Configuration Example
+Here is an example configuration file.
 
 ```
 sams.aggregator:  
