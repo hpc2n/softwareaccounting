@@ -155,8 +155,8 @@ class Sampler(sams.base.Sampler):
         super(Sampler, self).__init__(id, outQueue, config)
         self.processes = {}
         self.create_time = time.time()
-        self.last_sample_time = None
-        self.last_total = None
+        self.last_sample_time = self.create_time
+        self.last_total = {"user": 0, "system": 0}
         self.software_mapper = None
         self.metrics_to_average = self.config.get(
             [self.id, "metrics_to_average"],
@@ -207,30 +207,23 @@ class Sampler(sams.base.Sampler):
 
         # Send information about current usage
         aggr, total = self._aggregate()
-
-        if self.last_sample_time is None:
-            self.last_total = total
-            self.last_sample_time = time.time()
-            return
-
         time_diff = time.time() - self.last_sample_time
-        if time_diff > self.sampler_interval / 2:
-            entry = {
-                "current": {
-                    "software": self.map_software(aggr),
-                    "total_user": total["user"],
-                    "total_system": total["system"],
-                    "user": (total["user"] - self.last_total["user"])
-                    / time_diff,
-                    "system": (total["system"] - self.last_total["system"])
-                    / time_diff,
-                    }
+        entry = {
+            "current": {
+                "software": self.map_software(aggr),
+                "total_user": total["user"],
+                "total_system": total["system"],
+                "user": (total["user"] - self.last_total["user"])
+                / time_diff,
+                "system": (total["system"] - self.last_total["system"])
+                / time_diff,
                 }
-            self.compute_sample_averages(entry["current"])
-            self._most_recent_sample = [self._storage_wrapping(entry)]
-            self.store(entry)
-            self.last_total = total
-            self.last_sample_time = time.time()
+            }
+        self.compute_sample_averages(entry["current"])
+        self._most_recent_sample = [self._storage_wrapping(entry)]
+        self.store(entry)
+        self.last_total = total
+        self.last_sample_time = time.time()
 
     def compute_sample_averages(self, data):
         """ Computes averages of selected measurements by
