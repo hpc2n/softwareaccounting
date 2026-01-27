@@ -1,5 +1,4 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
+#!/usr/bin/python3
 
 """
 Script to register Accounting records to SGAS LUTS service.
@@ -15,14 +14,14 @@ Copyright: NorduNET / Nordic Data Grid Facility (2009-2011)
 Copyright: HPC2N, Umeå university
 """
 
-import configparser as ConfigParser
+import configparser
 import logging
 import os
 import sys
 import time
-import urllib.parse as urlparse
 from argparse import ArgumentParser
-from xml.etree import cElementTree as ET
+from urllib.parse import urlparse
+from xml.etree import ElementTree as ET
 
 import requests
 
@@ -54,24 +53,25 @@ CONFIG_STATE_DIRECTORY = "state_directory"
 CONFIG_ARCHIVE_DIRECTORY = "archive_directory"
 
 # system defaults
-DEFAULT_CONFIG_FILE = "/etc/bart/bart.conf"
+DEFAULT_CONFIG_FILE = "/etc/sams/sgas-sa-registrant.conf"
 
 # configuration defaults
-DEFAULT_LOGFILE = "/var/log/bart-registration.log"
+DEFAULT_LOGFILE = "/var/log/sgas-sa-registration.log"
 DEFAULT_HOSTKEY = "/etc/grid-security/hostkey.pem"
 DEFAULT_HOSTCERT = "/etc/grid-security/hostcert.pem"
-DEFAULT_CERTDIR = "/etc/grid-security/certificates"
-DEFAULT_LOG_DIR = "/var/spool/bart/usagerecords/"
-DEFAULT_BATCH_SIZE = 100
-DEFAULT_TIMEOUT = "10,"
+DEFAULT_CERTDIR = None
+DEFAULT_LOG_DIR = "/var/spool/softwareaccounting/"
+DEFAULT_BATCH_SIZE = 1
+DEFAULT_TIMEOUT = "10,10"
 DEFAULT_UR_LIFETIME = 30  # days
 DEFAULT_STDERR_LEVEL = logging.ERROR
 DEFAULT_LOGLEVEL = logging.INFO
-DEFAULT_NAMESPACE = "http://schema.ogf.org/urf/2003/09/urf"
-DEFAULT_RECORDS_TAG = "UsageRecords"
-DEFAULT_REGISTRATION_TAG = "Registration"
+DEFAULT_NAMESPACE = "http://sams.snic.se/namespaces/2019/01/softwareaccountingrecords"
+DEFAULT_RECORDS_TAG = "SoftwareAccountingRecord"
+DEFAULT_REGISTRATION_TAG = "SoftwareAccountingRegistration"
+
 # subdirectories in the spool directory
-DEFAULT_RECORDS_DIRECTORY = "urs"
+DEFAULT_RECORDS_DIRECTORY = "records"
 DEFAULT_STATE_DIRECTORY = "state"
 DEFAULT_ARCHIVE_DIRECTORY = "archive"
 
@@ -112,7 +112,6 @@ class StateFile:
         with open(self._filepath(), "w", encoding="utf-8") as f:
             for url in self.urls:
                 f.write(url + "\n")
-            f.close()
 
 
 class ContextFactory:
@@ -150,12 +149,6 @@ def parseLogVO(value):
         vo_name, url = pair.strip().split(" ", 2)
         vo_regs[vo_name] = url
     return vo_regs
-
-
-def parseURLifeTime(value):
-    ur_lifetime_days = int(value)
-    ur_lifetime_seconds = ur_lifetime_days * (24 * 60 * 60)
-    return ur_lifetime_seconds
 
 
 def getVONamesFromUsageRecord(ure, config):
@@ -219,7 +212,7 @@ def createRegistrationPointsMapping(logdir, logpoints_all, logpoints_vo, config)
         try:
             ure = ET.parse(filepath)
         except Exception as e:
-            logging.info("Error parsing file %s, %s continuing", filepath, str(e))
+            logging.info(f"Error parsing file {filepath}, ({str(e)}) continuing")
             continue
 
         vos = getVONamesFromUsageRecord(ure, config)
@@ -257,7 +250,6 @@ def httpRequest(url, method="GET", payload=None, ctxFactory=None, timeout=None):
     """
     params = {
         "timeout": timeout,
-        "verify": False,
     }
     if ctxFactory:
         params["cert"] = (ctxFactory.cert_path, ctxFactory.key_path)
@@ -284,7 +276,7 @@ def createEPRegistrationMapping(endpoints, config):
 
         if location.startswith("/"):
             # location is a path, and must be merged with base endpoint to form a suitable url
-            url = urlparse.urlparse(endpoint)
+            url = urlparse(endpoint)
             reg_url = url[0] + "://" + url[1] + location
             return reg_url
 
@@ -309,17 +301,14 @@ def createEPRegistrationMapping(endpoints, config):
     for ep in endpoints:
         try:
             content = httpRequest(ep, ctxFactory=config.context_factory, timeout=config.timeout)
-            logging.debug(content)
             registration_url = gotReply(content, ep)
-            logging.debug(registration_url)
             if registration_url is None:
-                logging.error("Endpoint %s does not appear to have a registration service.", ep)
+                logging.error(f"Endpoint {ep} does not appear to have a registration service.")
             else:
                 regmap[ep] = registration_url
         except Exception as e:
             logging.error(e)
 
-    logging.debug(regmap)
     return regmap
 
 
@@ -340,21 +329,14 @@ def registerBatch(ep, url, logdir, filenames, config):
     """
 
     ur_data = joinRecordFiles(logdir, filenames, config.records, config.records_directory)
-    logging.debug(ur_data)
     try:
-        httpRequest(
-            url,
-            method="POST",
-            payload=ur_data,
-            ctxFactory=config.context_factory,
-            timeout=config.timeout,
-        )
-        logging.info("%i records registered to %s", len(filenames), ep)
+        httpRequest(url, method="POST", payload=ur_data, ctxFactory=config.context_factory, timeout=config.timeout)
+        logging.info(f"{len(filenames)} records registered to {ep}")
         for fn in filenames:
             StateFile(logdir, fn, config.state_directory).add(ep).write()
 
     except Exception as e:
-        logging.error("Error during batch insertion: %s", str(e))
+        logging.error(f"Error during batch insertion: {str(e)}")
         logging.debug(e)
         raise e
 
@@ -369,12 +351,9 @@ def registerUsageRecords(mapping, logdir, config):
         logging.info("No registrations to perform")
         return
 
-    logging.info("Registrations to perform: %i files", len(urmap))
-
+    logging.info(f"Registrations to perform: {len(urmap)} files")
     regmap = createEPRegistrationMapping(mapping.keys(), config)
-
     performURRegistration(regmap, urmap, logdir, config)
-
     archiveUsageRecords(logdir, urmap, config)
 
 
@@ -385,7 +364,7 @@ def performURRegistration(regmap, urmap, logdir, config):
 
     batch_sets = {}
     for ep, urreg in regmap.items():
-        logging.info("%s -> %s", ep, urreg)
+        logging.info(f"{ep} -> {urreg}")
         batch_sets[ep] = []
 
     logging.info("Starting registration")
@@ -405,11 +384,7 @@ def performURRegistration(regmap, urmap, logdir, config):
                 pass  # deferring registration as service is not available
 
     for ep, ur_registered in skipped_registrations.items():
-        logging.info(
-            "Skipping %i registrations to %s, records already registered",
-            ur_registered,
-            ep,
-        )
+        logging.info(f"Skipping {ur_registered} registrations to {ep}, records already registered")
 
     # build up registraion batches (list of (ep, filenames) tuples)
     registrations = []
@@ -425,7 +400,7 @@ def performURRegistration(regmap, urmap, logdir, config):
         try:
             registerBatch(service_endpoint, regmap[service_endpoint], logdir, filenames, config)
         except Exception as e:
-            logging.error("Error registration records to %s", service_endpoint)
+            logging.error(f"Error registration records to {service_endpoint}")
             logging.error("Skipping all registrations to this endpoint for now")
             logging.debug(e)
             error_endpoints[service_endpoint] = True
@@ -473,7 +448,7 @@ def deleteOldUsageRecords(log_dir, ttl_seconds, archive_directory):
             os.unlink(filepath)
             i += 1
 
-    logging.info("Records deleted: %i", i)
+    logging.info(f"Records deleted: {i}")
 
 
 def getOptions():
@@ -525,7 +500,6 @@ def setupLogging(options, cfg):
         )
 
 
-# pylint: disable=too-many-instance-attributes
 class Config:
     """
     Collection of config parameters.
@@ -559,13 +533,13 @@ class Config:
         self.vo_name = ET.QName(f"{{{namespace}}}{vo_name}")
 
 
-class ConfigException(Exception):
+class ConfigurationError(Exception):
     pass
 
 
-def doMain():
+def main():
     """
-    main, parse command line, setup logging, start the actual logic, etc.
+    Parse command line, setup logging, start the actual logic, etc.
     """
 
     # start by parsing the command line to see if we have a specific config file
@@ -573,10 +547,10 @@ def doMain():
 
     cfg_file = options.config
     if (not os.path.exists(cfg_file)) or (not os.path.isfile(cfg_file)):
-        raise ConfigException(f"The config file '{cfg_file}' does not exist or is not a file")
+        raise ConfigurationError(f"The config file '{cfg_file}' does not exist or is not a file")
 
     # read config
-    cfg = ConfigParser.ConfigParser()
+    cfg = configparser.ConfigParser()
     cfg.read(cfg_file)
 
     # Setup Logging
@@ -612,9 +586,7 @@ def doMain():
     namespace = getConfigOption(cfg, CONFIG_SECTION_LOGGER, CONFIG_NAMESPACE, DEFAULT_NAMESPACE)
 
     records_directory = getConfigOption(cfg, CONFIG_SECTION_LOGGER, CONFIG_RECORDS_DIRECTORY, DEFAULT_RECORDS_DIRECTORY)
-
     state_directory = getConfigOption(cfg, CONFIG_SECTION_LOGGER, CONFIG_STATE_DIRECTORY, DEFAULT_STATE_DIRECTORY)
-
     archive_directory = getConfigOption(cfg, CONFIG_SECTION_LOGGER, CONFIG_ARCHIVE_DIRECTORY, DEFAULT_ARCHIVE_DIRECTORY)
 
     config = Config(
@@ -633,31 +605,28 @@ def doMain():
     )
 
     logging.info("Configuration:")
-    logging.info(" Log dir: %s", log_dir)
-    logging.info(" Log all: %s", log_all)
-    logging.debug(" Host key  : %s", host_key)
-    logging.debug(" Host cert : %s", host_cert)
-    logging.debug(" Cert dir  : %s", cert_dir)
+    logging.info(f" Log dir: {log_dir}")
+    logging.info(f" Log all: {log_all}")
+    logging.debug(f" Host key  : {host_key}")
+    logging.debug(f" Host cert : {host_cert}")
+    logging.debug(f" Cert dir  : {cert_dir}")
 
     if not log_all:
         logging.error("No log points given. Cowardly refusing to do anything")
-        return
+        sys.exit(1)
 
     if not os.path.exists(log_dir):
-        logging.error("Log directory '%s' does not exist, bailing out.", log_dir)
-        return
+        logging.error(f"Log directory {log_dir} does not exist, bailing out.")
+        sys.exit(1)
 
     mapping = createRegistrationPointsMapping(log_dir, log_all, log_vo, config)
-
     registerUsageRecords(mapping, log_dir, config)
-
     deleteOldUsageRecords(log_dir, record_lifetime, config.archive_directory)
 
 
 if __name__ == "__main__":
     try:
-        doMain()
+        main()
     except Exception as error:
-        logging.error(str(error))
-        logging.debug(error)
+        logging.exception(error)
         sys.exit(1)
