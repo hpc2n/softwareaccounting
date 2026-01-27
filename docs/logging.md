@@ -1,4 +1,3 @@
-
 # Logging
 
 Logging can be specified on three different places and are picked up in this order using the first match.
@@ -11,7 +10,7 @@ Logging can be specified on three different places and are picked up in this ord
 
 Set this to the name of the file where logs should be written.
 
-The logfile have substitions ''%(jobid)s'' and ''%(node)s'' to create more unique names (only on sams-collector).
+The logfile have substitutions ''%(jobid)s'' and ''%(node)s'' to create more unique names (only on sams-collector).
 
 ## Loglevel
 

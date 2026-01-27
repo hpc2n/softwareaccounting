@@ -36,9 +36,15 @@ nav:
       - Slurm: pidfinder/Slurm.md
     - sams.sampler:
       - Core: sampler/Core.md
+      - FSStats: sampler/FSStats.md
+      - IOStats: sampler/IOStats.md
+      - NvidiaSMI: sampler/NvidiaSMI.md
       - Pressure: sampler/Pressure.md
+      - SlurmCGroup: sampler/SlurmCGroup.md
+      - SlurmCGroup2: sampler/SlurmCGroup2.md
       - SlurmInfo: sampler/SlurmInfo.md
       - Software: sampler/Software.md
+      - ZFSStats: sampler/ZFSStats.md
     - sams.software:
       - Regexp: software/Regexp.md
   - Versions: sams-software.md

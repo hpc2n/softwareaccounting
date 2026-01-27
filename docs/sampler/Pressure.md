@@ -1,25 +1,24 @@
-
 # sams.sampler.Pressure
 
 Fetches {cpu,io,memory}.pressure metrics from CGroup (Experimental)
 
 Reads path to files from /proc/*pid*/cgroup
 
-# Config options
+## Configuration
 
-## sampler_interval
+### sampler_interval
 
 How long to wait (in seconds) for next time the sampling will be executed.
 
 Default value: 60
 
-## cgroup_base
+### cgroup_base
 
 Path to CGroup base
 
 Default: /sys/fs/cgroup/unified
 
-# Output
+## Output
 
 Each metric contains a dict of:
 
@@ -32,19 +31,19 @@ Each metric contains a dict of:
 }
 ```
 
-## cpu
+### cpu
 
 Account name used in job.
 
-## memory
+### memory
 
 Total number of CPUS used in the job.
 
-## io
+### io
 
 Total number of Nodes used in the job.
 
-# Example configuration
+## Example configuration
 
 ```
 sams.sampler.Pressure:

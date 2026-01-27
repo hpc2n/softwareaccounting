@@ -1,42 +1,41 @@
-
 # sams.output.Http
 
 Posts output using web service.
 
 Can use both basic auth and client cert for auth.
 
-# Config options
+## Configuration
 
-## uri
+### uri
 
 uri to write to.
 Available data for replace is: jobid, node & jobid_hash
 
-## jobid_hash_size
+### jobid_hash_size
 
 "Hash" the output based on --jobid / jobid_hash_size
 
-## key_file
+### key_file
 
 If set using the following key for client cert auth
 
-## cert_file
+### cert_file
 
 If set using the following cert for client cert auth
 
-## username
+### username
 
-If set using the folloing usernameas basic auth
+If set using the following username for basic auth
 
-## password
+### password
 
-If set using the folloing password as basic auth
+If set using the following password for basic auth
 
-## exclude
+### exclude
 
 List of sampler modules to skip.
 
-# Example configuration
+## Example configuration
 
 ```
 sams.output.Http:

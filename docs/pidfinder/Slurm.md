@@ -1,4 +1,3 @@
-
 # sams.pidfinder.Slurm
 
 Pid finder using the slurm cgroup information in /proc
@@ -6,15 +5,15 @@ Pid finder using the slurm cgroup information in /proc
 If uncontained ssh into nodes are used the processes are not
 accounted for.
 
-# Config options
+## Configuration
 
-## grace_period
+### grace_period
 
 How long to wait (in seconds) after process was removed.
 
 Default value: 600
 
-# Example configuration
+## Example configuration
 
 ```
 sams.pidfinder.Slurm:

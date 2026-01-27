@@ -2,7 +2,7 @@
 
 ## I have updated the config but all my old jobs are still wrong!
 
-Only new paths are evaulated. Old paths needs to be reseted using the --reset-path argument to sams-software-updater.
+Only new paths are evaluated. Old paths needs to be reset using the --reset-path argument to sams-software-updater.
 
 ## How to I find the paths for a software?
 
@@ -18,7 +18,7 @@ Using the sams-software-updater program, you can reset all known paths with the 
 
 Next time sams-software-updater is run all paths will be evaluated again and the sams-software-extractor will export all jobs again.
 
-## How do I handle softwares run from user writable dir like /tmp?
+## How do I handle softwares run from user writable directory like /tmp?
 
 Using %(user)s and/or %(project)s in local version will work well.
 

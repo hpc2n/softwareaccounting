@@ -1,34 +1,34 @@
 # sams.aggregator.SoftwareAccounting
 
-Stores aggregated informtion into the Software Accounting database.
+Stores aggregated information into the Software Accounting database.
 
 Used by the [*sams-aggregator*](../sams-aggregator.md)
 
 Related to [*sams.backend.SoftwareAccounting*](../backend/SoftwareAccounting.md)
 
-# Config options
+## Configuration
 
-## jobid_hash_size
+### jobid_hash_size
 
 Number of jobs in each database
 
 Default: All in one file.
 
-## db_path
+### db_path
 
 Path to where the sqlite database files are stored.
 
-## cluster
+### cluster
 
 cluster (used for calculating SGAS recordid)
 
-## file_pattern
+### file_pattern
 
 Name of the database based on the jobid_hash.
 
 Default: sa-%(jobid_hash)d.db
 
-## sqlite_temp_store
+### sqlite_temp_store
 
 sqlite temp_store pragma (DEFAULT, FILE or MEMORY)
 DEFAULT is normally FILE but is dependent on compile time
@@ -36,7 +36,7 @@ options of the sqlite library.
 
 Default: DEFAULT
 
-# Example configuration
+## Example configuration
 
 ```
 sams.aggregator.SoftwareAccounting:

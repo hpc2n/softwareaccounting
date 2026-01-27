@@ -1,30 +1,30 @@
 # sams.loader.File
 
-Loads files from the filsystem.
+Loads files from the file system.
 
 Used by the [*sams-aggregator*](../sams-aggregator.md)
 
-# Config options
+## Configuration
 
-## in_path
+### in_path
 
 Path where the input files are.
 
-## archive_path
+### archive_path
 
 Files that are processed correctly ends up here.
 
-## error_path
+### error_path
 
 Files that are broken in some way ends up here.
 
-## file_pattern
+### file_pattern
 
 Read files that matches the file pattern.
 
 Default: ".*"
 
-# Example configuration
+## Example configuration
 
 ```
 sams.loader.File:

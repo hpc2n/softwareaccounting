@@ -1,4 +1,3 @@
-
 # Software Updater
 
 The *sams-software-updater* is run on the collecting machine and updates the software information in the database. The *software updater* uses two types of modules, the *updater* and the *backend*.

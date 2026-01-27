@@ -18,11 +18,11 @@ One or more output module can be used at any time.
 
 The two basic output modules are [*sams.output.File*](output/File.md) and [*sams.output.Http*](output/Http.md).
 
-The first one writes files to a filesystem. Either an shared filesytem or to a local filesystem that needs to be transported to a master node after the completed job for further processing with for example rsync or simular.
+The first one writes files to a file system. Either an shared file system or to a local file system that needs to be transported to a master node after the completed job for further processing with for example rsync or similar.
 
 The [*sams.output.Http*](output/Http.md) module sends the same data using the http:// protocol to a receiving web service.
 
-The [*sams-collector*](sams-collector.md) can also send data to other serviecs like graphite or other graphing services to provide real time usage of different metrics.
+The [*sams-collector*](sams-collector.md) can also send data to other services like graphite or other graphing services to provide real time usage of different metrics.
 
 ## Post Receiver
 
@@ -31,7 +31,7 @@ from the [*sams.output.Http*](output/Http.md) module and collected to disk.
 
 ## Aggregator
 
-The [*sams-aggregator*](sams-aggregator.md) is used to parse the output from the [*sams-collector*](sams-collector.md) using a set of  aggreagors.
+The [*sams-aggregator*](sams-aggregator.md) is used to parse the output from the [*sams-collector*](sams-collector.md) using a set of  aggregators.
 
 To pick up the files from the [*sams-collector*](sams-collector.md) or [*sams-post-receiver*](sams-post-receiver.md) a *loader* is used. Currently only [*sams.loader.File*](loader/File.md) is available.
 

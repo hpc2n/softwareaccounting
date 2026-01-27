@@ -1,4 +1,3 @@
-
 # POST Receiver
 
 The POST receiver is run on the main node to collect information from the collector sent via the [*sams.output.Http*](output/Http.md) module.
@@ -10,7 +9,7 @@ The POST receiver does not have any kind of security. Use for example nginx to a
 | Key | Description |
 | - | - |
 | port | TCP port to listen to. |
-| base_path | Path to save incomming data to. |
+| base_path | Path to save incoming data to. |
 | jobid_hash_size | The number of files to put in any directory. |
 
 Here is an example configuration file.

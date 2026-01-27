@@ -1,4 +1,3 @@
-
 # Software Extractor
 
 The *sams-software-extractor* is run on the collecting machine and extracts the software information into XML files used to send to SAMS. The *software extractor* uses two types of modules, the *backend* and the *xmlwriter*.

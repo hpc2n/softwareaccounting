@@ -1,30 +1,29 @@
-
 # sams.output.File
 
 Write outputs into the file system.
 
-# Config options
+## Configuration
 
-## base_path
+### base_path
 
 Path where the output files are written.
 
-## file_pattern
+### file_pattern
 
 Write files in file pattern.
 Available data for replace is: jobid & node
 
 Default: "%(jobid)s.%(node)s.json"
 
-## jobid_hash_size
+### jobid_hash_size
 
 "Hash" the output based on --jobid / jobid_hash_size
 
-## exclude
+### exclude
 
 List of sampler modules to skip.
 
-# Example configuration
+## Example configuration
 
 ```
 sams.output.File:

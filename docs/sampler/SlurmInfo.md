@@ -1,53 +1,52 @@
-
 # sams.sampler.SlurmInfo
 
 Fetches Metrics from Slurm ''scontrol show job'' command
 
-# Config options
+## Configuration
 
-## sampler_interval
+### sampler_interval
 
 How long to wait (in seconds) for next time the sampling will be executed.
 
 Default value: 60
 
-## scontrol
+### scontrol
 
-path to scontrol command
+Path to scontrol command
 
 Default: /usr/bin/scontrol
 
-## environtment
+### environment
 
-Extra environtment for command.
+Extra environment for command.
 
 An hash of key-value with envname-value.
 
 Can for example be used to set the TZ option to get output in UTC.
 
-# Output
+## Output
 
-## account
+### account
 
 Account name used in job.
 
-## cpus
+### cpus
 
 Total number of CPUS used in the job.
 
-## nodes
+### nodes
 
 Total number of Nodes used in the job.
 
-## username
+### username
 
 Username the user running the job.
 
-## uid
+### uid
 
 UserID of username
 
-# Example configuration
+## Example configuration
 
 ```
 sams.sampler.SlurmInfo:

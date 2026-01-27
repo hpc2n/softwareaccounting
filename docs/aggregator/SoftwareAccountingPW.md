@@ -1,6 +1,6 @@
 # sams.aggregator.SoftwareAccountingPW
 
-Stores aggregated informtion into the Software Accounting database using PeeWee.
+Stores aggregated information into the Software Accounting database using PeeWee.
 
 Used by the [*sams-aggregator*](../sams-aggregator.md)
 
@@ -9,15 +9,15 @@ Related to [*sams.backend.SoftwareAccountingPW*](../backend/SoftwareAccountingPW
 NOTE! sams.aggregator.SoftwareAccountingPW is not database compatible
 with sams.aggregator.SoftwareAccounting
 
-# Config options
+## Configuration
 
-## clustername
+### clustername
 
 Used for calculating SGAS recordid
 
 Default: ""
 
-## database
+### database
 
 Select database type
 
@@ -25,7 +25,7 @@ Valid options are: sqlite, postgresql or mysql
 
 Default: sqlite
 
-## database\_options
+### database\_options
 
 Options to pass to PeeWee database classes.
 
@@ -34,14 +34,14 @@ See:
 [*postgresql*](https://docs.peewee-orm.com/en/latest/peewee/database.html#using-postgresql)
 [*mysql*](https://docs.peewee-orm.com/en/latest/peewee/database.html#using-mysql)
 
-## create\_tables
+### create\_tables
 
 If set to "yes" tables will be created in database.
 
 Default: no
 
 
-# Example configuration
+## Example configuration
 
 ```
 sams.backend.SoftwareAccountingPW:

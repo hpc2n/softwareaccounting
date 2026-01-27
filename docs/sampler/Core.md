@@ -1,11 +1,10 @@
-
 # sams.sampler.Core
 
 Saves core information about a job from the collector command line options.
 
-# Config options
+## Configuration
 
-## sampler_interval
+### sampler_interval
 
 How long to wait (in seconds) for next time the sampling will be executed.
 
@@ -13,17 +12,17 @@ Default value: 60
 
 Note: This is an configuration option that is used on every module and the value is not used in this module.
 
-# Output
+## Output
 
-## jobid
+### jobid
 
 The --jobid command line option
 
-## node
+### node
 
 Name of the current node. Either ''hostname'' or --node.
 
-# Example configuration
+## Example configuration
 
 ```
 sams.sampler.Core:
