@@ -13,6 +13,13 @@ dependencies = [
 ]
 dynamic = ["version"]
 
+[dependency-groups]
+development = [
+    "build",
+    "pre-commit",
+    "ruff",
+]
+
 [project.urls]
 Documentation = "https://hpc2n.github.io/softwareaccounting/"
 Source = "https://github.com/hpc2n/softwareaccounting"
