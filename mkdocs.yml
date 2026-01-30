@@ -26,12 +26,15 @@ nav:
     - sams.backend:
       - SoftwareAccounting: backend/SoftwareAccounting.md
       - SoftwareAccountingPW: backend/SoftwareAccountingPW.md
+    - sams.listener:
+      - Prometheus: listener/Prometheus.md
     - sams.loader:
       - File: loader/File.md
       - FileSlurmInfoFallback: loader/FileSlurmInfoFallback.md
     - sams.output:
       - File: output/File.md
       - Http: output/Http.md
+      - Prometheus: output/Prometheus.md
     - sams.pidfinder:
       - Slurm: pidfinder/Slurm.md
     - sams.sampler:

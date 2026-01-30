@@ -7,7 +7,7 @@ In most cases it should be possible to install Software Accounting as long as Py
 Using a Python virtual environment makes it simple to install and update Software Accounting, and its dependencies. Create the Python virtual environment where you want it installed, and install Software Accounting using pip. Pip will install Software Accounting from the Python Packaging Index (PyPI).
 
 ```
-python -m venv /opt/softwareaccounting
+python -m venv --upgrade-deps /opt/softwareaccounting
 /opt/softwareaccounting/bin/pip install softwareaccounting
 ```
 
