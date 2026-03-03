@@ -67,7 +67,7 @@ DEFAULT_UR_LIFETIME = 30  # days
 DEFAULT_STDERR_LEVEL = logging.ERROR
 DEFAULT_LOGLEVEL = logging.INFO
 DEFAULT_NAMESPACE = "http://sams.snic.se/namespaces/2019/01/softwareaccountingrecords"
-DEFAULT_RECORDS_TAG = "SoftwareAccountingRecord"
+DEFAULT_RECORDS_TAG = "SoftwareAccountingRecords"
 DEFAULT_REGISTRATION_TAG = "SoftwareAccountingRegistration"
 
 # subdirectories in the spool directory
